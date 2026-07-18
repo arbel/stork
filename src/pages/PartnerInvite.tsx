@@ -1,0 +1,262 @@
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Copy, Share, RefreshCw, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSwipe } from "@/contexts/SwipeContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+
+export const PartnerInvite = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { refreshPartnership } = useSwipe();
+  const [inviteCode, setInviteCode] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const loadOrCreatePartnership = async () => {
+      // Check if user already has a partnership
+      const { data: existing } = await supabase
+        .from('partnerships')
+        .select('*')
+        .eq('user1_id', user.id)
+        .maybeSingle();
+
+      if (existing) {
+        setInviteCode(existing.invite_code);
+      } else {
+        // Create new partnership
+        const { data: newPartnership, error } = await supabase
+          .from('partnerships')
+          .insert({
+            user1_id: user.id,
+            status: 'pending'
+          })
+          .select()
+          .single();
+
+        if (error) {
+          toast({
+            title: "Error creating invitation",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          setInviteCode(newPartnership.invite_code);
+        }
+      }
+    };
+
+    loadOrCreatePartnership();
+  }, [user]);
+
+  const inviteUrl = `${window.location.origin}/join/${inviteCode}`;
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      toast({
+        title: "Copied to clipboard!",
+        description: "Share this link with your partner.",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Please copy the link manually.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const shareLink = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Join me in finding baby names!',
+        text: 'Let\'s find the perfect baby name together!',
+        url: inviteUrl,
+      });
+    } else {
+      copyToClipboard();
+    }
+  };
+
+  const regenerateInviteCode = async () => {
+    if (!user || !inviteCode) return;
+    
+    setRegenerating(true);
+    try {
+      // Generate new invite code by updating the partnership
+      const { data: updatedPartnership, error } = await supabase
+        .from('partnerships')
+        .update({
+          invite_code: crypto.randomUUID().replace(/-/g, '').substring(0, 16)
+        })
+        .eq('user1_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setInviteCode(updatedPartnership.invite_code);
+      toast({
+        title: "New invite link generated!",
+        description: "Your old invite link is no longer valid. Share the new one with your partner.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to regenerate invite",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  const cancelInvite = async () => {
+    if (!user) return;
+    
+    setCanceling(true);
+    try {
+      // Delete the pending partnership
+      const { error } = await supabase
+        .from('partnerships')
+        .delete()
+        .eq('user1_id', user.id)
+        .eq('status', 'pending');
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Invite Cancelled",
+        description: "Your partner invitation has been cancelled.",
+      });
+
+      // Refresh partnership state in context immediately
+      await refreshPartnership();
+      
+      // Small delay to ensure state propagates
+      setTimeout(() => {
+        navigate("/");
+      }, 100);
+    } catch (error: any) {
+      toast({
+        title: "Failed to cancel invite",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setCanceling(false);
+    }
+  };
+
+  return (
+    <div 
+      className="min-h-screen"
+      style={{
+        backgroundImage: 'url(/bg-base.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Header */}
+      <div className="sticky top-0 z-50 p-4">
+        <div className="flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/")}
+            className="p-2 text-white hover:bg-white/10"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          
+          <h1 className="text-lg font-bold text-white truncate flex-1 text-center mx-4">
+            Invite Partner
+          </h1>
+          
+          <div className="w-10"></div>
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto p-4">
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center">Invite Your Partner</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="text-center text-muted-foreground">
+              <p>Share this link with your partner so you can find baby names together!</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Invitation Link</label>
+              <div className="flex space-x-2">
+                <Input
+                  value={inviteUrl}
+                  readOnly
+                  className="flex-1"
+                />
+                <Button variant="outline" size="icon" onClick={copyToClipboard}>
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex space-x-2">
+                <Button onClick={shareLink} className="flex-1">
+                  <Share className="w-4 h-4 mr-2" />
+                  Share Invitation
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={regenerateInviteCode} 
+                  disabled={regenerating || canceling}
+                  className="px-3"
+                >
+                  <RefreshCw className={`w-4 h-4 ${regenerating ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
+              
+              <Button variant="outline" onClick={() => navigate("/")} className="w-full">
+                Done
+              </Button>
+              
+              <div className="text-center">
+                <button 
+                  onClick={cancelInvite}
+                  disabled={canceling}
+                  className="text-sm text-destructive hover:text-destructive/80 underline-offset-4 hover:underline disabled:opacity-50"
+                >
+                  {canceling ? 'Cancelling...' : 'Cancel Invite'}
+                </button>
+              </div>
+            </div>
+
+            <div className="text-xs text-muted-foreground text-center space-y-2">
+              <p>Your partner will be able to join using this link. You'll be notified when they join!</p>
+              <p className="text-warning">If your invite link has expired, click "Generate New Link" to create a fresh one.</p>
+              <p className="text-muted-foreground">Click "Cancel Invite" if you no longer want to invite a partner.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};

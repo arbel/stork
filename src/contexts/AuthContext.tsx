@@ -1,0 +1,256 @@
+
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { User, Session } from '@supabase/supabase-js'
+import { supabase } from '@/integrations/supabase/client'
+import { toast } from '@/hooks/use-toast'
+
+interface Profile {
+  id: string
+  user_id: string
+  email: string
+  first_name?: string
+  partner_name?: string
+  preferences: any
+  created_at: string
+  updated_at: string
+}
+
+interface AuthContextType {
+  user: User | null
+  session: Session | null
+  profile: Profile | null
+  loading: boolean
+  profileLoading: boolean
+  signInWithEmail: (email: string) => Promise<void>
+  verifyOtp: (email: string, token: string) => Promise<void>
+  signOut: () => Promise<void>
+  updateProfile: (updates: Partial<Profile>) => Promise<void>
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [profileLoading, setProfileLoading] = useState(false)
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        setProfileLoading(true)
+        await loadProfile(session.user.id)
+        setProfileLoading(false)
+      }
+      setLoading(false)
+    })
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔐 Auth state change:', event, session?.user?.email);
+      console.log('🔐 Previous user:', user?.email);
+      console.log('🔐 New session user:', session?.user?.email);
+      console.log('🔐 Admin authenticated:', localStorage.getItem("admin_authenticated"));
+      
+      setSession(session)
+      setUser(session?.user ?? null)
+      
+      if (session?.user) {
+        // Defer profile loading to prevent deadlocks
+        setTimeout(() => {
+          loadProfile(session.user.id)
+        }, 0)
+      } else {
+        setProfile(null)
+      }
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const loadProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Error loading profile:', error);
+      }
+
+      const profileRow = Array.isArray(data) ? data[0] : data;
+      setProfile(profileRow || null);
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  }
+
+  const signInWithEmail = async (email: string) => {
+    try {
+      console.log('Attempting OTP login for:', email);
+      
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+        },
+      })
+
+      console.log('OTP request result:', { error });
+
+      if (error) throw error
+
+      toast({
+        title: "Code sent! 📧",
+        description: "Check your email for the 6-digit verification code.",
+        duration: 5000,
+      })
+    } catch (error: any) {
+      console.error('Error sending OTP:', error)
+      toast({
+        title: "Error sending code",
+        description: error.message,
+        variant: "destructive",
+      })
+      throw error
+    }
+  }
+
+  const verifyOtp = async (email: string, token: string) => {
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: 'email',
+      })
+
+      if (error) throw error
+
+      toast({
+        title: "Welcome! 🎉",
+        description: "You're successfully signed in!",
+        duration: 3000,
+      })
+    } catch (error: any) {
+      console.error('Error verifying OTP:', error)
+      toast({
+        title: "Invalid code",
+        description: error.message === 'Token has expired or is invalid' 
+          ? "The code has expired or is incorrect. Please try again."
+          : error.message,
+        variant: "destructive",
+      })
+      throw error
+    }
+  }
+
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      
+      toast({
+        title: "Signed out successfully",
+        description: "See you next time!",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      })
+    }
+  }
+
+  const updateProfile = async (updates: Partial<Profile>) => {
+    if (!user) return
+
+    try {
+      console.log('Updating profile with:', updates);
+      
+      // Try to update first, then insert if it doesn't exist
+      const { data: existingProfileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      const existingProfile = Array.isArray(existingProfileData) ? existingProfileData[0] : existingProfileData;
+
+      let result;
+      if (existingProfile) {
+        // Update existing profile
+        result = await supabase
+          .from('profiles')
+          .update({
+            email: user.email!,
+            ...updates,
+          })
+          .eq('user_id', user.id);
+      } else {
+        // Insert new profile
+        result = await supabase
+          .from('profiles')
+          .insert({
+            user_id: user.id,
+            email: user.email!,
+            ...updates,
+          });
+      }
+
+      if (result.error) throw result.error;
+
+      await loadProfile(user.id);
+      
+      toast({
+        title: "Profile updated!",
+        description: "Your preferences have been saved.",
+      });
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error updating profile",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error; // Re-throw so onboarding can handle it
+    }
+  }
+
+  const value = {
+    user,
+    session,
+    profile,
+    loading,
+    profileLoading,
+    signInWithEmail,
+    verifyOtp,
+    signOut,
+    updateProfile,
+  }
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
+}

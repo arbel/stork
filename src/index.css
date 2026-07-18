@@ -1,0 +1,222 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 340 100% 98%;
+    --foreground: 340 10% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 340 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 340 10% 15%;
+
+    --primary: 340 82% 75%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 200 70% 85%;
+    --secondary-foreground: 200 30% 15%;
+
+    --muted: 340 20% 95%;
+    --muted-foreground: 340 15% 35%;
+
+    --accent: 160 60% 80%;
+    --accent-foreground: 160 30% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 340 20% 90%;
+    --input: 340 15% 92%;
+    --ring: 340 82% 75%;
+
+    --love: 130 80% 50%;
+    --love-glow: 130 80% 60%;
+    --pass: 340 82% 75%;
+    --match: 170 50% 55%; /* #5CC1B6 in HSL */
+    
+    --static-bg: 0 0% 100% / 0.05;
+    --like-bg: 0 0% 100% / 0.05;
+    --pass-bg: 0 0% 100% / 0.05;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(200 80% 60%), hsl(200 80% 70%));
+    --gradient-love: linear-gradient(135deg, hsl(130 80% 50%), hsl(130 80% 60%));
+    --gradient-pass: linear-gradient(135deg, hsl(340 82% 75%), hsl(340 82% 85%));
+    --gradient-background: linear-gradient(180deg, hsl(200 80% 60%), hsl(200 80% 70%));
+    
+    --shadow-card: 0 10px 30px -10px hsl(340 50% 80% / 0.3);
+    --shadow-love: 0 0 30px hsl(340 82% 75% / 0.4);
+    
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 340 15% 8%;
+    --foreground: 340 20% 92%;
+
+    --card: 340 15% 10%;
+    --card-foreground: 340 20% 92%;
+
+    --popover: 340 15% 10%;
+    --popover-foreground: 340 20% 92%;
+
+    --primary: 340 82% 75%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 200 40% 25%;
+    --secondary-foreground: 200 70% 90%;
+
+    --muted: 340 15% 15%;
+    --muted-foreground: 340 25% 75%;
+
+    --accent: 160 40% 35%;
+    --accent-foreground: 160 60% 90%;
+
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 340 15% 20%;
+    --input: 340 15% 20%;
+    --ring: 340 82% 75%;
+
+    --love: 130 80% 50%;
+    --love-glow: 130 80% 60%;
+    --pass: 340 82% 75%;
+    --match: 45 100% 60%;
+    
+    --static-bg: 0 0% 100% / 0.05;
+    --like-bg: 0 0% 100% / 0.05;
+    --pass-bg: 0 0% 100% / 0.05;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(200 80% 50%), hsl(200 80% 60%));
+    --gradient-love: linear-gradient(135deg, hsl(130 80% 40%), hsl(130 80% 50%));
+    --gradient-pass: linear-gradient(135deg, hsl(340 82% 65%), hsl(340 82% 75%));
+    --gradient-background: linear-gradient(180deg, hsl(200 80% 50%), hsl(200 80% 60%));
+    
+    --shadow-card: 0 10px 30px -10px hsl(340 50% 30% / 0.5);
+    --shadow-love: 0 0 30px hsl(340 82% 75% / 0.3);
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply bg-background text-foreground;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #root {
+    min-height: 100vh;
+    width: 100%;
+    overflow: visible;
+  }
+  
+  .swipe-card {
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .love-button {
+    background: var(--gradient-love);
+    transition: var(--transition-bounce);
+  }
+  
+  .love-button:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-love);
+  }
+}
+
+/* Mobile performance optimizations */
+@layer utilities {
+  /* Hardware acceleration for animations */
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  /* Optimized swipe card */
+  .swipe-card {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+  }
+  
+  /* Smooth scrolling for better performance */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+  }
+  
+  /* Undo animation - card slides in from off-screen */
+  @keyframes slideInFromRight {
+    0% {
+      transform: translateX(120%) translateY(0) scale(1) rotate(15deg);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideInFromLeft {
+    0% {
+      transform: translateX(-120%) translateY(0) scale(1) rotate(-15deg);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
