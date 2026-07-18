@@ -1,0 +1,430 @@
+.gitignore
+  s_3256c6f5dca031::t_41eddffaefb623 15-17
+  s_3256c6f5dca031::t_9aeb5b2392fcbe 12-14
+  s_3256c6f5dca031::t_0be90b443d1564 18-20
+  s_20d91bb46cd519::t_cdf44c84e7e2e3 1-11,21-27
+package-lock.json
+  s_20d91bb46cd519::t_6aa6a4be09ba7c 1-6908
+supabase/.branches/_current_branch
+  s_20d91bb46cd519::t_010fc1a52e5aef 1
+supabase/migrations/20250901214639_436b736b-9a06-497e-9eee-130faab35a3e.sql
+  s_20d91bb46cd519::t_c416876ef63c76 1-15
+supabase/migrations/20250901224226_2fd15d27-d117-4a27-a3b9-caa027733ead.sql
+  s_20d91bb46cd519::t_9657f8e92c4209 1-236
+supabase/migrations/20250913163628_e0538684-17f9-4607-a243-3dd47e31a2f5.sql
+  s_20d91bb46cd519::t_92454589a99b6a 1-62
+supabase/migrations/20250913163705_6e633d92-071f-4248-8e43-59e257ee68da.sql
+  s_20d91bb46cd519::t_47f315aa4d8c33 1-65
+supabase/migrations/20250913163718_958f4ade-e56e-463f-9697-de43b849bf15.sql
+  s_20d91bb46cd519::t_113da3bf5bed79 1-65
+supabase/migrations/20250913163903_28e1a140-7e18-489e-a31f-5d6eb08b6f27.sql
+  s_20d91bb46cd519::t_bd5b31325ed0f7 1-101
+supabase/migrations/20250913163914_f002050b-5798-439f-9e2f-635cedb21b24.sql
+  s_20d91bb46cd519::t_9dce81a3c4c9ea 1-101
+supabase/migrations/20250913163932_1e824add-99c5-405d-aa11-098f289c2c43.sql
+  s_20d91bb46cd519::t_cc0153acc8c58e 1-40
+supabase/migrations/20250913164032_dee5f07d-3dd4-43b6-a527-4caaed6063c3.sql
+  s_20d91bb46cd519::t_26f65247a82eea 1-47
+supabase/migrations/20250913165538_3b87852a-1db8-4dbd-b2a9-8629732930ba.sql
+  s_20d91bb46cd519::t_bb4c17fb012ccb 1-7
+supabase/migrations/20250913170343_88c83177-e5e6-4d25-8361-a057f337f9b0.sql
+  s_20d91bb46cd519::t_e66ae411c2e83c 1-7
+supabase/migrations/20250913171728_e2b170cb-55d1-4e50-87e6-a748383e969d.sql
+  s_20d91bb46cd519::t_948a208b67dc82 1-14
+supabase/migrations/20250913171744_0684ca7f-738b-4967-87f5-1d41a6a1db45.sql
+  s_20d91bb46cd519::t_408d7b773d727a 1-14
+supabase/migrations/20250913171759_24872b28-8a0e-4c53-8f5b-2bafa142acc8.sql
+  s_20d91bb46cd519::t_d359500017e3a2 1-44
+supabase/migrations/20250913171913_9816172b-524f-4301-a70c-807a938762a3.sql
+  s_20d91bb46cd519::t_13d2f3800d97f6 1-44
+supabase/migrations/20250913204300_c845dc93-8adf-47c8-9763-4fc9718c1ef2.sql
+  s_20d91bb46cd519::t_d706bfa8477782 1-7
+supabase/migrations/20250913205601_fdfa5ac5-4d91-41d8-9b59-368cd6bfb7c3.sql
+  s_20d91bb46cd519::t_f163d689465156 1-14
+supabase/migrations/20250913210037_d237c2d2-b85c-44a9-9820-fce9b9ad9e54.sql
+  s_20d91bb46cd519::t_c3e39d16e69314 1-19
+supabase/migrations/20250913210051_30bf41f2-6ad4-4d29-851f-7f6669747301.sql
+  s_20d91bb46cd519::t_6c9b7edf1bebe0 1-19
+supabase/migrations/20250913210107_e28394e9-febd-40ad-82e5-4afdf0bf17dc.sql
+  s_20d91bb46cd519::t_62b115974e1e46 1-19
+supabase/migrations/20250913210218_1ee82ff0-e2c2-4ca7-89da-412b72db22c5.sql
+  s_20d91bb46cd519::t_682509f6af1fad 1-87
+supabase/migrations/20250913212955_1493373d-1bf9-4720-8504-8edee0790c94.sql
+  s_20d91bb46cd519::t_6f990e99f540d9 1-23
+supabase/migrations/20250913214734_b1d8df1c-df59-4159-926a-fda870d9622c.sql
+  s_20d91bb46cd519::t_dde068d0c46b26 1-6
+supabase/migrations/20250915190328_55edba63-f700-4ef5-a8c1-7613d4356f33.sql
+  s_20d91bb46cd519::t_d0217de158e12a 1-18
+supabase/migrations/20250915204222_a9dd4f70-cd4b-4a2f-9858-4acce3ac8177.sql
+  s_20d91bb46cd519::t_63072c94bef21e 1-138
+supabase/migrations/20250915205126_6fe27c59-4b70-4ad9-a62e-95512ee7e665.sql
+  s_20d91bb46cd519::t_fdcdce52d77fc7 1-17
+supabase/migrations/20250915210447_13385b58-e0fe-480d-b129-c03d56dc4f54.sql
+  s_20d91bb46cd519::t_ccc07cd5264ef5 1-78
+supabase/migrations/20250915210627_89db3868-41ea-45ce-91aa-44aa3cf5cee0.sql
+  s_20d91bb46cd519::t_9e73ac2f2e79b0 1-15
+supabase/migrations/20250915210650_baa2dc7a-fbcf-4b09-a9ff-edbdf1c8f119.sql
+  s_20d91bb46cd519::t_a59a360bbd360b 1-15
+supabase/migrations/20250915210706_d331c522-3d4b-4112-bea4-a88bd2cc3388.sql
+  s_20d91bb46cd519::t_0f4ef0302a9e70 1-19
+supabase/migrations/20250915210732_fc2637f2-7054-4e4d-84cc-352b81bfa8fe.sql
+  s_20d91bb46cd519::t_9ed8f786a4d5fb 1-19
+supabase/migrations/20250915212428_c5ec1d69-c463-498e-84b7-e7fef4c58c13.sql
+  s_20d91bb46cd519::t_9b8637385a32cc 1-71
+supabase/migrations/20250915212452_12d8a7bb-0a0f-448a-b472-6f1786e333c0.sql
+  s_20d91bb46cd519::t_0fb43097b78a5d 1-71
+supabase/migrations/20250915212524_69f6a612-fad2-474e-adf8-481aa3775643.sql
+  s_20d91bb46cd519::t_f1370690792cae 1-68
+supabase/migrations/20250915212610_7916cef5-e31e-4c67-8c48-0773842abc55.sql
+  s_20d91bb46cd519::t_f42ae4e39cd6b8 1-68
+supabase/migrations/20250915212758_f7191636-86a0-464a-bedd-d89c94b5e981.sql
+  s_20d91bb46cd519::t_4d8ea407e25219 1-83
+supabase/migrations/20250915213117_c9ff481c-719a-45b0-a1bb-784723927e31.sql
+  s_20d91bb46cd519::t_706d2ba00ae5d2 1-108
+supabase/migrations/20250915213156_e7d3c3a6-d0c0-476a-aa42-bc0e232b25a1.sql
+  s_20d91bb46cd519::t_f42d8cfc85a930 1-108
+supabase/migrations/20250915213248_cdf5723e-ebd1-4558-80c6-73ad24237a2e.sql
+  s_20d91bb46cd519::t_c56acde60b39eb 1-82
+supabase/migrations/20251213162632_12009a34-ac35-4e37-b328-fa6dff08ce0a.sql
+  s_20d91bb46cd519::t_8c7af913feb3c2 1-48
+supabase/migrations/20251214000000_seed_jewish_names.sql
+  s_20d91bb46cd519::t_e7ed0bb24137f1 1-5867
+.env
+  s_20d91bb46cd519::t_29fce361f4de05 1-3
+README.md
+  s_20d91bb46cd519::t_f6e98d3db642b9 1-73
+components.json
+  s_20d91bb46cd519::t_2acab2be3b0af3 1-20
+eslint.config.js
+  s_20d91bb46cd519::t_7499c7eec55e88 1-29
+index.html
+  s_20d91bb46cd519::t_eeba16d3310c6b 1-24
+package.json
+  s_20d91bb46cd519::t_32b9da7e3965f4 1-85
+postcss.config.js
+  s_20d91bb46cd519::t_3a2b62304d7596 1-6
+public/boy.svg
+  s_20d91bb46cd519::t_5960c79cd98dba 1-9
+public/girl.svg
+  s_20d91bb46cd519::t_c3c0486dd9827f 1-9
+public/placeholder.svg
+  s_20d91bb46cd519::t_602d10d34adb8e 1
+public/robots.txt
+  s_20d91bb46cd519::t_042eb15f4cd079 1-14
+public/unisex.svg
+  s_20d91bb46cd519::t_3be40e972fe05b 1-14
+scripts/clean-hebrew-names.js
+  s_20d91bb46cd519::t_665bb4693b911c 1-85
+src/App.css
+  s_20d91bb46cd519::t_78f492c7a693c0 1-42
+src/App.tsx
+  s_20d91bb46cd519::t_2fd090e0adc1cb 1-60
+src/assets/boy.svg
+  s_20d91bb46cd519::t_e6e6b056a8f3d9 1-9
+src/assets/girl.svg
+  s_20d91bb46cd519::t_43fb4c33e5c3d7 1-9
+src/assets/stork-logo-login.svg
+  s_20d91bb46cd519::t_29317278537948 1-124
+src/assets/stork.svg
+  s_20d91bb46cd519::t_50af9c43c5ac1f 1-124
+src/assets/undo.svg
+  s_20d91bb46cd519::t_9998ac0195d7bc 1-3
+src/assets/unisex.svg
+  s_20d91bb46cd519::t_b4670fdd47a37e 1-14
+src/components/AdminFeedback.tsx
+  s_20d91bb46cd519::t_a5623c75b978e6 1-223
+src/components/AdminGuard.tsx
+  s_20d91bb46cd519::t_d45a7a8b7e6435 1-64
+src/components/AdminUsageStats.tsx
+  s_20d91bb46cd519::t_981125fb746bf5 1-474
+src/components/AuthGate.tsx
+  s_20d91bb46cd519::t_fc1330bc3096aa 1-173
+src/components/GenderDistributionBar.tsx
+  s_20d91bb46cd519::t_8b97c79a5adaf8 1-109
+src/components/HamburgerMenu.tsx
+  s_20d91bb46cd519::t_9fe87662a4832e 1-295
+src/components/HebrewNamesCrawler.tsx
+  s_20d91bb46cd519::t_5adcd40bad3d31 1-223
+src/components/MatchCelebration.tsx
+  s_20d91bb46cd519::t_0b7e653e462b1b 1-354
+src/components/MobileHeader.tsx
+  s_20d91bb46cd519::t_a3a86336196f77 1-48
+src/components/NameCleanup.tsx
+  s_20d91bb46cd519::t_9310fe436a7162 1-186
+src/components/NameOccurrencesUploader.tsx
+  s_20d91bb46cd519::t_732bb9e237fd68 1-255
+src/components/Onboarding.tsx
+  s_20d91bb46cd519::t_86dad3e6b01d4b 1-612
+src/components/SwipeCard.tsx
+  s_20d91bb46cd519::t_f3da3277d1e8a8 1-241
+src/components/SwipeInterface.tsx
+  s_20d91bb46cd519::t_c4640a3bf750e1 1-755
+src/components/icons/BoyIcon.tsx
+  s_20d91bb46cd519::t_291b2d0269d549 1-13
+src/components/icons/GirlIcon.tsx
+  s_20d91bb46cd519::t_70d3a3e59c2d7c 1-13
+src/components/icons/UnisexIcon.tsx
+  s_20d91bb46cd519::t_27943d9225e6ec 1-13
+src/components/ui/accordion.tsx
+  s_20d91bb46cd519::t_a959393e16a40c 1-56
+src/components/ui/alert-dialog.tsx
+  s_20d91bb46cd519::t_42a30a59354fb1 1-139
+src/components/ui/alert.tsx
+  s_20d91bb46cd519::t_40ebcd2eb756d8 1-59
+src/components/ui/aspect-ratio.tsx
+  s_20d91bb46cd519::t_7010fa54a2411b 1-5
+src/components/ui/avatar.tsx
+  s_20d91bb46cd519::t_33beeeb11716be 1-48
+src/components/ui/badge.tsx
+  s_20d91bb46cd519::t_917d88bf1f7d73 1-36
+src/components/ui/breadcrumb.tsx
+  s_20d91bb46cd519::t_e8066f93bdef0d 1-115
+src/components/ui/button.tsx
+  s_20d91bb46cd519::t_4cb492cb8fdc3f 1-56
+src/components/ui/calendar.tsx
+  s_20d91bb46cd519::t_a3b7ff94877c76 1-64
+src/components/ui/card.tsx
+  s_20d91bb46cd519::t_cd298cd98732a4 1-79
+src/components/ui/carousel.tsx
+  s_20d91bb46cd519::t_ab478743e18965 1-260
+src/components/ui/chart.tsx
+  s_20d91bb46cd519::t_047d6e2c0b6827 1-363
+src/components/ui/checkbox.tsx
+  s_20d91bb46cd519::t_432507895b745e 1-28
+src/components/ui/collapsible.tsx
+  s_20d91bb46cd519::t_f51c6a68dbb729 1-9
+src/components/ui/command.tsx
+  s_20d91bb46cd519::t_bed2e4ffc0f5ca 1-153
+src/components/ui/context-menu.tsx
+  s_20d91bb46cd519::t_e182f14ef8a338 1-198
+src/components/ui/dialog.tsx
+  s_20d91bb46cd519::t_a61a396744ad34 1-120
+src/components/ui/drawer.tsx
+  s_20d91bb46cd519::t_13b13662603a26 1-116
+src/components/ui/dropdown-menu.tsx
+  s_20d91bb46cd519::t_2aa40d8196fc82 1-198
+src/components/ui/form.tsx
+  s_20d91bb46cd519::t_a725f301f01649 1-176
+src/components/ui/hover-card.tsx
+  s_20d91bb46cd519::t_979157fc346a42 1-27
+src/components/ui/input-otp.tsx
+  s_20d91bb46cd519::t_8979a5f435f2e1 1-69
+src/components/ui/input.tsx
+  s_20d91bb46cd519::t_e2914ec7c93927 1-22
+src/components/ui/label.tsx
+  s_20d91bb46cd519::t_92350f05821c4f 1-24
+src/components/ui/menubar.tsx
+  s_20d91bb46cd519::t_4ef896e03562d6 1-234
+src/components/ui/navigation-menu.tsx
+  s_20d91bb46cd519::t_b143d9eb7e5146 1-128
+src/components/ui/pagination.tsx
+  s_20d91bb46cd519::t_12bb735f007904 1-117
+src/components/ui/popover.tsx
+  s_20d91bb46cd519::t_fa2cdac57b81e3 1-29
+src/components/ui/progress.tsx
+  s_20d91bb46cd519::t_bbb29c25a7e1c9 1-26
+src/components/ui/radio-group.tsx
+  s_20d91bb46cd519::t_598362c17417b3 1-42
+src/components/ui/resizable.tsx
+  s_20d91bb46cd519::t_196a046848d3ee 1-43
+src/components/ui/scroll-area.tsx
+  s_20d91bb46cd519::t_88aafe4a3f3811 1-46
+src/components/ui/searchable-select.tsx
+  s_20d91bb46cd519::t_dde1683b07dbad 1-160
+src/components/ui/select.tsx
+  s_20d91bb46cd519::t_7dcdc07f14673b 1-158
+src/components/ui/separator.tsx
+  s_20d91bb46cd519::t_4ae01d4fe3d2d5 1-29
+src/components/ui/sheet.tsx
+  s_20d91bb46cd519::t_7b70a012fe93b0 1-131
+src/components/ui/sidebar.tsx
+  s_20d91bb46cd519::t_c9d53db0a3d059 1-761
+src/components/ui/skeleton.tsx
+  s_20d91bb46cd519::t_0c4ecafd971fdb 1-15
+src/components/ui/slider.tsx
+  s_20d91bb46cd519::t_e61bef05fe6134 1-26
+src/components/ui/sonner.tsx
+  s_20d91bb46cd519::t_71431b64937cbc 1-29
+src/components/ui/switch.tsx
+  s_20d91bb46cd519::t_a2403b51184acc 1-27
+src/components/ui/table.tsx
+  s_20d91bb46cd519::t_bfdfafb0801a04 1-117
+src/components/ui/tabs.tsx
+  s_20d91bb46cd519::t_f3c7c1b6c8f451 1-53
+src/components/ui/textarea.tsx
+  s_20d91bb46cd519::t_3cf4b6565069b2 1-24
+src/components/ui/toast.tsx
+  s_20d91bb46cd519::t_bcc1c0d1e52b73 1-127
+src/components/ui/toaster.tsx
+  s_20d91bb46cd519::t_13f13808dde139 1-33
+src/components/ui/toggle-group.tsx
+  s_20d91bb46cd519::t_b5df270e1abc17 1-59
+src/components/ui/toggle.tsx
+  s_20d91bb46cd519::t_fc7eb664155bd3 1-43
+src/components/ui/tooltip.tsx
+  s_20d91bb46cd519::t_3e6471f89137a9 1-28
+src/components/ui/use-toast.ts
+  s_20d91bb46cd519::t_b60953400f52f3 1-3
+src/contexts/AuthContext.tsx
+  s_20d91bb46cd519::t_6e880e0884c717 1-256
+src/contexts/SwipeContext.tsx
+  s_20d91bb46cd519::t_46e4c89b2e3293 1-549
+src/data/babyNames.ts
+  s_20d91bb46cd519::t_569776c27ca910 1-453
+src/data/hebrewNamesClean.ts
+  s_20d91bb46cd519::t_9f892430b587ec 1-80
+src/hooks/use-mobile.tsx
+  s_20d91bb46cd519::t_4456122d81e8cc 1-19
+src/hooks/use-toast.ts
+  s_20d91bb46cd519::t_e9fdc6cfb5bbad 1-191
+src/hooks/useAdminAuth.ts
+  s_20d91bb46cd519::t_c397ffd562c9c6 1-97
+src/hooks/useNameRecommendations.ts
+  s_20d91bb46cd519::t_9345c56403b2f6 1-121
+src/index.css
+  s_20d91bb46cd519::t_76add4eaec924e 1-222
+src/integrations/supabase/client.ts
+  s_20d91bb46cd519::t_78da8d0e5cf991 1-17
+src/integrations/supabase/types.ts
+  s_20d91bb46cd519::t_98fdd7d4672ff6 1-526
+src/lib/nameQueries.ts
+  s_20d91bb46cd519::t_0bfff05628a691 1-51
+src/lib/utils.ts
+  s_20d91bb46cd519::t_51c25e16474819 1-6
+src/main.tsx
+  s_20d91bb46cd519::t_3e83afc12ae5fb 1-5
+src/pages/AdminDashboard.tsx
+  s_20d91bb46cd519::t_63b9051c5750cf 1-1310
+src/pages/AdminLogin.tsx
+  s_20d91bb46cd519::t_72f558e3b83ee5 1-145
+src/pages/Feedback.tsx
+  s_20d91bb46cd519::t_eaeecb27aca417 1-188
+src/pages/Index.tsx
+  s_20d91bb46cd519::t_eadc1ca4e49d4a 1-40
+src/pages/JoinPartnership.tsx
+  s_20d91bb46cd519::t_f0a61c486da4eb 1-354
+src/pages/Liked.tsx
+  s_20d91bb46cd519::t_030dbfba6a4576 1-125
+src/pages/Matches.tsx
+  s_20d91bb46cd519::t_65bccebcd160db 1-216
+src/pages/NotFound.tsx
+  s_20d91bb46cd519::t_2240b642d12863 1-27
+src/pages/Notifications.tsx
+  s_20d91bb46cd519::t_4b939b9bc0b29d 1-256
+src/pages/PartnerInvite.tsx
+  s_20d91bb46cd519::t_19593e718ed392 1-262
+src/pages/Passed.tsx
+  s_20d91bb46cd519::t_656dfae0a45aaa 1-125
+src/pages/Preferences.tsx
+  s_20d91bb46cd519::t_323c2cf2d407d5 1-269
+src/pages/Settings.tsx
+  s_20d91bb46cd519::t_2931bda79e5e35 1-712
+src/utils/FirecrawlService.ts
+  s_20d91bb46cd519::t_6f01fa692f111a 1-452
+src/utils/populateNames.ts
+  s_20d91bb46cd519::t_ca65fd618c8200 1-75
+src/vite-env.d.ts
+  s_20d91bb46cd519::t_1dd0615ca96561 1
+supabase/config.toml
+  s_20d91bb46cd519::t_dd919c90170480 1-55
+supabase/functions/_shared/cors.ts
+  s_20d91bb46cd519::t_c2b0e6a09b29cf 1-4
+supabase/functions/admin-insert-names/index.ts
+  s_20d91bb46cd519::t_489f7ba4cb2bcb 1-83
+supabase/functions/cleanup-duplicate-names/index.ts
+  s_20d91bb46cd519::t_01def64cae33d5 1-247
+supabase/functions/delete-user-account/index.ts
+  s_20d91bb46cd519::t_c611bdd094ee6e 1-71
+supabase/functions/recommend-names/index.ts
+  s_20d91bb46cd519::t_984ae5a2b2b6f9 1-248
+supabase/functions/update-name-occurrences/index.ts
+  s_20d91bb46cd519::t_0cb0d194f9af98 1-131
+supabase/migrations/20250901210646_b6e1024e-69d5-46d7-8b9c-c0c10988799a.sql
+  s_20d91bb46cd519::t_a57d86d5195988 1-188
+supabase/migrations/20250901211016_c056e481-fe34-427c-9ed7-e09f18bf98c2.sql
+  s_20d91bb46cd519::t_05a045108af78c 1-4
+supabase/migrations/20250901211230_c8e39aaf-4b79-43b2-9489-f0ecfefe2ae0.sql
+  s_20d91bb46cd519::t_2757c4fe626489 1-18
+supabase/migrations/20250901220516_433b951e-eaa5-4210-b18f-c1dd8f170a45.sql
+  s_20d91bb46cd519::t_6632faaa480371 1-11
+supabase/migrations/20250902062502_ebcacee2-6c84-427d-b74b-29299086cc4f.sql
+  s_20d91bb46cd519::t_741df58dccef07 1-129
+supabase/migrations/20250913163647_bc063bc4-7b47-408f-99ff-2f914b2fc189.sql
+  s_20d91bb46cd519::t_d48cb5c617ab64 1-62
+supabase/migrations/20250913171700_c3bde08f-4172-4fc8-9eb1-3728e16c62bb.sql
+  s_20d91bb46cd519::t_26a3bf712dda60 1-27
+supabase/migrations/20250913171713_84d16800-aef7-4ca0-8631-fd318dc38cbc.sql
+  s_20d91bb46cd519::t_81f2655920ae20 1-27
+supabase/migrations/20250913171835_682efbf7-5fb0-46af-9287-8dbb38db7ba5.sql
+  s_20d91bb46cd519::t_d25f647d3d6236 1-25
+supabase/migrations/20250913215333_9bcda726-063c-4a69-b7f2-adb5c0cc8b6a.sql
+  s_20d91bb46cd519::t_8d9e6a9d91a038 1-112
+supabase/migrations/20250913215348_acdda69b-964b-47ef-aca0-1ea9e2524a9f.sql
+  s_20d91bb46cd519::t_d6640bbfbc7229 1-112
+supabase/migrations/20250915184548_47979144-9683-4291-9f1c-545e488e21d9.sql
+  s_20d91bb46cd519::t_cdff5ed9a95084 1-125
+supabase/migrations/20250915184806_2f0fe840-d099-407c-bd14-93e54d82ed3e.sql
+  s_20d91bb46cd519::t_902ebd79e409b5 1-115
+supabase/migrations/20250915210945_31e31f3b-1d60-4b0b-a20a-2b07350fd0a1.sql
+  s_20d91bb46cd519::t_f82ec587747083 1-4
+supabase/migrations/20250915212549_58f3b874-2e6e-41dd-85fb-1656b185a0ff.sql
+  s_20d91bb46cd519::t_c4a371da543a16 1-69
+supabase/migrations/20250915212636_b1bff482-054b-4ef3-97ce-27e339364905.sql
+  s_20d91bb46cd519::t_777389abadc5f5 1-69
+supabase/migrations/20250915213749_e9c76715-350d-49a7-9054-97cc88c3b734.sql
+  s_20d91bb46cd519::t_8448f5ac394610 1-5
+supabase/migrations/20251007140938_f96f39e9-1e6d-45b6-9c60-a210c6a36cb5.sql
+  s_20d91bb46cd519::t_2b07f62e5936b4 1-5
+supabase/migrations/20251007151353_6957cdc1-6f54-4564-835b-0703e26910a2.sql
+  s_20d91bb46cd519::t_6849048e08db1b 1-11
+supabase/migrations/20251213095659_78ec43d2-30f4-4193-9e42-8924bdc1f88e.sql
+  s_20d91bb46cd519::t_54a38f2d5415b2 1-12
+supabase/migrations/20251213100923_9e67d3dd-f9ad-4463-9976-0b3a5a7af7a4.sql
+  s_20d91bb46cd519::t_663c4bc0e64681 1-7
+supabase/migrations/20251213160107_253dc1b4-11ea-465a-9b21-5d7f28a30281.sql
+  s_20d91bb46cd519::t_347c2cb334c4be 1-19
+supabase/migrations/20251213160839_86ff0cba-1b40-4879-89c8-5075977a577b.sql
+  s_20d91bb46cd519::t_ceae00cd727869 1-161
+supabase/migrations/20260718203018_rewrite_join_partnership_by_invite.sql
+  s_20d91bb46cd519::t_3654e3bc2d9604 1-120
+supabase/migrations/20260718204333_dedupe_user_swipes_unique_index.sql
+  s_20d91bb46cd519::t_890e93a2abfe93 1-19
+supabase_schema.sql
+  s_20d91bb46cd519::t_5670299bb59554 1-215
+tailwind.config.ts
+  s_20d91bb46cd519::t_bdf2c116eebfb0 1-127
+tsconfig.app.json
+  s_20d91bb46cd519::t_fa64c6adafae01 1-30
+tsconfig.json
+  s_20d91bb46cd519::t_260ece4174d136 1-19
+tsconfig.node.json
+  s_20d91bb46cd519::t_945a1dacb12703 1-22
+vercel.json
+  s_20d91bb46cd519::t_25c35f4fbf0bbc 1-8
+vite.config.ts
+  s_20d91bb46cd519::t_93c73ca1b00f71 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "28371bd999357390a35f9f6d467c1319fabe65c2",
+  "prompts": {},
+  "sessions": {
+    "s_20d91bb46cd519": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d5bf6e26-b494-4d34-a418-eeccf77f6d6f",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    },
+    "s_3256c6f5dca031": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c2cfeb90-90b7-466f-9d7c-290e40f2d6e2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
