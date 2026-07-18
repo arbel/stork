@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Copy, Share, RefreshCw, X } from "lucide-react";
+import { ArrowRight, Copy, Share, RefreshCw, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSwipe } from "@/contexts/SwipeContext";
@@ -44,7 +44,7 @@ export const PartnerInvite = () => {
 
         if (error) {
           toast({
-            title: "Error creating invitation",
+            title: "שגיאה ביצירת ההזמנה",
             description: error.message,
             variant: "destructive",
           });
@@ -63,13 +63,13 @@ export const PartnerInvite = () => {
     try {
       await navigator.clipboard.writeText(inviteUrl);
       toast({
-        title: "Copied to clipboard!",
-        description: "Share this link with your partner.",
+        title: "הועתק ללוח!",
+        description: "שתפו קישור זה עם בן/בת הזוג.",
       });
     } catch (error) {
       toast({
-        title: "Copy failed",
-        description: "Please copy the link manually.",
+        title: "ההעתקה נכשלה",
+        description: "אנא העתיקו את הקישור ידנית.",
         variant: "destructive",
       });
     }
@@ -78,8 +78,8 @@ export const PartnerInvite = () => {
   const shareLink = () => {
     if (navigator.share) {
       navigator.share({
-        title: 'Join me in finding baby names!',
-        text: 'Let\'s find the perfect baby name together!',
+        title: 'הצטרפו אליי לבחירת שמות לתינוק!',
+        text: 'בואו נמצא יחד את השם המושלם לתינוק!',
         url: inviteUrl,
       });
     } else {
@@ -108,12 +108,12 @@ export const PartnerInvite = () => {
 
       setInviteCode(updatedPartnership.invite_code);
       toast({
-        title: "New invite link generated!",
-        description: "Your old invite link is no longer valid. Share the new one with your partner.",
+        title: "נוצר קישור הזמנה חדש!",
+        description: "קישור ההזמנה הישן כבר לא בתוקף. שתפו את החדש עם בן/בת הזוג.",
       });
     } catch (error: any) {
       toast({
-        title: "Failed to regenerate invite",
+        title: "יצירת ההזמנה מחדש נכשלה",
         description: error.message,
         variant: "destructive",
       });
@@ -139,8 +139,8 @@ export const PartnerInvite = () => {
       }
 
       toast({
-        title: "Invite Cancelled",
-        description: "Your partner invitation has been cancelled.",
+        title: "ההזמנה בוטלה",
+        description: "הזמנת בן/בת הזוג בוטלה.",
       });
 
       // Refresh partnership state in context immediately
@@ -152,7 +152,7 @@ export const PartnerInvite = () => {
       }, 100);
     } catch (error: any) {
       toast({
-        title: "Failed to cancel invite",
+        title: "ביטול ההזמנה נכשל",
         description: error.message,
         variant: "destructive",
       });
@@ -180,11 +180,11 @@ export const PartnerInvite = () => {
             onClick={() => navigate("/")}
             className="p-2 text-white hover:bg-white/10"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowRight className="w-5 h-5" />
           </Button>
           
           <h1 className="text-lg font-bold text-white truncate flex-1 text-center mx-4">
-            Invite Partner
+            הזמנת בן/בת זוג
           </h1>
           
           <div className="w-10"></div>
@@ -195,16 +195,16 @@ export const PartnerInvite = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-center">Invite Your Partner</CardTitle>
+            <CardTitle className="text-center">הזמינו את בן/בת הזוג</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-center text-muted-foreground">
-              <p>Share this link with your partner so you can find baby names together!</p>
+              <p>שתפו קישור זה עם בן/בת הזוג כדי לבחור יחד שמות לתינוק!</p>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Invitation Link</label>
-              <div className="flex space-x-2">
+              <label className="text-sm font-medium">קישור הזמנה</label>
+              <div className="flex space-x-2 space-x-reverse">
                 <Input
                   value={inviteUrl}
                   readOnly
@@ -217,10 +217,10 @@ export const PartnerInvite = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 space-x-reverse">
                 <Button onClick={shareLink} className="flex-1">
-                  <Share className="w-4 h-4 mr-2" />
-                  Share Invitation
+                  <Share className="w-4 h-4 ml-2" />
+                  שיתוף ההזמנה
                 </Button>
                 
                 <Button 
@@ -235,7 +235,7 @@ export const PartnerInvite = () => {
               </div>
               
               <Button variant="outline" onClick={() => navigate("/")} className="w-full">
-                Done
+                סיום
               </Button>
               
               <div className="text-center">
@@ -244,15 +244,15 @@ export const PartnerInvite = () => {
                   disabled={canceling}
                   className="text-sm text-destructive hover:text-destructive/80 underline-offset-4 hover:underline disabled:opacity-50"
                 >
-                  {canceling ? 'Cancelling...' : 'Cancel Invite'}
+                  {canceling ? 'מבטל...' : 'ביטול ההזמנה'}
                 </button>
               </div>
             </div>
 
             <div className="text-xs text-muted-foreground text-center space-y-2">
-              <p>Your partner will be able to join using this link. You'll be notified when they join!</p>
-              <p className="text-warning">If your invite link has expired, click "Generate New Link" to create a fresh one.</p>
-              <p className="text-muted-foreground">Click "Cancel Invite" if you no longer want to invite a partner.</p>
+              <p>בן/בת הזוג יוכלו להצטרף באמצעות קישור זה. תקבלו התראה כשהם יצטרפו!</p>
+              <p className="text-warning">אם קישור ההזמנה פג תוקף, לחצו על כפתור הרענון כדי ליצור קישור חדש.</p>
+              <p className="text-muted-foreground">לחצו על "ביטול ההזמנה" אם אינכם רוצים עוד להזמין בן/בת זוג.</p>
             </div>
           </CardContent>
         </Card>

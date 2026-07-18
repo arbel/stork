@@ -26,9 +26,9 @@ const Index = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Header with Hamburger Menu and Stork Title */}
-      <div className="absolute top-4 left-0 right-0 z-20 flex items-center justify-between px-4">
+      <div className="absolute top-6 left-0 right-0 z-20 flex items-center justify-between px-4">
         <HamburgerMenu />
-        <h1 className="text-3xl font-bold text-white absolute left-1/2 transform -translate-x-1/2">Stork</h1>
+        <h1 className="text-3xl font-bold text-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">Stork</h1>
       </div>
       
       {/* Main Content */}

@@ -417,8 +417,8 @@ const SwipeInterface = () => {
   const handleUndoSwipe = useCallback(async () => {
     if (!lastUndo || !user) {
       toast({
-        title: "Nothing to undo",
-        description: "No recent swipe to undo.",
+        title: "אין מה לבטל",
+        description: "אין החלקה אחרונה לביטול.",
       });
       return;
     }
@@ -469,8 +469,8 @@ const SwipeInterface = () => {
       setUndoAnimation(null);
       setUndoCardName(null);
       toast({
-        title: "Undo failed",
-        description: error.message || "Please try again.",
+        title: "הביטול נכשל",
+        description: error.message || "אנא נסו שוב.",
         variant: "destructive",
       });
     }
@@ -495,14 +495,14 @@ const SwipeInterface = () => {
       resetAll();
       
       toast({
-        title: "Reset complete",
-        description: "Starting fresh with new names!",
+        title: "האיפוס הושלם",
+        description: "מתחילים מחדש עם שמות חדשים!",
       });
     } catch (error) {
       console.error('Error resetting swipes:', error);
       toast({
-        title: "Reset failed",
-        description: "There was an error clearing your selections. Please try again.",
+        title: "האיפוס נכשל",
+        description: "אירעה שגיאה במחיקת הבחירות. אנא נסו שוב.",
         variant: "destructive"
       });
     }
@@ -556,25 +556,25 @@ const SwipeInterface = () => {
         }}
       >
         <div className="text-center space-y-4">
-          <h2 className="text-2xl font-bold text-white">Completed all names! 🎉</h2>
-          <p className="text-white/80">You've swiped through all available names for your preferences.</p>
+          <h2 className="text-2xl font-bold text-white">סיימתם את כל השמות! 🎉</h2>
+          <p className="text-white/80">עברתם על כל השמות הזמינים לפי ההעדפות שלכם.</p>
         </div>
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 space-x-reverse">
           <Button onClick={resetSwipes} className="bg-white text-gray-800 hover:bg-white/90">
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Start Over
+            <RotateCcw className="w-4 h-4 ml-2" />
+            להתחיל מחדש
           </Button>
           <Button variant="outline" onClick={() => navigate("/matches")} className="border-white text-white hover:bg-white/10">
-            <List className="w-4 h-4 mr-2" />
-            View Results
+            <List className="w-4 h-4 ml-2" />
+            צפייה בתוצאות
           </Button>
           <Button 
             variant="outline" 
             onClick={() => setUseRecommendations(!useRecommendations)}
             className="border-white text-white hover:bg-white/10"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            {useRecommendations ? 'Random Mode' : 'Smart Mode'}
+            <Sparkles className="w-4 h-4 ml-2" />
+            {useRecommendations ? 'מצב אקראי' : 'מצב חכם'}
           </Button>
         </div>
       </div>
@@ -725,9 +725,9 @@ const SwipeInterface = () => {
               onClick={handleUndoSwipe}
               disabled={!lastUndo}
               className="w-12 h-12 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center hover:scale-110 transition-all disabled:opacity-30 disabled:hover:scale-100"
-              title="Undo last swipe"
+              title="ביטול ההחלקה האחרונה"
             >
-              <img src={undoIcon} alt="Undo" className="w-6 h-6" />
+              <img src={undoIcon} alt="ביטול" className="w-6 h-6" />
             </button>
             
             {/* Like Button (Heart) - Right */}

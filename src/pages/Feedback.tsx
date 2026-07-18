@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, MessageSquare, Send } from "lucide-react";
+import { ArrowRight, MessageSquare, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -22,8 +22,8 @@ const Feedback = () => {
     
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to submit feedback.",
+        title: "שגיאה",
+        description: "עליכם להתחבר כדי לשלוח משוב.",
         variant: "destructive"
       });
       return;
@@ -31,8 +31,8 @@ const Feedback = () => {
 
     if (!subject.trim() || !message.trim()) {
       toast({
-        title: "Error",
-        description: "Please fill in both subject and message.",
+        title: "שגיאה",
+        description: "אנא מלאו גם נושא וגם הודעה.",
         variant: "destructive"
       });
       return;
@@ -40,8 +40,8 @@ const Feedback = () => {
 
     if (subject.length > 200) {
       toast({
-        title: "Error",
-        description: "Subject must be less than 200 characters.",
+        title: "שגיאה",
+        description: "הנושא חייב להיות קצר מ-200 תווים.",
         variant: "destructive"
       });
       return;
@@ -49,8 +49,8 @@ const Feedback = () => {
 
     if (message.length > 2000) {
       toast({
-        title: "Error",
-        description: "Message must be less than 2000 characters.",
+        title: "שגיאה",
+        description: "ההודעה חייבת להיות קצרה מ-2000 תווים.",
         variant: "destructive"
       });
       return;
@@ -72,8 +72,8 @@ const Feedback = () => {
       if (error) throw error;
 
       toast({
-        title: "Feedback Submitted",
-        description: "Thank you for your feedback! We appreciate it."
+        title: "המשוב נשלח",
+        description: "תודה על המשוב! אנחנו מעריכים את זה."
       });
 
       setSubject("");
@@ -81,8 +81,8 @@ const Feedback = () => {
     } catch (error) {
       console.error('Error submitting feedback:', error);
       toast({
-        title: "Error",
-        description: "Failed to submit feedback. Please try again.",
+        title: "שגיאה",
+        description: "שליחת המשוב נכשלה. אנא נסו שוב.",
         variant: "destructive"
       });
     } finally {
@@ -109,11 +109,11 @@ const Feedback = () => {
             onClick={() => navigate("/")}
             className="h-14 w-14 text-white hover:bg-white/10"
           >
-            <ArrowLeft className="w-10 h-10" />
+            <ArrowRight className="w-10 h-10" />
           </Button>
           
           <h1 className="text-xl font-bold text-white truncate flex-1 text-center mx-4">
-            Send Feedback
+            שליחת משוב
           </h1>
           
           <div className="w-10"></div>
@@ -122,41 +122,41 @@ const Feedback = () => {
 
       <div className="p-4 max-w-lg mx-auto">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center space-x-3 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
+          <div className="inline-flex items-center space-x-3 space-x-reverse bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
             <MessageSquare className="w-6 h-6 text-primary" />
-            <span className="text-primary font-bold text-lg">We Value Your Feedback</span>
+            <span className="text-primary font-bold text-lg">חשוב לנו לשמוע מכם</span>
           </div>
         </div>
 
         <Card className="p-6 bg-white/95 backdrop-blur-md">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
+              <Label htmlFor="subject">נושא</Label>
               <Input
                 id="subject"
-                placeholder="What's this about?"
+                placeholder="במה מדובר?"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 maxLength={200}
                 disabled={isSubmitting}
               />
-              <p className="text-xs text-muted-foreground text-right">
+              <p className="text-xs text-muted-foreground text-left">
                 {subject.length}/200
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
+              <Label htmlFor="message">הודעה</Label>
               <Textarea
                 id="message"
-                placeholder="Tell us what you think, report a bug, or suggest a feature..."
+                placeholder="ספרו לנו מה דעתכם, דווחו על באג או הציעו פיצ'ר..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 maxLength={2000}
                 disabled={isSubmitting}
                 className="min-h-[150px]"
               />
-              <p className="text-xs text-muted-foreground text-right">
+              <p className="text-xs text-muted-foreground text-left">
                 {message.length}/2000
               </p>
             </div>
@@ -169,12 +169,12 @@ const Feedback = () => {
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Submitting...
+                  שולח...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
                   <Send className="w-4 h-4" />
-                  Submit Feedback
+                  שליחת משוב
                 </span>
               )}
             </Button>

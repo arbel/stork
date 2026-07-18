@@ -68,15 +68,16 @@ export const AuthGate = ({ children }: AuthGateProps) => {
           <div className="shrink-0 px-6 pt-4">
             <div className="text-center mb-2">
               <h1 className="text-3xl sm:text-6xl md:text-7xl font-bold tracking-wider mb-1">STORK</h1>
-              <p className="text-base sm:text-xl md:text-2xl opacity-90 mb-1">Find the perfect name together</p>
-              <h2 className="text-base sm:text-xl font-medium">Sign in or Sign Up</h2>
+              <p className="text-base sm:text-xl md:text-2xl opacity-90 mb-1">בוחרים יחד את השם המושלם</p>
+              <h2 className="text-base sm:text-xl font-medium">התחברות או הרשמה</h2>
             </div>
             
             <div className="max-w-md mx-auto w-full">
               <Input
                 id="email"
                 type="email"
-                placeholder="Email"
+                dir="ltr"
+                placeholder="אימייל"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -104,11 +105,11 @@ export const AuthGate = ({ children }: AuthGateProps) => {
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                    Sending Code...
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2" />
+                    שולח קוד...
                   </>
                 ) : (
-                  'SEND SIGN IN CODE'
+                  'שליחת קוד התחברות'
                 )}
               </Button>
             </div>
@@ -121,10 +122,10 @@ export const AuthGate = ({ children }: AuthGateProps) => {
             <div className="text-center mb-8 max-w-md mx-auto">
               <KeyRound className="w-12 h-12 mx-auto mb-4 opacity-90" />
               <h2 className="text-xl font-semibold mb-2">
-                Enter Verification Code
+                הזינו את קוד האימות
               </h2>
               <p className="text-sm opacity-80 mb-6">
-                We sent a 6-digit code to <strong>{email}</strong>
+                שלחנו קוד בן 6 ספרות אל <strong>{email}</strong>
               </p>
 
               <div className="space-y-6">
@@ -137,6 +138,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                   required
                   className="h-12 sm:h-16 bg-teal-600/60 border-teal-300/50 text-white placeholder:text-teal-100 text-center text-lg sm:text-xl tracking-widest rounded-full backdrop-blur-sm"
                   maxLength={6}
+                  dir="ltr"
                   autoComplete="one-time-code"
                 />
 
@@ -148,10 +150,10 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      Verifying...
+                      מאמת...
                     </>
                   ) : (
-                    'VERIFY CODE'
+                    'אימות הקוד'
                   )}
                 </Button>
 
@@ -161,7 +163,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                   onClick={handleBackToEmail}
                   className="w-full text-white/80 hover:text-white hover:bg-white/10"
                 >
-                  Change Email Address
+                  שינוי כתובת אימייל
                 </Button>
               </div>
             </div>

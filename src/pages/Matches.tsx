@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Sparkles, Search } from "lucide-react";
+import { ArrowRight, Sparkles, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GenderDistributionBar } from "@/components/GenderDistributionBar";
 
@@ -151,11 +151,11 @@ const Matches = () => {
             onClick={() => navigate("/")}
             className="h-14 w-14 text-white hover:bg-white/10"
           >
-            <ArrowLeft className="w-10 h-10" />
+            <ArrowRight className="w-10 h-10" />
           </Button>
           
           <h1 className="text-xl font-bold text-white truncate flex-1 text-center mx-4">
-            Matches
+            התאמות
           </h1>
           
           <div className="w-10"></div>
@@ -166,21 +166,21 @@ const Matches = () => {
         {displayMatches.length > 0 ? (
           <div className="space-y-6">
             <div className="text-center mb-4">
-              <div className="inline-flex items-center space-x-3 bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
+              <div className="inline-flex items-center space-x-3 space-x-reverse bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
                 <Sparkles className="w-6 h-6 text-[#5CC1B6]" />
-                <span className="text-[#5CC1B6] font-bold text-lg">You both love these!</span>
+                <span className="text-[#5CC1B6] font-bold text-lg">שניכם אוהבים את אלה!</span>
               </div>
             </div>
             
             {/* Search Input */}
             <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search names..."
+                placeholder="חיפוש שמות..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/90 backdrop-blur-md border-0 rounded-full"
+                className="pr-10 bg-white/90 backdrop-blur-md border-0 rounded-full"
               />
             </div>
 
@@ -192,7 +192,7 @@ const Matches = () => {
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-white/80">No names match your search.</p>
+                <p className="text-white/80">אין שמות שתואמים את החיפוש.</p>
               </div>
             )}
           </div>
@@ -201,10 +201,10 @@ const Matches = () => {
             <div className="w-24 h-24 mx-auto mb-6 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-lg">
               <Sparkles className="w-12 h-12 text-[#5CC1B6]" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-3">No matches yet!</h3>
-            <p className="text-white/80 text-lg mb-8 max-w-md mx-auto">Keep swiping to find names you both love.</p>
+            <h3 className="text-2xl font-bold text-white mb-3">עדיין אין התאמות!</h3>
+            <p className="text-white/80 text-lg mb-8 max-w-md mx-auto">המשיכו להחליק כדי למצוא שמות ששניכם אוהבים.</p>
             <Button onClick={() => navigate("/")} className="bg-[#5CC1B6] hover:bg-[#4BA89E] text-white">
-              Continue Swiping
+              המשיכו להחליק
             </Button>
           </div>
         )}

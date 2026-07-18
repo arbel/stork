@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Trash2, UserMinus, AlertTriangle, UserX, Edit, Save, X as XIcon } from "lucide-react";
+import { ArrowRight, Trash2, UserMinus, AlertTriangle, UserX, Edit, Save, X as XIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSwipe } from "@/contexts/SwipeContext";
@@ -77,11 +77,11 @@ const Settings = () => {
     try {
       // Validate that user and partnership are loaded
       if (!user) {
-        throw new Error('User not loaded. Please refresh the page and try again.');
+        throw new Error('המשתמש לא נטען. אנא רעננו את הדף ונסו שוב.');
       }
       
       if (!partnership) {
-        throw new Error('Partnership not loaded. Please refresh the page and try again.');
+        throw new Error('השותפות לא נטענה. אנא רעננו את הדף ונסו שוב.');
       }
 
       console.log('Clearing selections for user:', user.id, 'in partnership:', partnership.id);
@@ -103,14 +103,14 @@ const Settings = () => {
       resetAll();
 
       toast({
-        title: "Selections Cleared",
-        description: "All your name selections have been cleared. You can start fresh!",
+        title: "הבחירות נמחקו",
+        description: "כל בחירות השמות שלך נמחקו. אפשר להתחיל מחדש!",
       });
     } catch (error) {
       console.error('Error clearing selections:', error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to clear selections. Please try again.",
+        title: "שגיאה",
+        description: error instanceof Error ? error.message : "מחיקת הבחירות נכשלה. אנא נסו שוב.",
         variant: "destructive",
       });
     } finally {
@@ -149,8 +149,8 @@ const Settings = () => {
         .eq('id', partnership.id);
 
       toast({
-        title: "Partner Disconnected",
-        description: "Your partner has been disconnected. Your name selections have been preserved.",
+        title: "בן/בת הזוג נותקו",
+        description: "בן/בת הזוג נותקו. בחירות השמות שלך נשמרו.",
       });
 
       // Refresh page to update state
@@ -158,8 +158,8 @@ const Settings = () => {
     } catch (error) {
       console.error('Error disconnecting partner:', error);
       toast({
-        title: "Error",
-        description: "Failed to disconnect partner. Please try again.",
+        title: "שגיאה",
+        description: "ניתוק בן/בת הזוג נכשל. אנא נסו שוב.",
         variant: "destructive",
       });
     } finally {
@@ -201,8 +201,8 @@ const Settings = () => {
         .insert({
           user_id: partnership.user1_id,
           type: 'partner_left',
-          title: 'Partner Left',
-          message: 'Your partner has left the partnership. You can invite a new partner anytime.'
+          title: 'בן/בת הזוג עזבו',
+          message: 'בן/בת הזוג עזבו את השותפות. אפשר להזמין בן/בת זוג חדשים בכל עת.'
         });
 
       // Reset user's profile preferences so they go through onboarding again when joining new partnership
@@ -215,8 +215,8 @@ const Settings = () => {
         .eq('user_id', user.id);
 
       toast({
-        title: "Left Partnership",
-        description: "You have left the partnership. You can now join a different one.",
+        title: "עזבת את השותפות",
+        description: "עזבת את השותפות. עכשיו אפשר להצטרף לשותפות אחרת.",
       });
 
       // Refresh page to update state
@@ -224,8 +224,8 @@ const Settings = () => {
     } catch (error) {
       console.error('Error leaving partnership:', error);
       toast({
-        title: "Error",
-        description: "Failed to leave partnership. Please try again.",
+        title: "שגיאה",
+        description: "עזיבת השותפות נכשלה. אנא נסו שוב.",
         variant: "destructive",
       });
     } finally {
@@ -258,8 +258,8 @@ const Settings = () => {
             .insert({
               user_id: partnership.user2_id,
               type: 'partnership_transferred',
-              title: 'Partnership Transferred',
-              message: 'You are now the admin of this partnership. Your previous partner has deleted their account.'
+              title: 'השותפות הועברה',
+              message: 'אתם כעת מנהלי השותפות. בן/בת הזוג הקודמים מחקו את החשבון שלהם.'
             });
         } else if (isAdmin && !partnership.user2_id) {
           // Admin with no partner - just delete the partnership
@@ -281,8 +281,8 @@ const Settings = () => {
             .insert({
               user_id: partnership.user1_id,
               type: 'partner_left',
-              title: 'Partner Left',
-              message: 'Your partner has deleted their account and the partnership has ended. You can create a new partnership anytime.'
+              title: 'בן/בת הזוג עזבו',
+              message: 'בן/בת הזוג מחקו את החשבון שלהם והשותפות הסתיימה. אפשר ליצור שותפות חדשה בכל עת.'
             });
         }
       }
@@ -321,8 +321,8 @@ const Settings = () => {
       }
 
       toast({
-        title: "Account Deleted",
-        description: "Your account has been permanently deleted.",
+        title: "החשבון נמחק",
+        description: "החשבון שלך נמחק לצמיתות.",
       });
 
       // Sign out and redirect
@@ -332,8 +332,8 @@ const Settings = () => {
     } catch (error: any) {
       console.error('Error deleting account:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete account. Please try again or contact support.",
+        title: "שגיאה",
+        description: "מחיקת החשבון נכשלה. אנא נסו שוב או פנו לתמיכה.",
         variant: "destructive",
       });
     } finally {
@@ -346,13 +346,13 @@ const Settings = () => {
       await updateProfile({ first_name: tempName });
       setEditingName(false);
       toast({
-        title: "Name Updated",
-        description: "Your name has been successfully updated.",
+        title: "השם עודכן",
+        description: "השם שלך עודכן בהצלחה.",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update name. Please try again.",
+        title: "שגיאה",
+        description: "עדכון השם נכשל. אנא נסו שוב.",
         variant: "destructive",
       });
     }
@@ -365,13 +365,13 @@ const Settings = () => {
       
       setEditingEmail(false);
       toast({
-        title: "Email Update Requested",
-        description: "Check your new email address for a confirmation link.",
+        title: "בקשת עדכון אימייל נשלחה",
+        description: "בדקו בכתובת האימייל החדשה קישור לאישור.",
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update email. Please try again.",
+        title: "שגיאה",
+        description: error.message || "עדכון האימייל נכשל. אנא נסו שוב.",
         variant: "destructive",
       });
     }
@@ -406,11 +406,11 @@ const Settings = () => {
             onClick={() => navigate("/")}
             className="p-2 text-white hover:bg-white/10"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowRight className="w-5 h-5" />
           </Button>
           
           <h1 className="text-lg font-bold text-white truncate flex-1 text-center mx-4">
-            Settings
+            הגדרות
           </h1>
           
           <div className="w-10"></div>
@@ -421,20 +421,20 @@ const Settings = () => {
         <div className="max-w-md mx-auto space-y-6">
         {/* User Info */}
         <Card className="p-6">
-          <h3 className="font-semibold text-foreground mb-4">Your Profile</h3>
+          <h3 className="font-semibold text-foreground mb-4">הפרופיל שלך</h3>
           <div className="space-y-4">
             {/* Name Field */}
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 {editingName && isAdmin ? (
                   <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <div className="flex space-x-2">
+                    <Label htmlFor="name">שם</Label>
+                    <div className="flex space-x-2 space-x-reverse">
                       <Input
                         id="name"
                         value={tempName}
                         onChange={(e) => setTempName(e.target.value)}
-                        placeholder="Enter your name"
+                        placeholder="הזינו את שמכם"
                         className="flex-1"
                       />
                       <Button size="sm" onClick={handleUpdateName}>
@@ -447,7 +447,7 @@ const Settings = () => {
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
-                    <p><span className="font-medium">Name:</span> {profile?.first_name || 'Not set'}</p>
+                    <p><span className="font-medium">שם:</span> {profile?.first_name || 'לא הוגדר'}</p>
                     {isAdmin && (
                       <Button size="sm" variant="ghost" onClick={() => setEditingName(true)}>
                         <Edit className="w-4 h-4" />
@@ -460,16 +460,16 @@ const Settings = () => {
 
             {/* Partner Field */}
             <p>
-              <span className="font-medium">Partner:</span>{' '}
+              <span className="font-medium">בן/בת זוג:</span>{' '}
               {partnerProfile 
                 ? (partnerProfile.first_name || partnerProfile.email?.split('@')[0]) 
-                : 'Not connected'}
+                : 'לא מחובר'}
             </p>
 
             {/* Partner Email Field */}
             {partnerProfile && (
               <p>
-                <span className="font-medium">Partner Email:</span>{' '}
+                <span className="font-medium">אימייל של בן/בת הזוג:</span>{' '}
                 {partnerProfile.email}
               </p>
             )}
@@ -479,14 +479,15 @@ const Settings = () => {
               <div className="flex-1">
                 {editingEmail && isAdmin ? (
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <div className="flex space-x-2">
+                    <Label htmlFor="email">אימייל</Label>
+                    <div className="flex space-x-2 space-x-reverse">
                       <Input
                         id="email"
+                        dir="ltr"
                         type="email"
                         value={tempEmail}
                         onChange={(e) => setTempEmail(e.target.value)}
-                        placeholder="Enter your email"
+                        placeholder="הזינו את האימייל שלכם"
                         className="flex-1"
                       />
                       <Button size="sm" onClick={handleUpdateEmail}>
@@ -499,7 +500,7 @@ const Settings = () => {
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
-                    <p><span className="font-medium">Email:</span> {user?.email}</p>
+                    <p><span className="font-medium">אימייל:</span> {user?.email}</p>
                     {isAdmin && (
                       <Button size="sm" variant="ghost" onClick={() => setEditingEmail(true)}>
                         <Edit className="w-4 h-4" />
@@ -511,21 +512,21 @@ const Settings = () => {
             </div>
 
             {isAdmin ? (
-              <p className="text-sm text-primary font-medium">👑 Partnership Admin</p>
+              <p className="text-sm text-primary font-medium">👑 מנהל/ת השותפות</p>
             ) : (
-              <p className="text-sm text-muted-foreground">👤 Partner (Settings managed by admin)</p>
+              <p className="text-sm text-muted-foreground">👤 בן/בת זוג (ההגדרות מנוהלות על ידי המנהל/ת)</p>
             )}
           </div>
         </Card>
 
         {/* Clear Selections */}
         <Card className="p-6">
-          <div className="flex items-start space-x-3">
+          <div className="flex items-start space-x-3 space-x-reverse">
             <Trash2 className="w-6 h-6 text-destructive mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground mb-2">Clear My Selections</h3>
+              <h3 className="font-semibold text-foreground mb-2">מחיקת הבחירות שלי</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Remove all your liked and passed names to start fresh. This won't affect your partner's selections.
+                מחקו את כל השמות שאהבתם ודילגתם עליהם כדי להתחיל מחדש. הפעולה לא תשפיע על הבחירות של בן/בת הזוג.
               </p>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -533,21 +534,21 @@ const Settings = () => {
                       variant="destructive" 
                       disabled={loading || !user || !partnership}
                     >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      {!user || !partnership ? 'Loading...' : 'Clear My Selections'}
+                      <Trash2 className="w-4 h-4 ml-2" />
+                      {!user || !partnership ? 'טוען...' : 'מחיקת הבחירות שלי'}
                     </Button>
                   </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Clear Your Selections?</AlertDialogTitle>
+                    <AlertDialogTitle>למחוק את הבחירות שלך?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This will permanently delete all your liked and passed names. You'll start with a fresh slate, but your partner's selections will remain unchanged.
+                      פעולה זו תמחק לצמיתות את כל השמות שאהבתם ודילגתם עליהם. תתחילו מדף חלק, אך הבחירות של בן/בת הזוג יישארו ללא שינוי.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>ביטול</AlertDialogCancel>
                     <AlertDialogAction onClick={handleClearSelections}>
-                      Yes, Clear Everything
+                      כן, למחוק הכל
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -559,31 +560,31 @@ const Settings = () => {
         {/* Admin Controls */}
         {isAdmin && partnership?.user2_id && (
           <Card className="p-6 border-destructive/20">
-            <div className="flex items-start space-x-3">
+            <div className="flex items-start space-x-3 space-x-reverse">
               <AlertTriangle className="w-6 h-6 text-destructive mt-0.5" />
               <div className="flex-1">
-                <h3 className="font-semibold text-foreground mb-2">Disconnect Partner</h3>
+                <h3 className="font-semibold text-foreground mb-2">ניתוק בן/בת הזוג</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  As the partnership admin, you can disconnect your partner. Your name selections will be preserved, but your partner's selections will be removed.
+                  כמנהלי השותפות, אפשר לנתק את בן/בת הזוג. בחירות השמות שלכם יישמרו, אך הבחירות של בן/בת הזוג יימחקו.
                 </p>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" disabled={loading}>
-                      <UserMinus className="w-4 h-4 mr-2" />
-                      Disconnect Partner
+                      <UserMinus className="w-4 h-4 ml-2" />
+                      ניתוק בן/בת הזוג
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Disconnect Partner?</AlertDialogTitle>
+                      <AlertDialogTitle>לנתק את בן/בת הזוג?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will disconnect your partner from this partnership. Your name selections will be preserved, but your partner's selections will be removed. You'll need to invite them again if you want to continue together.
+                        פעולה זו תנתק את בן/בת הזוג מהשותפות. בחירות השמות שלכם יישמרו, אך הבחירות של בן/בת הזוג יימחקו. תצטרכו להזמין אותם מחדש כדי להמשיך יחד.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>ביטול</AlertDialogCancel>
                       <AlertDialogAction onClick={handleDisconnectPartner}>
-                        Yes, Disconnect Partner
+                        כן, לנתק את בן/בת הזוג
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -596,31 +597,31 @@ const Settings = () => {
         {/* Partner Leave Partnership Option */}
         {!isAdmin && partnership?.user2_id === user?.id && (
           <Card className="p-6 border-destructive/20">
-            <div className="flex items-start space-x-3">
+            <div className="flex items-start space-x-3 space-x-reverse">
               <UserMinus className="w-6 h-6 text-destructive mt-0.5" />
               <div className="flex-1">
-                <h3 className="font-semibold text-foreground mb-2">Leave Partnership</h3>
+                <h3 className="font-semibold text-foreground mb-2">עזיבת השותפות</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Disconnect from your current partner and join a different partnership. Your name selections for this partnership will be removed.
+                  התנתקו מבן/בת הזוג הנוכחיים והצטרפו לשותפות אחרת. בחירות השמות שלכם עבור שותפות זו יימחקו.
                 </p>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" disabled={loading}>
-                      <UserMinus className="w-4 h-4 mr-2" />
-                      Leave Partnership
+                      <UserMinus className="w-4 h-4 ml-2" />
+                      עזיבת השותפות
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Leave Partnership?</AlertDialogTitle>
+                      <AlertDialogTitle>לעזוב את השותפות?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will disconnect you from your current partner. Your name selections will be removed and you'll be able to join a different partnership. The admin will need to create a new partnership.
+                        פעולה זו תנתק אתכם מבן/בת הזוג הנוכחיים. בחירות השמות שלכם יימחקו ותוכלו להצטרף לשותפות אחרת. המנהל/ת יצטרכו ליצור שותפות חדשה.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>ביטול</AlertDialogCancel>
                       <AlertDialogAction onClick={handleLeavePartnership}>
-                        Yes, Leave Partnership
+                        כן, לעזוב את השותפות
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -632,23 +633,23 @@ const Settings = () => {
 
         {/* Delete Account */}
         <Card className="p-6 border-destructive/50 bg-white">
-          <div className="flex items-start space-x-3">
+          <div className="flex items-start space-x-3 space-x-reverse">
             <UserX className="w-6 h-6 text-destructive mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold text-foreground mb-2">Delete Account</h3>
+              <h3 className="font-semibold text-foreground mb-2">מחיקת חשבון</h3>
               <div className="text-sm text-muted-foreground mb-4 space-y-2">
-                <p><strong>⚠️ This action cannot be undone.</strong></p>
-                <p>Deleting your account will permanently remove:</p>
+                <p><strong>⚠️ לא ניתן לבטל פעולה זו.</strong></p>
+                <p>מחיקת החשבון תסיר לצמיתות:</p>
                 <ul className="list-disc list-inside ml-2 space-y-1">
-                  <li>All your name selections and preferences</li>
-                  <li>Your profile and account data</li>
-                  <li>All notifications and recommendations</li>
+                  <li>את כל בחירות השמות וההעדפות שלכם</li>
+                  <li>את הפרופיל ונתוני החשבון שלכם</li>
+                  <li>את כל ההתראות וההמלצות</li>
                 </ul>
                 {partnership && partnership.user1_id === user?.id && partnership.user2_id && (
                   <div className="mt-3 p-3 bg-warning/10 border border-warning/20 rounded-md">
                     <p className="text-warning-foreground font-medium">
-                      🔄 Partnership Transfer: Since you're the admin, ownership will be transferred to your partner. 
-                      They'll become the new admin and can continue using the partnership.
+                      🔄 העברת שותפות: מכיוון שאתם המנהלים, הבעלות תועבר לבן/בת הזוג.
+                      הם יהפכו למנהלים החדשים ויוכלו להמשיך להשתמש בשותפות.
                     </p>
                   </div>
                 )}
@@ -657,45 +658,45 @@ const Settings = () => {
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" disabled={deletingAccount}>
-                    <UserX className="w-4 h-4 mr-2" />
-                    {deletingAccount ? 'Deleting...' : 'Delete My Account'}
+                    <UserX className="w-4 h-4 ml-2" />
+                    {deletingAccount ? 'מוחק...' : 'מחיקת החשבון שלי'}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center space-x-2">
+                    <AlertDialogTitle className="flex items-center space-x-2 space-x-reverse">
                       <AlertTriangle className="w-5 h-5 text-destructive" />
-                      <span>Delete Account Forever?</span>
+                      <span>למחוק את החשבון לצמיתות?</span>
                     </AlertDialogTitle>
                     <AlertDialogDescription className="space-y-3">
-                      <p>This will <strong>permanently delete your account</strong> and all associated data:</p>
+                      <p>פעולה זו <strong>תמחק לצמיתות את החשבון שלכם</strong> ואת כל הנתונים הקשורים:</p>
                       <ul className="list-disc list-inside space-y-1 text-sm">
-                        <li>Profile information and preferences</li>
-                        <li>All name selections (likes and passes)</li>
-                        <li>Notifications and recommendations</li>
-                        <li>Account access and login credentials</li>
+                        <li>פרטי פרופיל והעדפות</li>
+                        <li>כל בחירות השמות (לייקים ודילוגים)</li>
+                        <li>התראות והמלצות</li>
+                        <li>גישה לחשבון ופרטי התחברות</li>
                       </ul>
                       
                       {partnership && partnership.user1_id === user?.id && partnership.user2_id && (
                         <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
                           <p className="text-blue-800 font-medium text-sm">
-                            Your partner will become the new partnership admin and can continue using the service.
+                            בן/בת הזוג יהפכו למנהלי השותפות החדשים ויוכלו להמשיך להשתמש בשירות.
                           </p>
                         </div>
                       )}
                       
                       <p className="font-medium text-destructive">
-                        This action cannot be undone. Are you absolutely sure?
+                        לא ניתן לבטל פעולה זו. האם אתם בטוחים לחלוטין?
                       </p>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>ביטול</AlertDialogCancel>
                     <AlertDialogAction 
                       onClick={handleDeleteAccount}
                       className="bg-destructive hover:bg-destructive/90"
                     >
-                      Yes, Delete Forever
+                      כן, למחוק לצמיתות
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

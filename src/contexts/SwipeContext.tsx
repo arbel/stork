@@ -17,7 +17,7 @@ export interface BabyName {
 
 export interface UserPreferences {
   gender: 'male' | 'female' | 'unknown';
-  country: string;
+  country?: string;
   language: string;
 }
 
@@ -86,14 +86,12 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     if (!user || !profile) return false;
     
     const hasBasicInfo = profile.first_name;
-    const hasPreferences = preferences && 
-      preferences.gender && 
-      preferences.country && 
-      preferences.language;
-    
+    const hasPreferences = preferences &&
+      preferences.gender;
+
     // Partner with inherited preferences only needs basic info
-    const isPartnerWithInheritedPrefs = profile.partner_name === 'partner' && preferences && 
-      preferences.gender && preferences.country && preferences.language;
+    const isPartnerWithInheritedPrefs = profile.partner_name === 'partner' && preferences &&
+      preferences.gender;
     
     return hasBasicInfo && (hasPreferences || isPartnerWithInheritedPrefs);
   })();

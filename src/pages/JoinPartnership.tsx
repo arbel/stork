@@ -36,7 +36,7 @@ export const JoinPartnership = () => {
   useEffect(() => {
     const fetchInviterInfo = async () => {
       if (!inviteCode) {
-        setError('Invalid invite link');
+        setError('קישור הזמנה לא תקין');
         setInviterLoading(false);
         return;
       }
@@ -47,14 +47,14 @@ export const JoinPartnership = () => {
         });
 
         if (fetchError || !data || data.length === 0) {
-          setError('This invite link is invalid or has expired');
+          setError('קישור הזמנה זה אינו תקין או פג תוקף');
           setInviterLoading(false);
           return;
         }
 
         const partnershipData = data[0];
         setInviterInfo({
-          name: partnershipData.inviter_name || 'Someone',
+          name: partnershipData.inviter_name || 'מישהו',
           email: partnershipData.inviter_email || '',
           status: partnershipData.status
         });
@@ -64,7 +64,7 @@ export const JoinPartnership = () => {
         // account re-joining, or the assigned partner returning, is a valid flow the RPC handles.
       } catch (err) {
         console.error('Error fetching inviter info:', err);
-        setError('Failed to load invitation details');
+        setError('טעינת פרטי ההזמנה נכשלה');
       } finally {
         setInviterLoading(false);
       }
@@ -78,7 +78,7 @@ export const JoinPartnership = () => {
     console.log('Current user:', user?.email);
     
     if (!inviteCode) {
-      setError('Invalid invite link');
+      setError('קישור הזמנה לא תקין');
       return;
     }
 
@@ -86,8 +86,8 @@ export const JoinPartnership = () => {
     if (user && partnership?.status === 'active') {
       console.log('User already has active partnership, redirecting to main screen');
       toast({
-        title: "Already in partnership",
-        description: "You're already in an active partnership!",
+        title: "כבר בשותפות",
+        description: "אתם כבר בשותפות פעילה!",
         duration: 2000,
       });
       navigate('/');
@@ -147,15 +147,15 @@ export const JoinPartnership = () => {
       }
 
       if (!result?.success) {
-        throw new Error('Join partnership failed');
+        throw new Error('ההצטרפות לשותפות נכשלה');
       }
 
       console.log('Successfully joined partnership:', result.partnership);
       await refreshPartnership();
 
       toast({
-        title: "Partnership joined! 🎉",
-        description: "You can now start swiping to find baby names together!",
+        title: "הצטרפתם לשותפות! 🎉",
+        description: "עכשיו אפשר להתחיל להחליק ולבחור יחד שמות לתינוק!",
         duration: 3000,
       });
 
@@ -165,8 +165,8 @@ export const JoinPartnership = () => {
     } catch (error: any) {
       console.error('Error joining partnership:', error);
       toast({
-        title: "Failed to join partnership",
-        description: error.message || "Please try again.",
+        title: "ההצטרפות לשותפות נכשלה",
+        description: error.message || "אנא נסו שוב.",
         variant: "destructive",
       });
     } finally {
@@ -186,7 +186,7 @@ export const JoinPartnership = () => {
       >
         <div className="p-8 text-center text-white">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4" />
-          <p>{loading ? 'Joining partnership...' : 'Loading invitation...'}</p>
+          <p>{loading ? 'מצטרף לשותפות...' : 'טוען הזמנה...'}</p>
         </div>
       </div>
     );
@@ -204,10 +204,10 @@ export const JoinPartnership = () => {
       >
         <div className="text-center max-w-md text-white">
           <Heart className="w-12 h-12 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-4">Partnership Error</h1>
+          <h1 className="text-2xl font-bold mb-4">שגיאת שותפות</h1>
           <p className="mb-6">{error}</p>
           <Button onClick={() => navigate('/')} className="bg-white text-primary hover:bg-white/90">
-            Go to Home
+            למסך הבית
           </Button>
         </div>
       </div>
@@ -227,7 +227,7 @@ export const JoinPartnership = () => {
       >
         <div className="text-center max-w-sm w-full">
           <Heart className="w-12 h-12 text-white mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Join Partnership</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">הצטרפות לשותפות</h1>
           
           {/* Inviter Info Card */}
           {inviterInfo && (
@@ -235,7 +235,7 @@ export const JoinPartnership = () => {
               <div className="flex items-center justify-center mb-2">
                 <User className="w-8 h-8 text-white/80" />
               </div>
-              <p className="text-white/80 text-xs uppercase tracking-wider mb-1">Invited by</p>
+              <p className="text-white/80 text-xs uppercase tracking-wider mb-1">הוזמנתם על ידי</p>
               <p className="text-white font-semibold text-lg">{inviterInfo.name}</p>
               {inviterInfo.email && (
                 <p className="text-white/70 text-sm">{inviterInfo.email}</p>
@@ -243,13 +243,14 @@ export const JoinPartnership = () => {
             </div>
           )}
           
-          <p className="text-white/90 mb-6 text-sm">Enter your email to join and start finding baby names together!</p>
+          <p className="text-white/90 mb-6 text-sm">הזינו את האימייל שלכם כדי להצטרף ולהתחיל לבחור יחד שמות לתינוק!</p>
           
           {authStep === 'email' ? (
             <div className="space-y-4">
               <Input
+                dir="ltr"
                 type="email"
-                placeholder="Your email"
+                placeholder="האימייל שלכם"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-full px-5"
@@ -262,10 +263,10 @@ export const JoinPartnership = () => {
                 {authLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-                    Sending Code...
+                    שולח קוד...
                   </>
                 ) : (
-                  'Send Sign In Code'
+                  'שליחת קוד התחברות'
                 )}
               </Button>
             </div>
@@ -275,7 +276,7 @@ export const JoinPartnership = () => {
                 <KeyRound className="w-8 h-8 text-white/90" />
               </div>
               <p className="text-white/80 text-sm">
-                Enter the 6-digit code sent to <strong>{email}</strong>
+                הזינו את הקוד בן 6 הספרות שנשלח אל <strong>{email}</strong>
               </p>
               <Input
                 type="text"
@@ -284,6 +285,7 @@ export const JoinPartnership = () => {
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 className="h-12 bg-white/20 border-white/30 text-white placeholder:text-white/60 text-center text-xl tracking-widest rounded-full"
                 maxLength={6}
+                dir="ltr"
                 autoComplete="one-time-code"
               />
               <Button
@@ -294,10 +296,10 @@ export const JoinPartnership = () => {
                 {authLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-                    Verifying...
+                    מאמת...
                   </>
                 ) : (
-                  'Verify & Join'
+                  'אימות והצטרפות'
                 )}
               </Button>
               <Button
@@ -305,7 +307,7 @@ export const JoinPartnership = () => {
                 onClick={() => { setAuthStep('email'); setOtp(''); }}
                 className="w-full text-white/80 hover:text-white hover:bg-white/10"
               >
-                Change Email
+                שינוי אימייל
               </Button>
             </div>
           )}
@@ -326,11 +328,11 @@ export const JoinPartnership = () => {
     >
       <div className="text-center max-w-sm w-full">
         <Heart className="w-12 h-12 text-white mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-white mb-2">Join Partnership</h1>
-        <p className="text-white/90 mb-6 text-sm">You've been invited to find baby names together!</p>
+        <h1 className="text-2xl font-bold text-white mb-2">הצטרפות לשותפות</h1>
+        <p className="text-white/90 mb-6 text-sm">הוזמנתם לבחור יחד שמות לתינוק!</p>
         
         <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg mb-6">
-          <p className="text-sm text-white/80">Joining as</p>
+          <p className="text-sm text-white/80">מצטרפים בתור</p>
           <p className="font-medium text-white">{user.email}</p>
         </div>
         
@@ -342,10 +344,10 @@ export const JoinPartnership = () => {
           {loading ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-              Joining...
+              מצטרף...
             </>
           ) : (
-            'Join Partnership'
+            'הצטרפות לשותפות'
           )}
         </Button>
       </div>

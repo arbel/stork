@@ -36,8 +36,11 @@ const SwipeCard = memo(({ name, onSwipe, triggerAnimation, onDragChange, maleOcc
   const commitSwipe = useCallback((direction: 'left' | 'right') => {
     if (hasSwipedRef.current) return;
     hasSwipedRef.current = true;
+    // Clear the parent's like/dislike background overlay — otherwise a manual (drag) swipe
+    // leaves the green/red tint stuck on, since the drag never reports a reset to the parent.
+    onDragChange?.(null, 0);
     onSwipe(direction);
-  }, [onSwipe]);
+  }, [onSwipe, onDragChange]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();

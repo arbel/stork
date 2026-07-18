@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Check, Heart, UserX, ArrowLeft } from 'lucide-react';
+import { Bell, Check, Heart, UserX, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -40,8 +40,8 @@ const Notifications = () => {
       } catch (error) {
         console.error('Error loading notifications:', error);
         toast({
-          title: "Error",
-          description: "Failed to load notifications",
+          title: "שגיאה",
+          description: "טעינת ההתראות נכשלה",
           variant: "destructive"
         });
       } finally {
@@ -105,8 +105,8 @@ const Notifications = () => {
       );
 
       toast({
-        title: "Success",
-        description: "All notifications marked as read"
+        title: "הצלחה",
+        description: "כל ההתראות סומנו כנקראו"
       });
     } catch (error) {
       console.error('Error marking all as read:', error);
@@ -133,11 +133,11 @@ const Notifications = () => {
     const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
 
     if (diffInHours < 1) {
-      return 'Just now';
+      return 'הרגע';
     } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)} hours ago`;
+      return `לפני ${Math.floor(diffInHours)} שעות`;
     } else {
-      return `${Math.floor(diffInHours / 24)} days ago`;
+      return `לפני ${Math.floor(diffInHours / 24)} ימים`;
     }
   };
 
@@ -170,11 +170,11 @@ const Notifications = () => {
             onClick={() => navigate("/")}
             className="p-2 text-white hover:bg-white/10"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowRight className="w-5 h-5" />
           </Button>
           
           <h1 className="text-lg font-bold text-white truncate flex-1 text-center mx-4">
-            Notifications
+            התראות
           </h1>
           
           <div className="w-10">
@@ -201,9 +201,9 @@ const Notifications = () => {
               <CardContent className="pt-6">
                 <div className="text-center py-8">
                   <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No notifications yet</h3>
+                  <h3 className="text-lg font-medium mb-2">אין התראות עדיין</h3>
                   <p className="text-muted-foreground">
-                    You'll see notifications here when your partner joins or when you find matches!
+                    כאן יופיעו התראות כשבן/בת הזוג יצטרפו או כשתמצאו התאמות!
                   </p>
                 </div>
               </CardContent>
@@ -218,7 +218,7 @@ const Notifications = () => {
                 onClick={() => !notification.read && markAsRead(notification.id)}
               >
                 <CardContent className="p-4">
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-3 space-x-reverse">
                     <div className="flex-shrink-0 mt-1">
                       {getNotificationIcon(notification.type)}
                     </div>
@@ -228,7 +228,7 @@ const Notifications = () => {
                         <h3 className="font-medium text-sm">
                           {notification.title}
                         </h3>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 space-x-reverse">
                           <span className="text-xs text-muted-foreground">
                             {formatDate(notification.created_at)}
                           </span>

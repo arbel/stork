@@ -119,14 +119,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error
 
       toast({
-        title: "Code sent! 📧",
-        description: "Check your email for the 6-digit verification code.",
+        title: "הקוד נשלח! 📧",
+        description: "בדקו את האימייל לקוד האימות בן 6 הספרות.",
         duration: 5000,
       })
     } catch (error: any) {
       console.error('Error sending OTP:', error)
       toast({
-        title: "Error sending code",
+        title: "שגיאה בשליחת הקוד",
         description: error.message,
         variant: "destructive",
       })
@@ -145,16 +145,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error
 
       toast({
-        title: "Welcome! 🎉",
-        description: "You're successfully signed in!",
+        title: "ברוכים הבאים! 🎉",
+        description: "התחברתם בהצלחה!",
         duration: 3000,
       })
     } catch (error: any) {
       console.error('Error verifying OTP:', error)
       toast({
-        title: "Invalid code",
+        title: "קוד לא תקין",
         description: error.message === 'Token has expired or is invalid' 
-          ? "The code has expired or is incorrect. Please try again."
+          ? "הקוד פג תוקף או שגוי. אנא נסו שוב."
           : error.message,
         variant: "destructive",
       })
@@ -168,12 +168,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error
       
       toast({
-        title: "Signed out successfully",
-        description: "See you next time!",
+        title: "התנתקתם בהצלחה",
+        description: "נתראה בפעם הבאה!",
       })
     } catch (error: any) {
       toast({
-        title: "Error signing out",
+        title: "שגיאה בהתנתקות",
         description: error.message,
         variant: "destructive",
       })
@@ -222,13 +222,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await loadProfile(user.id);
       
       toast({
-        title: "Profile updated!",
-        description: "Your preferences have been saved.",
+        title: "הפרופיל עודכן!",
+        description: "ההעדפות שלכם נשמרו.",
       });
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error updating profile",
+        title: "שגיאה בעדכון הפרופיל",
         description: error.message,
         variant: "destructive",
       });

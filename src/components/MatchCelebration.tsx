@@ -322,30 +322,28 @@ export const MatchCelebration = ({ matchedName, onContinue }: MatchCelebrationPr
       {/* CSS for card animations */}
       <style>{`
         .card-entrance-start {
-          transform: scale(0.3) rotate(-15deg) translateY(100px);
+          transform: scale(0.92) translateY(24px);
           opacity: 0;
         }
 
         .card-entrance-complete {
-          transform: scale(1) rotate(0deg) translateY(0);
+          transform: scale(1) translateY(0);
           opacity: 1;
-          animation: card-spin-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation: card-rise-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
-        @keyframes card-spin-in {
+        @keyframes card-rise-in {
           0% {
-            transform: scale(0.3) rotate(-180deg) translateY(150px);
+            transform: scale(0.92) translateY(24px);
             opacity: 0;
           }
-          50% {
-            transform: scale(1.1) rotate(10deg) translateY(-20px);
+          70% {
+            transform: scale(1.02) translateY(-6px);
             opacity: 1;
           }
-          75% {
-            transform: scale(0.95) rotate(-5deg) translateY(10px);
-          }
           100% {
-            transform: scale(1) rotate(0deg) translateY(0);
+            transform: scale(1) translateY(0);
+            opacity: 1;
           }
         }
       `}</style>

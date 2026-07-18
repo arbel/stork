@@ -76,10 +76,10 @@ export const HamburgerMenu = () => {
 
     const handleTouchEnd = (e: TouchEvent) => {
       touchEndX = e.changedTouches[0].clientX;
-      const swipeDistance = touchEndX - touchStartX;
-      
-      // Only trigger if swipe started from left edge (within 30px) and swiped right
-      if (touchStartX < 30 && swipeDistance > minSwipeDistance) {
+      const swipeDistance = touchStartX - touchEndX;
+
+      // Only trigger if swipe started from right edge (within 30px) and swiped left (RTL)
+      if (touchStartX > window.innerWidth - 30 && swipeDistance > minSwipeDistance) {
         setOpen(true);
       }
     };
@@ -105,14 +105,14 @@ export const HamburgerMenu = () => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-14 w-14">
-          <Menu className="h-12 w-12 text-white" />
+        <Button variant="ghost" size="icon" className="h-12 w-12 [&_svg]:size-7 text-white hover:bg-white/10 hover:text-white">
+          <Menu />
         </Button>
       </SheetTrigger>
       
-      <SheetContent side="left" className="w-80">
+      <SheetContent side="right" className="w-80">
         <SheetHeader className="pb-4">
-          <SheetTitle className="flex items-center space-x-3">
+          <SheetTitle className="flex items-center space-x-3 space-x-reverse">
             <Heart className="h-6 w-6 text-love fill-current" />
             <span className="text-xl">Stork</span>
           </SheetTitle>
@@ -122,13 +122,13 @@ export const HamburgerMenu = () => {
           {/* Matches */}
           <Button
             variant="ghost"
-            className="w-full justify-start space-x-3 text-base py-3 h-auto"
+            className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
             onClick={() => handleNavigation("/matches")}
           >
             <Sparkles className="h-5 w-5 text-[#5CC1B6]" />
-            <span>Matches</span>
+            <span>התאמות</span>
             {matches.length > 0 && (
-              <Badge variant="secondary" className="ml-auto bg-[#5CC1B6]/20 text-[#5CC1B6] text-sm">
+              <Badge variant="secondary" className="ms-auto bg-[#5CC1B6]/20 text-[#5CC1B6] text-sm">
                 {matches.length}
               </Badge>
             )}
@@ -137,13 +137,13 @@ export const HamburgerMenu = () => {
           {/* Liked */}
           <Button
             variant="ghost"
-            className="w-full justify-start space-x-3 text-base py-3 h-auto"
+            className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
             onClick={() => handleNavigation("/liked")}
           >
             <Heart className="h-5 w-5 text-[#22C55E] fill-current" />
-            <span>Liked</span>
+            <span>אהבתי</span>
             {likedNames.length > 0 && (
-              <Badge variant="secondary" className="ml-auto bg-[#22C55E]/20 text-[#22C55E] text-sm">
+              <Badge variant="secondary" className="ms-auto bg-[#22C55E]/20 text-[#22C55E] text-sm">
                 {likedNames.length}
               </Badge>
             )}
@@ -152,13 +152,13 @@ export const HamburgerMenu = () => {
           {/* Passed */}
           <Button
             variant="ghost"
-            className="w-full justify-start space-x-3 text-base py-3 h-auto"
+            className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
             onClick={() => handleNavigation("/passed")}
           >
             <X className="h-5 w-5 text-[#EF5185]" />
-            <span>Passed</span>
+            <span>דילגתי</span>
             {passedNames.length > 0 && (
-              <Badge variant="secondary" className="ml-auto bg-[#EF5185]/20 text-[#EF5185] text-sm">
+              <Badge variant="secondary" className="ms-auto bg-[#EF5185]/20 text-[#EF5185] text-sm">
                 {passedNames.length}
               </Badge>
             )}
@@ -167,31 +167,31 @@ export const HamburgerMenu = () => {
           {/* My Preferences */}
           <Button
             variant="ghost"
-            className="w-full justify-start space-x-3 text-base py-3 h-auto"
+            className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
             onClick={() => handleNavigation("/preferences")}
           >
             <Settings className="h-5 w-5" />
-            <span>My Preferences</span>
+            <span>ההעדפות שלי</span>
           </Button>
 
           {/* Settings */}
           <Button
             variant="ghost"
-            className="w-full justify-start space-x-3 text-base py-3 h-auto"
+            className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
             onClick={() => handleNavigation("/settings")}
           >
             <Cog className="h-5 w-5" />
-            <span>Settings</span>
+            <span>הגדרות</span>
           </Button>
 
           {/* Feedback */}
           <Button
             variant="ghost"
-            className="w-full justify-start space-x-3 text-base py-3 h-auto"
+            className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
             onClick={() => handleNavigation("/feedback")}
           >
             <MessageSquare className="h-5 w-5" />
-            <span>Send Feedback</span>
+            <span>שליחת משוב</span>
           </Button>
 
           <Separator className="my-4" />
@@ -199,19 +199,19 @@ export const HamburgerMenu = () => {
           {/* Users Section */}
           <div className="space-y-3">
             <div className="px-3 py-2">
-              <h4 className="text-base font-medium text-muted-foreground">Users</h4>
+              <h4 className="text-base font-medium text-muted-foreground">משתמשים</h4>
             </div>
 
             {/* Current User */}
             {user && (
-              <div className="flex items-center space-x-3 px-3 py-2 bg-muted/30 rounded-lg">
+              <div className="flex items-center space-x-3 space-x-reverse px-3 py-2 bg-muted/30 rounded-lg">
                 <Avatar className="h-10 w-10">
                   <AvatarFallback className="bg-primary/10 text-primary">
                     {getInitials(user.email!)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center space-x-2">
+                <div className="flex-1 text-start">
+                  <div className="flex items-center space-x-2 space-x-reverse">
                     <p className="text-base font-medium text-foreground">
                       {profile?.first_name || user.email?.split('@')[0]}
                     </p>
@@ -221,21 +221,21 @@ export const HamburgerMenu = () => {
                       <User className="h-4 w-4 text-blue-500" />
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">You</p>
+                  <p className="text-sm text-muted-foreground">אתה</p>
                 </div>
               </div>
             )}
 
             {/* Partner */}
             {partnership?.status === 'active' && partnerProfile ? (
-              <div className="flex items-center space-x-3 px-3 py-2 bg-muted/30 rounded-lg">
+              <div className="flex items-center space-x-3 space-x-reverse px-3 py-2 bg-muted/30 rounded-lg">
                 <Avatar className="h-10 w-10">
                   <AvatarFallback className="bg-muted text-muted-foreground">
                     {getInitials(partnerProfile.email)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center space-x-2">
+                <div className="flex-1 text-start">
+                  <div className="flex items-center space-x-2 space-x-reverse">
                     <p className="text-base font-medium text-foreground">
                       {partnerProfile.first_name || partnerProfile.email?.split('@')[0]}
                     </p>
@@ -245,32 +245,32 @@ export const HamburgerMenu = () => {
                       <User className="h-4 w-4 text-blue-500" />
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">Partner</p>
+                  <p className="text-sm text-muted-foreground">בן/בת זוג</p>
                 </div>
               </div>
             ) : partnership?.status === 'pending' ? (
               <>
                 <div className="px-3 py-2 bg-muted/30 rounded-lg">
-                  <p className="text-base font-medium text-foreground">Invitation Sent</p>
-                  <p className="text-sm text-muted-foreground">Waiting for partner to join</p>
+                  <p className="text-base font-medium text-foreground">ההזמנה נשלחה</p>
+                  <p className="text-sm text-muted-foreground">ממתינים שבן/בת הזוג יצטרפו</p>
                 </div>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start space-x-3 text-base py-3 h-auto"
+                  className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
                   onClick={() => handleNavigation("/partner/invite")}
                 >
                   <Mail className="h-5 w-5" />
-                  <span>Resend Invitation</span>
+                  <span>שליחת הזמנה מחדש</span>
                 </Button>
               </>
             ) : (
               <Button
                 variant="ghost"
-                className="w-full justify-start space-x-3 text-base py-3 h-auto"
+                className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
                 onClick={() => handleNavigation("/partner/invite")}
               >
                 <UserPlus className="h-5 w-5" />
-                <span>Invite Partner</span>
+                <span>הזמנת בן/בת זוג</span>
               </Button>
             )}
           </div>
@@ -282,11 +282,11 @@ export const HamburgerMenu = () => {
           <Separator className="mb-4" />
           <Button
             variant="ghost"
-            className="w-full justify-start space-x-3 text-base text-muted-foreground py-3 h-auto"
+            className="w-full justify-start space-x-3 space-x-reverse text-base text-muted-foreground py-3 h-auto"
             onClick={signOut}
           >
             <LogOut className="h-5 w-5" />
-            <span>Sign Out</span>
+            <span>התנתקות</span>
           </Button>
         </div>
       </SheetContent>
