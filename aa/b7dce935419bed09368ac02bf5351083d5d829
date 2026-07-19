@@ -1,0 +1,25 @@
+src/contexts/AuthContext.tsx
+  s_84ef6b476a1667::t_03e22772d3c78d 114-118
+src/pages/JoinPartnership.tsx
+  s_84ef6b476a1667::t_6898fa9fb501b6 212-213
+  s_84ef6b476a1667::t_3036c90052b403 129-132
+src/pages/Index.tsx
+  s_84ef6b476a1667::t_cc6936857f929f 25-36
+  s_84ef6b476a1667::t_cee54c014b1717 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "aab7dce935419bed09368ac02bf5351083d5d829",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
