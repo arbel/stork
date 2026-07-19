@@ -1,0 +1,20 @@
+src/components/SwipeInterface.tsx
+  s_84ef6b476a1667::t_04f309fb096684 272,276,278,280,283,297-298,300-304
+  s_84ef6b476a1667::t_ec151f9ae208f3 40-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "a0269020eb8b7d7855898407f084e4f0042192b3",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
