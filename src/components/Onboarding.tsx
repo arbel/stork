@@ -436,7 +436,11 @@ export const Onboarding = () => {
                           : 'border-[#ECECEC] bg-[#F7F7F5] text-[#8C8478]'
                       }`}
                     >
-                      {selected && <Check className="w-4 h-4 flex-shrink-0" strokeWidth={3} />}
+                      <Check
+                        aria-hidden
+                        strokeWidth={3}
+                        className={`w-4 h-4 flex-shrink-0 transition-opacity ${selected ? 'opacity-100' : 'opacity-0'}`}
+                      />
                       {opt.label}
                     </button>
                   );
