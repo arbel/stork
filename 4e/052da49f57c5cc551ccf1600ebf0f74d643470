@@ -1,0 +1,21 @@
+src/components/Onboarding.tsx
+  s_84ef6b476a1667::t_4dc60010c803aa 439-443
+src/pages/Preferences.tsx
+  s_84ef6b476a1667::t_1dc337b3d8f7df 178-182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "4e052da49f57c5cc551ccf1600ebf0f74d643470",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
