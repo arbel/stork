@@ -159,7 +159,7 @@ const Preferences = () => {
               <p className="text-sm text-muted-foreground mt-1">בחרו את הקטגוריות שמעניינות אתכם</p>
             </div>
 
-            <div className={`flex flex-wrap justify-center gap-2.5 ${isAdmin ? '' : 'opacity-60'}`}>
+            <div className={`grid grid-cols-2 gap-2.5 ${isAdmin ? '' : 'opacity-60'}`}>
               {originGroupOptions.map((opt) => {
                 const selected = originGroups.includes(opt.value);
                 return (
@@ -169,7 +169,7 @@ const Preferences = () => {
                     onClick={() => toggleOriginGroup(opt.value)}
                     disabled={!isAdmin}
                     aria-pressed={selected}
-                    className={`inline-flex items-center gap-1.5 rounded-full border-[1.5px] px-4 py-2.5 text-[15px] font-bold transition-colors ${
+                    className={`flex w-full items-center justify-center gap-1.5 rounded-full border-[1.5px] px-4 py-2.5 text-[15px] font-bold transition-colors ${
                       selected
                         ? 'border-[#24C065] bg-[#EAF9F0] text-[#1E9E52]'
                         : 'border-[#ECECEC] bg-[#F7F7F5] text-[#8C8478]'

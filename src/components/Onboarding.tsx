@@ -421,7 +421,7 @@ export const Onboarding = () => {
               <div className="text-[23px] font-extrabold text-[#23282B] mt-1.5">אילו שמות להציג?</div>
               <div className="text-sm font-medium text-[#8C8478] mt-1">בחרו את הקטגוריות שמעניינות אתכם</div>
 
-              <div className="flex flex-wrap justify-center gap-2.5 mt-[18px]">
+              <div className="grid grid-cols-2 gap-2.5 mt-[18px]">
                 {originGroupOptions.map((opt) => {
                   const selected = originGroups.includes(opt.value);
                   return (
@@ -430,7 +430,7 @@ export const Onboarding = () => {
                       type="button"
                       onClick={() => toggleOriginGroup(opt.value)}
                       aria-pressed={selected}
-                      className={`inline-flex items-center gap-1.5 rounded-full border-[1.5px] px-4 py-2.5 text-[15px] font-bold transition-colors ${
+                      className={`flex w-full items-center justify-center gap-1.5 rounded-full border-[1.5px] px-4 py-2.5 text-[15px] font-bold transition-colors ${
                         selected
                           ? 'border-[#24C065] bg-[#EAF9F0] text-[#1E9E52]'
                           : 'border-[#ECECEC] bg-[#F7F7F5] text-[#8C8478]'
