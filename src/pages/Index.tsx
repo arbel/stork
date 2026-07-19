@@ -1,5 +1,6 @@
 import { SwipeInterface } from "@/components/SwipeInterface";
 import { Onboarding } from "@/components/Onboarding";
+import { Navigate } from "react-router-dom";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { StorkLoader } from "@/components/StorkLoader";
 import storkWordmark from "@/assets/stork-logo.svg";
@@ -19,6 +20,18 @@ const Index = () => {
         <StorkLoader message="רגע אחד…" tone="dark" />
       </div>
     );
+  }
+
+  // Safety net for invited users: if a magic-link redirect dropped the /join/:code path and
+  // landed a brand-new user here, send them back to the invite page once — otherwise the
+  // fresh-signup/onboarding flow would create their own partnership instead of joining.
+  const pendingInvite = typeof window !== 'undefined' ? localStorage.getItem('pending_invite_code') : null;
+  if (
+    user && pendingInvite && !isOnboardingComplete &&
+    !sessionStorage.getItem('invite_recovery_done')
+  ) {
+    sessionStorage.setItem('invite_recovery_done', '1');
+    return <Navigate to={`/join/${pendingInvite}`} replace />;
   }
 
   if (!isOnboardingComplete) {

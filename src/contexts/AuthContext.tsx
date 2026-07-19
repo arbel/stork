@@ -111,6 +111,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         options: {
           shouldCreateUser: true,
+          // Built-in Supabase email sends a magic LINK (template editing needs custom SMTP).
+          // Without this, the link redirects to the Site URL (app root) and drops the
+          // /join/:code path — so an invited user lands in fresh signup instead of joining.
+          // Returning to the exact page they started on preserves the invite context.
+          emailRedirectTo: `${window.location.origin}${window.location.pathname}`,
         },
       })
 

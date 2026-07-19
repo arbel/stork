@@ -126,6 +126,10 @@ export const JoinPartnership = () => {
       return;
     }
 
+    // Remember the invite so that if a magic-link redirect drops the /join path and lands the
+    // user at the app root, Index can route them back here instead of the fresh-signup flow.
+    localStorage.setItem('pending_invite_code', inviteCode);
+
     // If user is authenticated and already has an active partnership, redirect to main screen
     if (user && partnership?.status === 'active') {
       console.log('User already has active partnership, redirecting to main screen');
@@ -205,6 +209,8 @@ export const JoinPartnership = () => {
       }
 
       console.log('Successfully joined partnership:', result.partnership);
+      localStorage.removeItem('pending_invite_code');
+      sessionStorage.removeItem('invite_recovery_done');
       await refreshPartnership();
 
       toast({
