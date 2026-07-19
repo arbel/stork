@@ -1,6 +1,8 @@
 import { SwipeInterface } from "@/components/SwipeInterface";
 import { Onboarding } from "@/components/Onboarding";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
+import { StorkLoader } from "@/components/StorkLoader";
+import storkWordmark from "@/assets/stork-logo.svg";
 import { useSwipe } from "@/contexts/SwipeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import heroImage from "@/assets/baby-hero.jpg";
@@ -14,7 +16,7 @@ const Index = () => {
   if (loading || profileLoading || (user && !profile)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <StorkLoader message="רגע אחד…" tone="dark" />
       </div>
     );
   }
@@ -28,7 +30,7 @@ const Index = () => {
       {/* Header with Hamburger Menu and Stork Title */}
       <div className="absolute top-6 left-0 right-0 z-20 flex items-center justify-between px-4">
         <HamburgerMenu />
-        <h1 className="text-3xl font-bold text-white absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">Stork</h1>
+        <img src={storkWordmark} alt="Stork" className="h-14 w-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
       </div>
       
       {/* Main Content */}

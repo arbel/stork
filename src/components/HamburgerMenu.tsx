@@ -110,15 +110,15 @@ export const HamburgerMenu = () => {
         </Button>
       </SheetTrigger>
       
-      <SheetContent side="right" className="w-80">
-        <SheetHeader className="pb-4">
+      <SheetContent side="right" className="w-80 flex flex-col gap-0 p-0">
+        <SheetHeader className="px-6 pt-6 pb-4">
           <SheetTitle className="flex items-center space-x-3 space-x-reverse">
             <Heart className="h-6 w-6 text-love fill-current" />
             <span className="text-xl">Stork</span>
           </SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-2">
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 space-y-2">
           {/* Matches */}
           <Button
             variant="ghost"
@@ -278,7 +278,7 @@ export const HamburgerMenu = () => {
         </div>
 
         {/* Bottom section */}
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="px-6 pb-4 pt-2">
           <Separator className="mb-4" />
           <Button
             variant="ghost"

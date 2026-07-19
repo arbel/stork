@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { Card } from "@/components/ui/card";
-import { Heart, X } from "lucide-react";
+import { Heart, X, Star } from "lucide-react";
 import { BoyIcon } from "./icons/BoyIcon";
 import { GirlIcon } from "./icons/GirlIcon";
 import { UnisexIcon } from "./icons/UnisexIcon";
-import { GenderDistributionBar } from "./GenderDistributionBar";
+import { GenderDistributionBar, ORIGIN_LABELS } from "./GenderDistributionBar";
 import { BabyName } from "@/contexts/SwipeContext";
 
 interface SwipeCardProps {
@@ -14,9 +14,10 @@ interface SwipeCardProps {
   onDragChange?: (direction: 'left' | 'right' | null, offset: number) => void;
   maleOccurrences?: number;
   femaleOccurrences?: number;
+  popularity?: { rank: number; group: string } | null;
 }
 
-const SwipeCard = memo(({ name, onSwipe, triggerAnimation, onDragChange, maleOccurrences = 0, femaleOccurrences = 0 }: SwipeCardProps) => {
+const SwipeCard = memo(({ name, onSwipe, triggerAnimation, onDragChange, maleOccurrences = 0, femaleOccurrences = 0, popularity = null }: SwipeCardProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
@@ -162,6 +163,8 @@ const SwipeCard = memo(({ name, onSwipe, triggerAnimation, onDragChange, maleOcc
     transition: isAnimating ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : isDragging ? 'none' : 'transform 0.2s ease-out',
   };
 
+  const originLabel = name.originCategory ? ORIGIN_LABELS[name.originCategory] : undefined;
+
   const getGenderIcon = () => {
     switch(name.gender) {
       case 'male':
@@ -212,14 +215,28 @@ const SwipeCard = memo(({ name, onSwipe, triggerAnimation, onDragChange, maleOcc
             femaleOccurrences={femaleOccurrences}
             displayName={name.displayName || name.name}
             showNameDisplay={true}
+            originCategory={name.originCategory}
+            meaning={name.meaning}
+            popularity={popularity}
           />
         ) : (
           /* Fallback for names without occurrence data */
-          <div className="flex-1 flex flex-col items-center justify-center p-4">
-            <div className="flex justify-center mb-4">
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 p-4">
+            <div className="flex justify-center mb-2">
               {getGenderIcon()}
             </div>
             <h2 className="text-5xl sm:text-6xl font-bold" style={{ color: getNameColor() }}>{name.displayName || name.name}</h2>
+            {name.meaning && (
+              <p className="mt-2 text-base sm:text-lg text-gray-700 leading-snug text-center max-w-[28ch]">
+                {name.meaning}
+              </p>
+            )}
+            {originLabel && (
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-sm font-semibold text-slate-600">
+                <Star className="w-3.5 h-3.5" strokeWidth={2} />
+                {originLabel}
+              </div>
+            )}
           </div>
         )}
         
