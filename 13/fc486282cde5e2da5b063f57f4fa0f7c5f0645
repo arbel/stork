@@ -1,0 +1,27 @@
+src/components/AuthGate.tsx
+  s_84ef6b476a1667::t_82db274bd4787f 49
+  s_84ef6b476a1667::t_1200dbf83f3bd1 151,154
+  s_84ef6b476a1667::t_554941690818aa 142
+  s_84ef6b476a1667::t_e60775e2e03089 161
+src/pages/JoinPartnership.tsx
+  s_84ef6b476a1667::t_65875d603d4ebe 288
+  s_84ef6b476a1667::t_9c99f30d4fea63 173
+  s_84ef6b476a1667::t_3ba274196b67f5 298-299
+  s_84ef6b476a1667::t_93101044853938 303
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "13fc486282cde5e2da5b063f57f4fa0f7c5f0645",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
