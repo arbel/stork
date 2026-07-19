@@ -37,6 +37,36 @@ const fnv1a = (str: string): number => {
   return hash >>> 0;
 };
 
+// Inject the partner's liked names into the deck at a fixed cadence (1 per N cards) so they
+// surface as steady match opportunities — boosted toward the front, but never front-loaded and
+// never two in a row (fairness). The base order is preserved, so partners' decks still diverge.
+const PARTNER_LIKE_EVERY = 3;
+
+const interleavePartnerLikes = <T extends { name: string }>(ordered: T[], partnerLikeSet: Set<string>): T[] => {
+  if (partnerLikeSet.size === 0) return ordered;
+
+  const liked: T[] = [];
+  const rest: T[] = [];
+  for (const item of ordered) (partnerLikeSet.has(item.name) ? liked : rest).push(item);
+  if (liked.length === 0) return ordered;
+
+  const merged: T[] = [];
+  let li = 0;
+  let ri = 0;
+  let sinceInject = 0;
+  while (ri < rest.length || li < liked.length) {
+    const injectNow = li < liked.length && (sinceInject >= PARTNER_LIKE_EVERY - 1 || ri >= rest.length);
+    if (injectNow) {
+      merged.push(liked[li++]);
+      sinceInject = 0;
+    } else {
+      merged.push(rest[ri++]);
+      sinceInject++;
+    }
+  }
+  return merged;
+};
+
 const SwipeInterface = () => {
   const { likedNames, passedNames, matches, partnerLikes, addLikedName, addPassedName, addMatch, resetAll, preferences, partnership, refreshPartnership } = useSwipe();
   const { user } = useAuth();
@@ -239,17 +269,18 @@ const SwipeInterface = () => {
       return true;
     });
     
+    let ordered: NameWithOccurrences[];
     if (useRecommendations && recommendations.length > 0) {
       // Create a map of recommendation scores
       const recScores = new Map(recommendations.map(rec => [rec.name, rec.score]));
-      
+
       console.log('Using recommendations mode. Scores:', Array.from(recScores.entries()).slice(0, 5));
-      
+
       // Sort names by recommendation score, with stable sorting for same scores
-      return filtered.sort((a, b) => {
+      ordered = filtered.sort((a, b) => {
         const scoreA = recScores.get(a.name) || 0;
         const scoreB = recScores.get(b.name) || 0;
-        
+
         if (scoreA !== scoreB) {
           return scoreB - scoreA; // Higher scores first
         }
@@ -263,10 +294,14 @@ const SwipeInterface = () => {
       });
     } else {
       console.log('Creating weighted popularity deck with', filtered.length, 'names');
-      // Return filtered names with weighted popularity ordering
-      return weightedPopularityShuffle(filtered);
+      // Filtered names with weighted popularity ordering
+      ordered = weightedPopularityShuffle(filtered);
     }
-  }, [preferences, recommendations, useRecommendations, weightedPopularityShuffle, allNames, randomSeed]);
+
+    // Idea #2: boost the partner's liked (still-unmatched) names by interleaving them into the
+    // deck at a steady cadence — more match opportunities without front-loading them all.
+    return interleavePartnerLikes(ordered, new Set(partnerLikes));
+  }, [preferences, recommendations, useRecommendations, weightedPopularityShuffle, allNames, randomSeed, partnerLikes]);
 
   // Filter out swiped names WITHOUT reshuffling - maintains stable order
   const availableNames = useMemo(() => {
