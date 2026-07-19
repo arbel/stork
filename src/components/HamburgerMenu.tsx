@@ -5,9 +5,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
-  Menu, 
-  Heart, 
-  Settings, 
+  Menu,
+  Heart,
+  Search,
+  Settings,
   Cog,
   LogOut, 
   Mail,
@@ -119,6 +120,16 @@ export const HamburgerMenu = () => {
         </SheetHeader>
 
         <div className="flex-1 min-h-0 overflow-y-auto px-6 space-y-2">
+          {/* Find a name */}
+          <Button
+            variant="ghost"
+            className="w-full justify-start space-x-3 space-x-reverse text-base py-3 h-auto"
+            onClick={() => handleNavigation("/find-name")}
+          >
+            <Search className="h-5 w-5 text-[#E8508A]" />
+            <span>חיפוש שם</span>
+          </Button>
+
           {/* Matches */}
           <Button
             variant="ghost"

@@ -11,6 +11,7 @@ import Matches from "./pages/Matches";
 import Liked from "./pages/Liked";
 import Passed from "./pages/Passed";
 import Preferences from "./pages/Preferences";
+import FindName from "./pages/FindName";
 import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
 import { PartnerInvite } from "./pages/PartnerInvite";
@@ -39,6 +40,7 @@ const App = () => (
               {/* Main App Routes */}
               <Route path="/join/:inviteCode" element={<JoinPartnership />} />
               <Route path="/" element={<AuthGate><Index /></AuthGate>} />
+              <Route path="/find-name" element={<AuthGate><FindName /></AuthGate>} />
               <Route path="/matches" element={<AuthGate><Matches /></AuthGate>} />
               <Route path="/liked" element={<AuthGate><Liked /></AuthGate>} />
               <Route path="/passed" element={<AuthGate><Passed /></AuthGate>} />
