@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { ArrowRight, Save, Baby, User, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -124,31 +122,31 @@ const Preferences = () => {
               </div>
             </div>
 
-            <RadioGroup
-              value={gender}
-              onValueChange={isAdmin ? (value) => setGender(value as 'male' | 'female' | 'unknown') : undefined}
-              className="space-y-3"
-              disabled={!isAdmin}
-            >
+            <div className="space-y-3" role="radiogroup" aria-label="מין התינוק">
               {genderOptions.map((opt) => {
                 const selected = gender === opt.value;
                 return (
-                  <Label
+                  <button
                     key={opt.value}
-                    htmlFor={opt.value}
-                    className={`flex items-center justify-between gap-3 rounded-[14px] border-[1.5px] px-4 py-3.5 transition-colors ${
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => { if (isAdmin) setGender(opt.value); }}
+                    disabled={!isAdmin}
+                    className={`w-full flex items-center gap-3 rounded-[14px] border-[1.5px] px-3.5 py-3.5 text-start transition-colors ${
                       selected ? 'border-[#E8508A] bg-[#FDF2F6]' : 'border-[#ECECEC] bg-white'
                     } ${isAdmin ? 'cursor-pointer' : 'opacity-60 cursor-not-allowed'}`}
                   >
-                    <span className="flex items-center gap-2">
-                      <span className="text-[15px] font-bold text-[#23282B]">{opt.label}</span>
-                      <span className="text-[19px] leading-none">{opt.emoji}</span>
-                    </span>
-                    <RadioGroupItem value={opt.value} id={opt.value} disabled={!isAdmin} />
-                  </Label>
+                    <span
+                      className="rounded-full flex-shrink-0 box-border"
+                      style={{ width: 20, height: 20, border: selected ? '6px solid #E8508A' : '2px solid #D2D2D2' }}
+                    />
+                    <span className="text-[19px] leading-none">{opt.emoji}</span>
+                    <span className="text-[15px] font-bold text-[#23282B]">{opt.label}</span>
+                  </button>
                 );
               })}
-            </RadioGroup>
+            </div>
           </Card>
 
           {/* Name origin filter */}
