@@ -1,18 +1,61 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { devSkipOtp } from '@/lib/devAuth';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSwipe } from '@/contexts/SwipeContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
-import { Heart, KeyRound, User } from 'lucide-react';
+import { Heart, Lock, Layers, ArrowLeft } from 'lucide-react';
+import storkLogo from '@/assets/stork-logo.svg';
+
+const FONT = "'Assistant', system-ui, sans-serif";
+
+const bgStyle = {
+  backgroundImage: 'url(/bg-base.png)',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+} as const;
 
 interface InviterInfo {
   name: string;
   email: string;
   status: string;
 }
+
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+
+// Teal hero + white bottom-sheet shell shared by every join sub-screen.
+const Shell = ({
+  headline,
+  children,
+}: {
+  headline: React.ReactNode;
+  children: React.ReactNode;
+}) => (
+  <div className="min-h-[100dvh] w-full flex justify-center" style={{ ...bgStyle, fontFamily: FONT }}>
+    <div className="w-full max-w-md flex flex-col min-h-[100dvh]">
+      <div className="text-center px-6 pt-9">
+        <img src={storkLogo} alt="Stork" className="inline-block w-[120px] h-auto" />
+        <div className="text-white font-extrabold text-[21px] leading-[1.3] mt-5">{headline}</div>
+      </div>
+      <div className="flex-1" />
+      <div className="bg-white rounded-t-[30px] px-[22px] pt-[22px] pb-6 shadow-[0_-14px_34px_-20px_rgba(0,0,0,.35)]">
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+const features = [
+  { Icon: Layers, text: 'עוברים על שמות בהחלקה — כמו דייטינג, לשמות' },
+  { Icon: Heart, text: 'שם ששניכם אהבתם הופך ל"מאצ\'" משותף' },
+  { Icon: Lock, text: 'בחינם, פרטי, ורק לשניכם' },
+];
+
+const ctaClass =
+  'w-full flex items-center justify-center gap-2 rounded-[14px] bg-[#E8508A] text-white font-extrabold text-[16px] py-4 shadow-[0_12px_26px_-12px_rgba(232,80,138,.6)] disabled:opacity-50 disabled:shadow-none transition-all';
+const inputClass =
+  'w-full rounded-[14px] border-[1.5px] border-[#E7E7E7] px-4 py-[15px] text-[15px] font-medium text-[#23282B] placeholder:text-[#B4B4B4] outline-none focus:border-[#E8508A] transition-colors';
 
 export const JoinPartnership = () => {
   const { inviteCode } = useParams<{ inviteCode: string }>();
@@ -21,14 +64,15 @@ export const JoinPartnership = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Inviter info
   const [inviterInfo, setInviterInfo] = useState<InviterInfo | null>(null);
   const [inviterLoading, setInviterLoading] = useState(true);
-  
+
   // Auth state
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
+  const [screen, setScreen] = useState<'intro' | 'email'>('intro');
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
   const [authStep, setAuthStep] = useState<'email' | 'otp'>('email');
   const [authLoading, setAuthLoading] = useState(false);
 
@@ -76,7 +120,7 @@ export const JoinPartnership = () => {
   useEffect(() => {
     console.log('JoinPartnership component loaded with inviteCode:', inviteCode);
     console.log('Current user:', user?.email);
-    
+
     if (!inviteCode) {
       setError('קישור הזמנה לא תקין');
       return;
@@ -97,9 +141,19 @@ export const JoinPartnership = () => {
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    
+    if (!isValidEmail(email)) return;
+
     setAuthLoading(true);
+
+    // DEV ONLY: skip the OTP code step entirely.
+    if (import.meta.env.DEV) {
+      try {
+        if (await devSkipOtp(email)) return; // auth state change re-renders into the join step
+      } catch (error) {
+        console.warn('[dev] OTP bypass errored, falling back to code flow:', error);
+      }
+    }
+
     try {
       await signInWithEmail(email);
       setAuthStep('otp');
@@ -113,7 +167,7 @@ export const JoinPartnership = () => {
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otp || otp.length !== 6) return;
-    
+
     setAuthLoading(true);
     try {
       await verifyOtp(email, otp);
@@ -127,7 +181,7 @@ export const JoinPartnership = () => {
 
     console.log('Starting secure join partnership process via function');
     setLoading(true);
-    
+
     try {
       const { data, error } = await supabase
         .rpc('join_partnership_by_invite', {
@@ -141,7 +195,7 @@ export const JoinPartnership = () => {
       }
 
       const result = data as any;
-      
+
       if (result?.error) {
         throw new Error(result.error);
       }
@@ -161,7 +215,7 @@ export const JoinPartnership = () => {
 
       // Redirect to home - the simplified Onboarding flow will handle the rest
       window.location.href = '/';
-      
+
     } catch (error: any) {
       console.error('Error joining partnership:', error);
       toast({
@@ -174,19 +228,32 @@ export const JoinPartnership = () => {
     }
   };
 
+  const inviterName = inviterInfo?.name || 'מישהו';
+  const inviterInitial = inviterName.trim().charAt(0) || '?';
+
+  const InviterCard = () => (
+    <div className="flex items-center gap-3 bg-[#FDF2F6] rounded-2xl px-3.5 py-3">
+      <div className="w-11 h-11 rounded-full bg-[#E8508A] text-white font-extrabold text-[20px] flex items-center justify-center flex-shrink-0">
+        {inviterInitial}
+      </div>
+      <div className="min-w-0 text-start">
+        <div className="text-[11px] font-semibold text-[#C77BA0]">הוזמנתם על ידי</div>
+        <div className="text-[16px] font-extrabold text-[#23282B] leading-[1.1]">{inviterName}</div>
+        {inviterInfo?.email && (
+          <div dir="ltr" className="text-[12px] font-medium text-[#9A928A] whitespace-nowrap overflow-hidden text-ellipsis text-right">
+            {inviterInfo.email}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   if (loading || inviterLoading) {
     return (
-      <div 
-        className="min-h-screen flex items-center justify-center"
-        style={{
-          backgroundImage: 'url(/bg-base.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
+      <div className="min-h-[100dvh] flex items-center justify-center" style={bgStyle}>
         <div className="p-8 text-center text-white">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4" />
-          <p>{loading ? 'מצטרף לשותפות...' : 'טוען הזמנה...'}</p>
+          <p style={{ fontFamily: FONT }}>{loading ? 'מצטרף לשותפות...' : 'טוען הזמנה...'}</p>
         </div>
       </div>
     );
@@ -194,163 +261,138 @@ export const JoinPartnership = () => {
 
   if (error) {
     return (
-      <div 
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{
-          backgroundImage: 'url(/bg-base.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
-        <div className="text-center max-w-md text-white">
-          <Heart className="w-12 h-12 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-4">שגיאת שותפות</h1>
-          <p className="mb-6">{error}</p>
-          <Button onClick={() => navigate('/')} className="bg-white text-primary hover:bg-white/90">
-            למסך הבית
-          </Button>
-        </div>
-      </div>
+      <Shell headline={<>אופס…<br />משהו השתבש</>}>
+        <div className="text-[12px] font-bold text-[#E8508A] tracking-wide">שגיאת שותפות</div>
+        <div className="text-[15px] font-medium text-[#5A554C] mt-2 leading-[1.5]">{error}</div>
+        <button onClick={() => navigate('/')} className={`${ctaClass} mt-5`}>
+          למסך הבית
+        </button>
+      </Shell>
     );
   }
 
-  // Not logged in - show simple auth form with inviter info
+  // Not logged in — 2-screen cold-visitor flow: intro → email → OTP.
   if (!user) {
-    return (
-      <div 
-        className="min-h-screen flex items-center justify-center p-4"
-        style={{
-          backgroundImage: 'url(/bg-base.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      >
-        <div className="text-center max-w-sm w-full">
-          <Heart className="w-12 h-12 text-white mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">הצטרפות לשותפות</h1>
-          
-          {/* Inviter Info Card */}
-          {inviterInfo && (
-            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 mb-6 border border-white/20">
-              <div className="flex items-center justify-center mb-2">
-                <User className="w-8 h-8 text-white/80" />
-              </div>
-              <p className="text-white/80 text-xs uppercase tracking-wider mb-1">הוזמנתם על ידי</p>
-              <p className="text-white font-semibold text-lg">{inviterInfo.name}</p>
-              {inviterInfo.email && (
-                <p className="text-white/70 text-sm">{inviterInfo.email}</p>
+    // OTP entry
+    if (authStep === 'otp') {
+      return (
+        <Shell headline={<>כמעט שם —<br />נשאר רק הקוד</>}>
+          <div className="text-[12px] font-bold text-[#E8508A] tracking-wide">אימות</div>
+          <div className="text-[15px] font-medium text-[#5A554C] mt-2 leading-[1.5]">
+            הזינו את הקוד בן 6 הספרות שנשלח אל <strong className="text-[#23282B]">{email}</strong>
+          </div>
+          <form onSubmit={handleVerifyOTP} className="mt-4">
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              dir="ltr"
+              placeholder="123456"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              maxLength={6}
+              className={`${inputClass} text-center text-xl tracking-[0.4em]`}
+              autoFocus
+            />
+            <button type="submit" disabled={authLoading || otp.length !== 6} className={`${ctaClass} mt-3`}>
+              {authLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                  מאמת...
+                </>
+              ) : (
+                'אימות והצטרפות'
               )}
-            </div>
-          )}
-          
-          <p className="text-white/90 mb-6 text-sm">הזינו את האימייל שלכם כדי להצטרף ולהתחיל לבחור יחד שמות לתינוק!</p>
-          
-          {authStep === 'email' ? (
-            <div className="space-y-4">
-              <Input
-                dir="ltr"
-                type="email"
-                placeholder="האימייל שלכם"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-12 bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-full px-5"
-              />
-              <Button
-                onClick={handleSendOTP}
-                disabled={authLoading || !email}
-                className="w-full h-12 bg-white text-primary hover:bg-white/90 rounded-full font-medium"
-              >
-                {authLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-                    שולח קוד...
-                  </>
-                ) : (
-                  'שליחת קוד התחברות'
-                )}
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-center mb-2">
-                <KeyRound className="w-8 h-8 text-white/90" />
-              </div>
-              <p className="text-white/80 text-sm">
-                הזינו את הקוד בן 6 הספרות שנשלח אל <strong>{email}</strong>
-              </p>
-              <Input
-                type="text"
-                placeholder="123456"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="h-12 bg-white/20 border-white/30 text-white placeholder:text-white/60 text-center text-xl tracking-widest rounded-full"
-                maxLength={6}
-                dir="ltr"
-                autoComplete="one-time-code"
-              />
-              <Button
-                onClick={handleVerifyOTP}
-                disabled={authLoading || otp.length !== 6}
-                className="w-full h-12 bg-white text-primary hover:bg-white/90 rounded-full font-medium"
-              >
-                {authLoading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-                    מאמת...
-                  </>
-                ) : (
-                  'אימות והצטרפות'
-                )}
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => { setAuthStep('email'); setOtp(''); }}
-                className="w-full text-white/80 hover:text-white hover:bg-white/10"
-              >
-                שינוי אימייל
-              </Button>
-            </div>
-          )}
+            </button>
+          </form>
+          <button
+            onClick={() => { setAuthStep('email'); setOtp(''); }}
+            className="w-full mt-3 font-bold text-[13.5px] text-[#9A928A]"
+          >
+            שינוי כתובת האימייל
+          </button>
+        </Shell>
+      );
+    }
+
+    // Screen 2 — email entry
+    if (screen === 'email') {
+      return (
+        <Shell headline={<>כמעט שם —<br />נשאר רק אימייל</>}>
+          <InviterCard />
+          <form onSubmit={handleSendOTP}>
+            <input
+              type="email"
+              dir="ltr"
+              placeholder="כתובת האימייל שלכם"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={`${inputClass} mt-4 text-right`}
+              autoFocus
+            />
+            <button type="submit" disabled={authLoading || !isValidEmail(email)} className={`${ctaClass} mt-3`}>
+              {authLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                  שולח קוד...
+                </>
+              ) : (
+                'שלחו לי קוד כניסה'
+              )}
+            </button>
+          </form>
+          <div className="text-center mt-2.5 text-[12px] font-semibold text-[#9A928A]">
+            נשלח קוד חד-פעמי לאימות · בחינם, ללא התחייבות
+          </div>
+        </Shell>
+      );
+    }
+
+    // Screen 1 — intro / "what is Stork"
+    return (
+      <Shell headline={<>{inviterName} מזמין/ה אתכם<br />לבחור שם יחד</>}>
+        <div className="text-[12px] font-bold text-[#E8508A] tracking-wide">מה זה Stork?</div>
+        <div className="text-[14px] font-medium text-[#5A554C] mt-1.5 leading-[1.5]">
+          אפליקציה לזוגות לבחירת שם לתינוק. עוברים על שמות בהחלקה — וכששניכם אוהבים את אותו שם, זה מאצ'.
         </div>
-      </div>
+        <div className="flex flex-col gap-3 mt-4">
+          {features.map(({ Icon, text }, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-[38px] h-[38px] rounded-[11px] bg-[#FDF2F6] flex items-center justify-center flex-shrink-0">
+                <Icon className="w-[19px] h-[19px] text-[#E8508A]" strokeWidth={2} />
+              </div>
+              <div className="text-[13.5px] font-semibold text-[#3A3630] text-start">{text}</div>
+            </div>
+          ))}
+        </div>
+        <button onClick={() => setScreen('email')} className={`${ctaClass} mt-[18px]`}>
+          בואו נתחיל
+          <ArrowLeft className="w-[18px] h-[18px]" />
+        </button>
+      </Shell>
     );
   }
 
-  // Logged in - show join button
+  // Logged in — confirm and join
   return (
-    <div 
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{
-        backgroundImage: 'url(/bg-base.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}
-    >
-      <div className="text-center max-w-sm w-full">
-        <Heart className="w-12 h-12 text-white mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-white mb-2">הצטרפות לשותפות</h1>
-        <p className="text-white/90 mb-6 text-sm">הוזמנתם לבחור יחד שמות לתינוק!</p>
-        
-        <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg mb-6">
-          <p className="text-sm text-white/80">מצטרפים בתור</p>
-          <p className="font-medium text-white">{user.email}</p>
+    <Shell headline={<>{inviterName} מזמין/ה אתכם<br />לבחור שם יחד</>}>
+      <InviterCard />
+      <div className="mt-4 rounded-[14px] border-[1.5px] border-[#ECECEC] bg-[#F7F7F5] px-4 py-3.5">
+        <div className="text-[12px] font-semibold text-[#9A928A]">מצטרפים בתור</div>
+        <div dir="ltr" className="text-[15px] font-bold text-[#23282B] text-right whitespace-nowrap overflow-hidden text-ellipsis">
+          {user.email}
         </div>
-        
-        <Button 
-          onClick={joinPartnership}
-          disabled={loading}
-          className="w-full h-12 bg-white text-primary hover:bg-white/90 rounded-full font-medium"
-        >
-          {loading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2" />
-              מצטרף...
-            </>
-          ) : (
-            'הצטרפות לשותפות'
-          )}
-        </Button>
       </div>
-    </div>
+      <button onClick={joinPartnership} disabled={loading} className={`${ctaClass} mt-4`}>
+        {loading ? (
+          <>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            מצטרף...
+          </>
+        ) : (
+          'הצטרפות לשותפות'
+        )}
+      </button>
+    </Shell>
   );
 };

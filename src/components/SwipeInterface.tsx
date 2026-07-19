@@ -18,6 +18,7 @@ import undoIcon from "@/assets/undo.svg";
 
 import { BabyName } from "@/contexts/SwipeContext";
 import { MatchCelebration } from "./MatchCelebration";
+import { StorkLoader } from "./StorkLoader";
 import { fetchAllActiveNames } from "@/lib/nameQueries";
 
 interface NameWithOccurrences extends BabyName {
@@ -212,18 +213,29 @@ const SwipeInterface = () => {
   const shuffledDeck = useMemo(() => {
     if (!preferences || allNames.length === 0) return [];
     
-    // Filter by preferences (gender, language) - this is the base deck
+    // Only filter by origin when the user picked a strict subset; empty/undefined = show all.
+    const originFilter =
+      preferences.originGroups && preferences.originGroups.length > 0
+        ? new Set(preferences.originGroups)
+        : null;
+
+    // Filter by preferences (gender, language, origin) - this is the base deck
     const filtered = allNames.filter(name => {
       // Filter by gender preference
       if (preferences.gender !== 'unknown' && name.gender !== 'unisex' && name.gender !== preferences.gender) {
         return false;
       }
-      
+
       // Filter by language preference
       if (preferences.language && name.language && name.language !== preferences.language) {
         return false;
       }
-      
+
+      // Filter by origin group. Names without a group (not yet classified) are always kept.
+      if (originFilter && name.originGroup && !originFilter.has(name.originGroup)) {
+        return false;
+      }
+
       return true;
     });
     
@@ -265,6 +277,33 @@ const SwipeInterface = () => {
       !likedNameSet.has(name.name) && !passedNameSet.has(name.name)
     );
   }, [shuffledDeck, likedNames, passedNames]);
+
+  // Popularity ranking: rank names by real occurrences within each gender, so a card can show
+  // "מקום N בשמות הבנים/הבנות". Derived from the occurrence counts already loaded — no extra data.
+  const rankMaps = useMemo(() => {
+    const boyRank = new Map<string, number>();
+    const girlRank = new Map<string, number>();
+    [...allNames]
+      .filter((n) => (n.maleOccurrences || 0) > 0)
+      .sort((a, b) => (b.maleOccurrences || 0) - (a.maleOccurrences || 0))
+      .forEach((n, i) => boyRank.set(n.name, i + 1));
+    [...allNames]
+      .filter((n) => (n.femaleOccurrences || 0) > 0)
+      .sort((a, b) => (b.femaleOccurrences || 0) - (a.femaleOccurrences || 0))
+      .forEach((n, i) => girlRank.set(n.name, i + 1));
+    return { boyRank, girlRank };
+  }, [allNames]);
+
+  const getPopularity = useCallback((name?: NameWithOccurrences) => {
+    if (!name) return null;
+    const male = name.maleOccurrences || 0;
+    const female = name.femaleOccurrences || 0;
+    if (male === 0 && female === 0) return null;
+    const isBoy = male >= female;
+    const rank = isBoy ? rankMaps.boyRank.get(name.name) : rankMaps.girlRank.get(name.name);
+    if (!rank) return null;
+    return { rank, group: isBoy ? 'בנים' : 'בנות' };
+  }, [rankMaps]);
 
   // Determine which index in the deck is currently shown
   const mainIndex = useMemo(() => {
@@ -533,14 +572,14 @@ const SwipeInterface = () => {
   if (namesLoading) {
     return (
       <div 
-        className="flex items-center justify-center min-h-screen fixed inset-0"
+        className="flex items-center justify-center fixed inset-0"
         style={{
           backgroundImage: 'url(/bg-base.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+        <StorkLoader message="מחפשים שמות יפים…" />
       </div>
     );
   }
@@ -548,7 +587,7 @@ const SwipeInterface = () => {
   if (!currentName) {
     return (
       <div 
-        className="flex flex-col items-center justify-center min-h-screen space-y-6 p-4 transition-all duration-500 fixed inset-0 overflow-hidden"
+        className="flex flex-col items-center justify-center space-y-6 p-4 transition-all duration-500 fixed inset-0 overflow-hidden"
         style={{
           backgroundImage: 'url(/bg-base.png)',
           backgroundSize: 'cover',
@@ -704,13 +743,17 @@ const SwipeInterface = () => {
                 onDragChange={handleDragChange}
                 maleOccurrences={currentName.maleOccurrences}
                 femaleOccurrences={currentName.femaleOccurrences}
+                popularity={getPopularity(currentName)}
               />
             )}
           </div>
         </div>
 
         {/* Action Buttons - Pill shaped container, same width as cards */}
-        <div className="flex items-center justify-center flex-shrink-0 pb-6 pt-4 px-6">
+        <div
+          className="flex items-center justify-center flex-shrink-0 pt-4 px-6"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)' }}
+        >
           <div className="flex items-center justify-between bg-white rounded-full px-4 py-3 shadow-lg w-[calc(100vw-48px)] max-w-[340px]">
             {/* Pass Button (X) - Left */}
             <button

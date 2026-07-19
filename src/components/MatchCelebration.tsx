@@ -217,7 +217,7 @@ export const MatchCelebration = ({ matchedName, onContinue }: MatchCelebrationPr
         top: 0,
         left: 0,
         width: '100vw',
-        height: '100vh',
+        height: '100dvh',
         margin: 0,
         padding: 0,
         zIndex: 9999
@@ -231,7 +231,7 @@ export const MatchCelebration = ({ matchedName, onContinue }: MatchCelebrationPr
           top: 0,
           left: 0,
           width: '100vw',
-          height: '100vh',
+          height: '100dvh',
           overflow: 'hidden'
         }}
       />

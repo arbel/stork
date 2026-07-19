@@ -11,6 +11,8 @@ const formatName = (row: any): BabyName => ({
   name: row.name,
   displayName: row.display_name || undefined,
   origin: row.origin || undefined,
+  originCategory: row.origin_category || undefined,
+  originGroup: row.origin_group || undefined,
   meaning: row.meaning || undefined,
   gender: row.gender as 'male' | 'female' | 'unisex',
   language: row.language || 'en',

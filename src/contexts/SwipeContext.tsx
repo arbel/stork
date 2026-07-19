@@ -7,6 +7,8 @@ export interface BabyName {
   name: string;
   displayName?: string; // For Hebrew script display
   origin?: string;
+  originCategory?: string; // e.g. biblical / nature / virtue / foreign — see origin_category column
+  originGroup?: string; // ethnolinguistic group for filtering — see origin_group column
   meaning?: string;
   gender?: 'male' | 'female' | 'unisex';
   language?: string;
@@ -19,6 +21,7 @@ export interface UserPreferences {
   gender: 'male' | 'female' | 'unknown';
   country?: string;
   language: string;
+  originGroups?: string[]; // selected origin_group values to include; undefined/empty = all
 }
 
 interface SwipeContextType {

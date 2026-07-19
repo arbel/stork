@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { KeyRound } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { devSkipOtp } from "@/lib/devAuth";
 import storkLogo from "@/assets/stork.svg";
+import storkWordmark from "@/assets/stork-logo.svg";
 
 interface AuthGateProps {
   children: ReactNode;
@@ -22,6 +24,16 @@ export const AuthGate = ({ children }: AuthGateProps) => {
     if (!email) return;
     
     setLoading(true);
+
+    // DEV ONLY: try to skip the OTP code step entirely.
+    if (import.meta.env.DEV) {
+      try {
+        if (await devSkipOtp(email)) return; // auth state change unmounts this screen
+      } catch (error) {
+        console.warn('[dev] OTP bypass errored, falling back to code flow:', error);
+      }
+    }
+
     try {
       await signInWithEmail(email);
       setStep('otp');
@@ -58,67 +70,69 @@ export const AuthGate = ({ children }: AuthGateProps) => {
 
   // Show authentication form
   return (
-    <div 
+    <div
       className="bg-gradient-to-br from-teal-400 via-teal-500 to-teal-600 text-white flex flex-col overflow-hidden"
-      style={{ height: '100dvh', minHeight: '100vh' }}
+      style={{ height: '100dvh' }}
     >
       {step === 'email' ? (
-        <>
-          {/* Top Section - Header & Input - Fixed height */}
-          <div className="shrink-0 px-6 pt-4">
-            <div className="text-center mb-2">
-              <h1 className="text-3xl sm:text-6xl md:text-7xl font-bold tracking-wider mb-1">STORK</h1>
-              <p className="text-base sm:text-xl md:text-2xl opacity-90 mb-1">בוחרים יחד את השם המושלם</p>
-              <h2 className="text-base sm:text-xl font-medium">התחברות או הרשמה</h2>
-            </div>
-            
-            <div className="max-w-md mx-auto w-full">
-              <Input
-                id="email"
-                type="email"
-                dir="ltr"
-                placeholder="אימייל"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="h-12 sm:h-16 bg-teal-600/60 border-teal-300/50 text-white placeholder:text-teal-100 text-left px-4 sm:px-6 rounded-full text-base sm:text-lg backdrop-blur-sm w-full"
-              />
-            </div>
+        <div
+          className="flex-1 flex flex-col min-h-0 px-6"
+          style={{
+            paddingTop: 'max(env(safe-area-inset-top), 1.5rem)',
+            paddingBottom: 'calc(env(safe-area-inset-bottom) + 2.5rem)',
+          }}
+        >
+          {/* Header — pinned to top */}
+          <div className="shrink-0 text-center">
+            <img src={storkWordmark} alt="Stork" className="mx-auto h-16 sm:h-24 w-auto mb-1" />
+            <p className="text-lg sm:text-2xl opacity-90">בוחרים יחד את השם המושלם</p>
+            <h2 className="text-base sm:text-xl font-medium mt-1">התחברות או הרשמה</h2>
           </div>
 
-          {/* Middle Section - Stork Image - Flexible, fills remaining space */}
-          <div className="flex-1 flex items-center justify-center px-4 py-2 overflow-hidden min-h-0">
-            <img 
-              src={storkLogo} 
-              alt="Stork carrying baby" 
-              className="w-full h-full object-contain max-h-full"
+          {/* Art — centered in the flexible zone, height-capped so it never clips */}
+          <div className="flex-1 flex items-center justify-center min-h-0 py-4">
+            <img
+              src={storkLogo}
+              alt="Stork carrying baby"
+              className="max-h-full max-w-full w-auto object-contain"
             />
           </div>
 
-          {/* Bottom Section - Button - Fixed at bottom */}
-          <div className="shrink-0 px-6 pb-6">
-            <div className="max-w-md mx-auto">
-              <Button
-                onClick={handleSendOTP}
-                disabled={loading || !email}
-                className="w-full h-12 sm:h-16 bg-stone-700 hover:bg-stone-800 text-white rounded-full text-base sm:text-lg font-medium shadow-lg"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2" />
-                    שולח קוד...
-                  </>
-                ) : (
-                  'שליחת קוד התחברות'
-                )}
-              </Button>
-            </div>
+          {/* Input + CTA — one bottom group, always visible */}
+          <div className="shrink-0 w-full max-w-md mx-auto space-y-3">
+            <Input
+              id="email"
+              type="email"
+              dir="ltr"
+              placeholder="אימייל"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="h-12 sm:h-16 bg-teal-600/60 border-teal-300/50 text-white placeholder:text-teal-100 text-right px-4 sm:px-6 rounded-full text-base sm:text-lg backdrop-blur-sm w-full"
+            />
+            <Button
+              onClick={handleSendOTP}
+              disabled={loading || !email}
+              className="w-full h-12 sm:h-16 bg-[#E8508A] hover:bg-[#D6447D] text-white rounded-full text-base sm:text-lg font-semibold shadow-lg"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2" />
+                  שולח קוד...
+                </>
+              ) : (
+                'שליחת קוד התחברות'
+              )}
+            </Button>
           </div>
-        </>
+        </div>
       ) : (
         <>
           {/* OTP Step */}
-          <div className="h-screen flex flex-col justify-center px-6">
+          <div
+            className="flex-1 flex flex-col justify-center px-6"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 2.5rem)' }}
+          >
             <div className="text-center mb-8 max-w-md mx-auto">
               <KeyRound className="w-12 h-12 mx-auto mb-4 opacity-90" />
               <h2 className="text-xl font-semibold mb-2">
@@ -145,11 +159,11 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                 <Button
                   onClick={handleVerifyOTP}
                   disabled={loading || otp.length !== 6}
-                  className="w-full h-12 sm:h-16 bg-stone-700 hover:bg-stone-800 text-white rounded-full text-base sm:text-lg font-medium shadow-lg"
+                  className="w-full h-12 sm:h-16 bg-[#E8508A] hover:bg-[#D6447D] text-white rounded-full text-base sm:text-lg font-semibold shadow-lg"
                 >
                   {loading ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2" />
                       מאמת...
                     </>
                   ) : (
