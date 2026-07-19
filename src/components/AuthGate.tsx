@@ -46,7 +46,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otp || otp.length !== 6) return;
+    if (!otp || otp.length < 6) return;
     
     setLoading(true);
     try {
@@ -139,7 +139,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                 הזינו את קוד האימות
               </h2>
               <p className="text-sm opacity-80 mb-6">
-                שלחנו קוד בן 6 ספרות אל <strong>{email}</strong>
+                שלחנו קוד אימות אל <strong>{email}</strong>
               </p>
 
               <div className="space-y-6">
@@ -148,17 +148,17 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                   type="text"
                   placeholder="123456"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
                   required
                   className="h-12 sm:h-16 bg-teal-600/60 border-teal-300/50 text-white placeholder:text-teal-100 text-center text-lg sm:text-xl tracking-widest rounded-full backdrop-blur-sm"
-                  maxLength={6}
+                  maxLength={8}
                   dir="ltr"
                   autoComplete="one-time-code"
                 />
 
                 <Button
                   onClick={handleVerifyOTP}
-                  disabled={loading || otp.length !== 6}
+                  disabled={loading || otp.length < 6}
                   className="w-full h-12 sm:h-16 bg-[#E8508A] hover:bg-[#D6447D] text-white rounded-full text-base sm:text-lg font-semibold shadow-lg"
                 >
                   {loading ? (

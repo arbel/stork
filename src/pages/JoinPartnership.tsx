@@ -170,7 +170,7 @@ export const JoinPartnership = () => {
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!otp || otp.length !== 6) return;
+    if (!otp || otp.length < 6) return;
 
     setAuthLoading(true);
     try {
@@ -285,7 +285,7 @@ export const JoinPartnership = () => {
         <Shell headline={<>כמעט שם —<br />נשאר רק הקוד</>}>
           <div className="text-[12px] font-bold text-[#E8508A] tracking-wide">אימות</div>
           <div className="text-[15px] font-medium text-[#5A554C] mt-2 leading-[1.5]">
-            הזינו את הקוד בן 6 הספרות שנשלח אל <strong className="text-[#23282B]">{email}</strong>
+            הזינו את קוד האימות שנשלח אל <strong className="text-[#23282B]">{email}</strong>
           </div>
           <form onSubmit={handleVerifyOTP} className="mt-4">
             <input
@@ -295,12 +295,12 @@ export const JoinPartnership = () => {
               dir="ltr"
               placeholder="123456"
               value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              maxLength={6}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
+              maxLength={8}
               className={`${inputClass} text-center text-xl tracking-[0.4em]`}
               autoFocus
             />
-            <button type="submit" disabled={authLoading || otp.length !== 6} className={`${ctaClass} mt-3`}>
+            <button type="submit" disabled={authLoading || otp.length < 6} className={`${ctaClass} mt-3`}>
               {authLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
