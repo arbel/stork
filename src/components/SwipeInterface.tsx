@@ -754,7 +754,9 @@ const SwipeInterface = () => {
           className="flex items-center justify-center flex-shrink-0 pt-4 px-6"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)' }}
         >
-          <div className="flex items-center justify-between bg-white rounded-full px-4 py-3 shadow-lg w-[calc(100vw-48px)] max-w-[340px]">
+          {/* dir=ltr so the row isn't mirrored by the app's RTL layout: pass(✕) stays on the
+              LEFT and like(♥) on the RIGHT, matching swipe-left=pass / swipe-right=like. */}
+          <div dir="ltr" className="flex items-center justify-between bg-white rounded-full px-4 py-3 shadow-lg w-[calc(100vw-48px)] max-w-[340px]">
             {/* Pass Button (X) - Left */}
             <button
               onClick={handlePassButton}
