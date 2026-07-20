@@ -433,7 +433,7 @@ const Landing = ({ onStart }: LandingProps) => {
               <DemoDeck onFrontChange={setFront} onTint={handleTint} onUserMatch={handleUserMatch} />
               <button
                 onClick={onStart}
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-[4] bg-white text-[#2B9C8E] font-bold text-[.95rem] px-6 py-2.5 rounded-full shadow-lg whitespace-nowrap"
+                className="absolute -bottom-11 left-1/2 -translate-x-1/2 z-[4] bg-white text-[#2B9C8E] font-bold text-[.95rem] px-6 py-2.5 rounded-full shadow-lg whitespace-nowrap"
                 style={{
                   transform: `translateX(-50%) scale(${showPrompt ? 1 : 0})`,
                   transition: `transform .5s ${BOUNCE}`,
