@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Search, Sparkles, Heart, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,8 @@ interface NameListLayoutProps {
   emptyTitle: string;
   emptyText: string;
   ctaText: string;
+  /** Custom empty state that replaces the generic one (rendered full-width below the header). */
+  emptyState?: ReactNode;
 }
 
 export const NameListLayout = ({
@@ -30,6 +32,7 @@ export const NameListLayout = ({
   emptyTitle,
   emptyText,
   ctaText,
+  emptyState,
 }: NameListLayoutProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -99,6 +102,8 @@ export const NameListLayout = ({
             </div>
           )}
         </div>
+      ) : emptyState ? (
+        emptyState
       ) : (
         /* Empty state */
         <div className="mx-auto max-w-md px-6 py-20 text-center">

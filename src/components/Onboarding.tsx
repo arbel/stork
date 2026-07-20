@@ -430,7 +430,7 @@ export const Onboarding = () => {
                       type="button"
                       onClick={() => toggleOriginGroup(opt.value)}
                       aria-pressed={selected}
-                      className={`flex w-full items-center justify-center gap-1.5 rounded-full border-[1.5px] px-4 py-2.5 text-[15px] font-bold transition-colors ${
+                      className={`flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-full border-[1.5px] px-3 py-2.5 text-[14px] font-bold transition-colors ${
                         selected
                           ? 'border-[#24C065] bg-[#EAF9F0] text-[#1E9E52]'
                           : 'border-[#ECECEC] bg-[#F7F7F5] text-[#8C8478]'
