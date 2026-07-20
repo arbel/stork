@@ -123,34 +123,14 @@ const Settings = () => {
 
     setLoading(true);
     try {
-      // Get partner ID
-      const partnerId = partnership.user1_id === user.id ? partnership.user2_id : partnership.user1_id;
-
-      // Only delete the PARTNER's swipes, not the admin's
-      if (partnerId) {
-        await supabase
-          .from('user_swipes')
-          .delete()
-          .eq('user_id', partnerId)
-          .eq('partnership_id', partnership.id);
-      }
-
-      // Clear partnership_id from admin's swipes (keep the swipes, just unlink from partnership)
-      await supabase
-        .from('user_swipes')
-        .update({ partnership_id: null })
-        .eq('user_id', user.id)
-        .eq('partnership_id', partnership.id);
-
-      // Delete the partnership so user can start fresh
-      await supabase
-        .from('partnerships')
-        .delete()
-        .eq('id', partnership.id);
+      // Unlink BOTH users' swipes from the partnership (kept, not deleted) then delete it, via a
+      // SECURITY DEFINER RPC. Deleting the partnership directly would CASCADE-delete the swipes.
+      const { error } = await supabase.rpc('disconnect_partner' as never);
+      if (error) throw error;
 
       toast({
         title: "בן/בת הזוג נותקו",
-        description: "בן/בת הזוג נותקו. בחירות השמות שלך נשמרו.",
+        description: "בן/בת הזוג נותקו. בחירות השמות נשמרו.",
       });
 
       // Refresh page to update state
@@ -177,14 +157,15 @@ const Settings = () => {
     try {
       console.log('Leaving partnership:', partnership.id, 'user:', user.id);
       
-      // Delete partner's (current user's) swipes - try both with and without partnership_id
+      // Keep the leaving user's picks — just unlink them from the partnership (become "solo"),
+      // so they survive and get re-pointed if/when the user joins a new partnership.
       const { error: swipeError } = await supabase
         .from('user_swipes')
-        .delete()
+        .update({ partnership_id: null })
         .eq('user_id', user.id);
 
       if (swipeError) {
-        console.error('Error deleting swipes:', swipeError);
+        console.error('Error unlinking swipes:', swipeError);
       }
 
       // Reset the partnership - call secure database function to avoid RLS issues
