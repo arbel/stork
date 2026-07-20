@@ -211,6 +211,20 @@ export const JoinPartnership = () => {
       console.log('Successfully joined partnership:', result.partnership);
       localStorage.removeItem('pending_invite_code');
       sessionStorage.removeItem('invite_recovery_done');
+
+      // Re-attach any "solo" swipes (unlinked when leaving a prior partnership) to the one we just
+      // joined, so picks carry over. Safety net that works even before the server-side carry RPC is
+      // applied; a freshly-joined partnership has no swipes yet, so there's nothing to collide with.
+      const joinedId = (result.partnership as any)?.id;
+      if (joinedId && user) {
+        const { error: reattachError } = await supabase
+          .from('user_swipes')
+          .update({ partnership_id: joinedId })
+          .eq('user_id', user.id)
+          .is('partnership_id', null);
+        if (reattachError) console.error('Error re-attaching solo swipes:', reattachError);
+      }
+
       await refreshPartnership();
 
       toast({
