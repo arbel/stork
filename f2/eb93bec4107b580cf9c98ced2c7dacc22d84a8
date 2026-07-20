@@ -1,0 +1,55 @@
+src/pages/Preferences.tsx
+  s_84ef6b476a1667::t_caaa84d8f998ba 218-241,243
+  s_84ef6b476a1667::t_2d85836b067bb7 109,116
+  s_84ef6b476a1667::t_b1e31c15cd4ac7 165-176,179,182,189,193,195-203
+  s_84ef6b476a1667::t_112e9d4cc078df 26,29-30,33-38
+  s_5df5a2920f9641::t_1dbb2618544236 39
+src/pages/Matches.tsx
+  s_5df5a2920f9641::t_393c35224ef865 13,18-25
+  s_5df5a2920f9641::t_052dc7f99b9b44 26
+src/contexts/SwipeContext.tsx
+  s_84ef6b476a1667::t_42a069dbb4d0ee 377-406,408
+  s_84ef6b476a1667::t_a2d721a139e060 407
+  s_84ef6b476a1667::t_122341d483a7f8 620-621
+  s_84ef6b476a1667::t_4935bfb37395d4 32-35
+  s_5df5a2920f9641::t_effc1e1560356a 45
+  s_84ef6b476a1667::t_91a67abff5d2bf 84-85
+  s_5df5a2920f9641::t_bd57209ba382d8 631
+  s_5df5a2920f9641::t_3495823b390557 532-545
+src/components/NewMatchesSummary.tsx
+  s_5df5a2920f9641::t_a31b3ff4197008 1-109
+supabase/migrations/20260720180000_match_notifications.sql
+  s_5df5a2920f9641::t_50b1751fca91a3 1-131
+src/components/SwipeInterface.tsx
+  s_5df5a2920f9641::t_ebab6c230a2728 523
+  s_5df5a2920f9641::t_f01ef5abe975b5 863,868-884
+  s_5df5a2920f9641::t_9e5c63125d3436 20
+  s_5df5a2920f9641::t_931ed35779b7c2 487-510,514-522,524-553,558-560,565
+  s_5df5a2920f9641::t_3abf228a4fca7d 71
+  s_5df5a2920f9641::t_f240fc3adb69dc 87-91
+  s_5df5a2920f9641::t_75f49adc840849 511-513
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "f2eb93bec4107b580cf9c98ced2c7dacc22d84a8",
+  "prompts": {},
+  "sessions": {
+    "s_5df5a2920f9641": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be473fb6-13dd-4c36-9ccf-8a39c7acfa31",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    },
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
