@@ -99,19 +99,21 @@ export const AuthGate = ({ children }: AuthGateProps) => {
           </div>
 
           {/* Input + CTA — one bottom group, always visible */}
-          <div className="shrink-0 w-full max-w-md mx-auto space-y-3">
+          <form onSubmit={handleSendOTP} noValidate className="shrink-0 w-full max-w-md mx-auto space-y-3">
             <Input
               id="email"
               type="email"
               dir="ltr"
+              inputMode="email"
               placeholder="אימייל"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoFocus
               className="h-12 sm:h-16 bg-teal-600/60 border-teal-300/50 text-white placeholder:text-teal-100 text-right px-4 sm:px-6 rounded-full text-base sm:text-lg backdrop-blur-sm w-full"
             />
             <Button
-              onClick={handleSendOTP}
+              type="submit"
               disabled={loading || !email}
               className="w-full h-12 sm:h-16 bg-[#E8508A] hover:bg-[#D6447D] text-white rounded-full text-base sm:text-lg font-semibold shadow-lg"
             >
@@ -124,7 +126,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                 'שליחת קוד התחברות'
               )}
             </Button>
-          </div>
+          </form>
         </div>
       ) : (
         <>
@@ -142,14 +144,16 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                 שלחנו קוד אימות אל <strong>{email}</strong>
               </p>
 
-              <div className="space-y-6">
+              <form onSubmit={handleVerifyOTP} className="space-y-6">
                 <Input
                   id="otp"
                   type="text"
+                  inputMode="numeric"
                   placeholder="123456"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 8))}
                   required
+                  autoFocus
                   className="h-12 sm:h-16 bg-teal-600/60 border-teal-300/50 text-white placeholder:text-teal-100 text-center text-lg sm:text-xl tracking-widest rounded-full backdrop-blur-sm"
                   maxLength={8}
                   dir="ltr"
@@ -157,7 +161,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                 />
 
                 <Button
-                  onClick={handleVerifyOTP}
+                  type="submit"
                   disabled={loading || otp.length < 6}
                   className="w-full h-12 sm:h-16 bg-[#E8508A] hover:bg-[#D6447D] text-white rounded-full text-base sm:text-lg font-semibold shadow-lg"
                 >
@@ -179,7 +183,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                 >
                   שינוי כתובת אימייל
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
         </>

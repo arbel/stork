@@ -65,28 +65,34 @@ export const HamburgerMenu = () => {
     loadPartnerProfile();
   }, [partnership, user]);
 
-  // Swipe gesture to open menu
+  // Open the menu (which is anchored to the right) on a swipe that STARTS at the right edge and
+  // moves toward the center (leftward). Only tracks touches that begin in the edge band, and
+  // requires the horizontal movement to dominate so vertical scrolls don't trigger it.
   useEffect(() => {
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const minSwipeDistance = 50;
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    const EDGE_BAND = 40;      // px from the right edge where the swipe must begin
+    const MIN_DISTANCE = 50;   // px of leftward travel to count
 
     const handleTouchStart = (e: TouchEvent) => {
-      touchStartX = e.touches[0].clientX;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = startX >= window.innerWidth - EDGE_BAND;
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
-      touchEndX = e.changedTouches[0].clientX;
-      const swipeDistance = touchStartX - touchEndX;
-
-      // Only trigger if swipe started from right edge (within 30px) and swiped left (RTL)
-      if (touchStartX > window.innerWidth - 30 && swipeDistance > minSwipeDistance) {
+      if (!tracking) return;
+      tracking = false;
+      const dx = startX - e.changedTouches[0].clientX;              // leftward (toward center) > 0
+      const dy = Math.abs(e.changedTouches[0].clientY - startY);
+      if (dx > MIN_DISTANCE && dx > dy) {
         setOpen(true);
       }
     };
 
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
