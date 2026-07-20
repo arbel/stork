@@ -101,10 +101,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithEmail = async (email: string) => {
     try {
-      console.log('Attempting OTP login for:', email);
-      
+      // Normalize: whitespace/uppercase from autofill or paste makes GoTrue reject the address
+      // with "Unable to validate email address: invalid format".
+      const cleanEmail = email.trim().toLowerCase();
+
       const { error } = await supabase.auth.signInWithOtp({
-        email,
+        email: cleanEmail,
         options: {
           shouldCreateUser: true,
           // Built-in Supabase email sends a magic LINK (template editing needs custom SMTP).
@@ -137,9 +139,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyOtp = async (email: string, token: string) => {
     try {
+      // Must match the normalized address used when the code was sent.
       const { error } = await supabase.auth.verifyOtp({
-        email,
-        token,
+        email: email.trim().toLowerCase(),
+        token: token.trim(),
         type: 'email',
       })
 

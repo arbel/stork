@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SwipeProvider } from "@/contexts/SwipeContext";
 import { AuthGate } from "@/components/AuthGate";
-import Index from "./pages/Index";
+import Home from "./pages/Home";
 import Matches from "./pages/Matches";
 import Liked from "./pages/Liked";
 import Passed from "./pages/Passed";
@@ -39,7 +39,7 @@ const App = () => (
               
               {/* Main App Routes */}
               <Route path="/join/:inviteCode" element={<JoinPartnership />} />
-              <Route path="/" element={<AuthGate><Index /></AuthGate>} />
+              <Route path="/" element={<Home />} />
               <Route path="/find-name" element={<AuthGate><FindName /></AuthGate>} />
               <Route path="/matches" element={<AuthGate><Matches /></AuthGate>} />
               <Route path="/liked" element={<AuthGate><Liked /></AuthGate>} />
