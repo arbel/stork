@@ -1,0 +1,39 @@
+src/pages/Landing.tsx
+  s_5df5a2920f9641::t_cabd0003405da6 1-574,576-594,596-630
+  s_5df5a2920f9641::t_e0ef54b1bf00e4 575
+  s_5df5a2920f9641::t_352ec971152c89 595
+src/contexts/AuthContext.tsx
+  s_84ef6b476a1667::t_4a97d2cc2def0d 142,144-145
+  s_84ef6b476a1667::t_8cf1ce289231ff 104-107,109
+src/pages/Home.tsx
+  s_5df5a2920f9641::t_98f6ed5b8f0abe 1-35
+src/index.css
+  s_5df5a2920f9641::t_f1815d45c29d4a 222-273
+src/App.tsx
+  s_5df5a2920f9641::t_84f21ac3f1125e 9
+  s_5df5a2920f9641::t_2124aeb7140d6e 42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "e597726802f604e808d641b921b648496c363f93",
+  "prompts": {},
+  "sessions": {
+    "s_5df5a2920f9641": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be473fb6-13dd-4c36-9ccf-8a39c7acfa31",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    },
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
