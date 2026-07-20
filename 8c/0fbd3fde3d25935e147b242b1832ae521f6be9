@@ -1,0 +1,21 @@
+src/contexts/AuthContext.tsx
+  s_5df5a2920f9641::t_545aaa7a7cb6ee 48-51,60-62,72,74-76,86-89,93,108-120,123-124
+src/pages/Index.tsx
+  s_5df5a2920f9641::t_c13570fd0ca337 15-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "8c0fbd3fde3d25935e147b242b1832ae521f6be9",
+  "prompts": {},
+  "sessions": {
+    "s_5df5a2920f9641": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be473fb6-13dd-4c36-9ccf-8a39c7acfa31",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
