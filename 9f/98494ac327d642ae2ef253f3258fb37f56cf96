@@ -1,0 +1,19 @@
+supabase/migrations/20260720130000_carry_swipes_across_partnerships.sql
+  s_84ef6b476a1667::t_3e740158a10bfa 1-173
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "9f98494ac327d642ae2ef253f3258fb37f56cf96",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
