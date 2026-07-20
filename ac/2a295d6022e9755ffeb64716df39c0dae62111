@@ -1,0 +1,64 @@
+supabase/functions/update-name-occurrences/index.ts
+  s_84ef6b476a1667::t_12511820570df7 16-19
+  s_84ef6b476a1667::t_05bd6be5d09532 2
+src/components/SwipeInterface.tsx
+  s_84ef6b476a1667::t_7bfa7bc665af6f 608-610
+  s_84ef6b476a1667::t_99946f50de6be9 525-529
+  s_84ef6b476a1667::t_d5d890d2f18111 440-442
+  s_84ef6b476a1667::t_55d01f48117bc5 553
+  s_84ef6b476a1667::t_5026db45711398 165,168-177
+  s_84ef6b476a1667::t_227a6220985c9d 70
+supabase/functions/_shared/auth.ts
+  s_84ef6b476a1667::t_6a31483aec8169 1-42
+supabase/functions/recommend-names/index.ts
+  s_84ef6b476a1667::t_03d2ba6133aebe 51
+  s_84ef6b476a1667::t_2d193b97961d25 1
+  s_84ef6b476a1667::t_7448fb106b8ada 33-38,40
+  s_84ef6b476a1667::t_0298333ad7fd46 85
+  s_84ef6b476a1667::t_8e720b9828be0f 152,155
+src/contexts/AuthContext.tsx
+  s_84ef6b476a1667::t_73b425c2190c9f 64
+src/contexts/SwipeContext.tsx
+  s_84ef6b476a1667::t_82007e028c3aa1 178-197
+  s_84ef6b476a1667::t_d9aae9c79d6d59 575
+  s_84ef6b476a1667::t_e7f09c77645604 72-76
+  s_84ef6b476a1667::t_faeb15ca7b76de 368
+  s_84ef6b476a1667::t_3ac0a7ead7a1c0 145
+  s_84ef6b476a1667::t_0b711ee36f5388 493-499
+  s_84ef6b476a1667::t_1c43d6e8000954 431
+  s_84ef6b476a1667::t_3521268f5afee3 570
+  s_84ef6b476a1667::t_f1e76e1ca76e5d 35
+  s_84ef6b476a1667::t_abe61a311e7bce 40
+src/lib/devAuth.ts
+  s_84ef6b476a1667::t_1be2ae597e415c 10-13
+supabase/functions/cleanup-duplicate-names/index.ts
+  s_84ef6b476a1667::t_a8ee85d69da7b2 19-22
+  s_84ef6b476a1667::t_79b761e3b92a13 2
+src/components/Onboarding.tsx
+  s_84ef6b476a1667::t_6a12fed28f930c 112-115,119-120,122
+src/pages/PartnerInvite.tsx
+  s_84ef6b476a1667::t_460d4304451c6d 26-28,32-33,35-38
+supabase/migrations/20260720160000_security_hardening.sql
+  s_84ef6b476a1667::t_27b47c93887115 1-190
+src/pages/Settings.tsx
+  s_84ef6b476a1667::t_3a4b1799671495 222,224-233,235-248
+supabase/functions/admin-insert-names/index.ts
+  s_84ef6b476a1667::t_d7d273d08d23e7 2
+  s_84ef6b476a1667::t_fb4f02fe971565 21-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "ac2a295d6022e9755ffeb64716df39c0dae62111",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
