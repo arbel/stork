@@ -4,6 +4,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSwipe } from "@/contexts/SwipeContext";
 import { supabase } from "@/integrations/supabase/client";
+import { buildInviteUrl } from "@/lib/appUrl";
 
 const FONT = "'Assistant', system-ui, sans-serif";
 
@@ -101,7 +102,7 @@ export const Onboarding = () => {
     );
   };
 
-  const inviteUrl = inviteCode ? `${window.location.origin}/join/${inviteCode}` : "";
+  const inviteUrl = inviteCode ? buildInviteUrl(inviteCode) : "";
 
   // Create (or load) the pending partnership so we have an invite link to share.
   const ensureInvite = async () => {

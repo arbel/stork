@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Copy, Share, RefreshCw, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { buildInviteUrl } from "@/lib/appUrl";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSwipe } from "@/contexts/SwipeContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,7 +58,7 @@ export const PartnerInvite = () => {
     loadOrCreatePartnership();
   }, [user]);
 
-  const inviteUrl = `${window.location.origin}/join/${inviteCode}`;
+  const inviteUrl = inviteCode ? buildInviteUrl(inviteCode) : "";
 
   const copyToClipboard = async () => {
     try {
