@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowRight, Copy, Share, RefreshCw, X } from "lucide-react";
+import { ArrowRight, Copy, RefreshCw, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { buildInviteUrl } from "@/lib/appUrl";
 import { useAuth } from "@/contexts/AuthContext";
@@ -76,17 +76,6 @@ export const PartnerInvite = () => {
     }
   };
 
-  const shareLink = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'הצטרפו אליי לבחירת שמות לתינוק!',
-        text: 'בואו נמצא יחד את השם המושלם לתינוק!',
-        url: inviteUrl,
-      });
-    } else {
-      copyToClipboard();
-    }
-  };
 
   const regenerateInviteCode = async () => {
     if (!user || !inviteCode) return;
@@ -218,22 +207,15 @@ export const PartnerInvite = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="flex space-x-2 space-x-reverse">
-                <Button onClick={shareLink} className="flex-1">
-                  <Share className="w-4 h-4 ml-2" />
-                  שיתוף ההזמנה
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={regenerateInviteCode} 
-                  disabled={regenerating || canceling}
-                  className="px-3"
-                >
-                  <RefreshCw className={`w-4 h-4 ${regenerating ? 'animate-spin' : ''}`} />
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                onClick={regenerateInviteCode}
+                disabled={regenerating || canceling}
+                className="w-full"
+              >
+                <RefreshCw className={`w-4 h-4 ml-2 ${regenerating ? 'animate-spin' : ''}`} />
+                יצירת קישור חדש
+              </Button>
               
               <Button variant="outline" onClick={() => navigate("/")} className="w-full">
                 סיום
