@@ -29,6 +29,10 @@ interface SwipeContextType {
   passedNames: BabyName[];
   matches: BabyName[];
   partnerLikes: string[];
+  // The partner's own origin-category selection + display name, for showing "your partner also
+  // picked this" badges. null = no partner (or not loaded yet).
+  partnerOriginGroups: string[] | null;
+  partnerName: string | null;
   preferences: UserPreferences | null;
   isOnboardingComplete: boolean;
   partnership: any | null;
@@ -38,6 +42,7 @@ interface SwipeContextType {
   addPassedName: (name: BabyName) => void;
   addMatch: (name: BabyName) => void;
   removeSwipeLocal: (name: string) => void;
+  markNotificationsRead: (ids: string[]) => Promise<void>;
   resetAll: () => void;
   completeOnboarding: (preferences: UserPreferences) => void;
   refreshPartnership: () => Promise<void>;
@@ -76,6 +81,8 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   const [swipesVersion, setSwipesVersion] = useState(0);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [partnerLikes, setPartnerLikes] = useState<string[]>([]);
+  const [partnerOriginGroups, setPartnerOriginGroups] = useState<string[] | null>(null);
+  const [partnerName, setPartnerName] = useState<string | null>(null);
   const [allNames, setAllNames] = useState<BabyName[]>([]);
   
   // Fetch names from database (paginated so the full catalog loads, not just the first 1000)
@@ -367,6 +374,38 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     loadPartnerLikes();
   }, [partnership?.id, user?.id, swipesVersion]);
 
+  // Load the partner's own origin-category selection (+ their name) so Preferences can show a badge
+  // on categories the partner has enabled. The partner's profile row is readable under the
+  // "Partners can view each other's basic profile info" RLS policy (active partnerships only).
+  useEffect(() => {
+    if (!partnership || !user) { setPartnerOriginGroups(null); setPartnerName(null); return; }
+
+    const partnerId = partnership.user1_id === user.id ? partnership.user2_id : partnership.user1_id;
+    if (!partnerId) { setPartnerOriginGroups(null); setPartnerName(null); return; }
+
+    let cancelled = false;
+    const loadPartnerPrefs = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('first_name, preferences')
+        .eq('user_id', partnerId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (cancelled) return;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (error || !row) { setPartnerOriginGroups(null); setPartnerName(null); return; }
+
+      const og = (row.preferences as { originGroups?: string[] } | null)?.originGroups;
+      // Empty/undefined means "all groups included" per the app convention.
+      setPartnerOriginGroups(Array.isArray(og) ? og : []);
+      setPartnerName(row.first_name ?? null);
+    };
+
+    loadPartnerPrefs();
+    return () => { cancelled = true; };
+  }, [partnership?.id, user?.id]);
+
   // Calculate matches directly from database for accuracy
   useEffect(() => {
     const loadMatchesFromDb = async () => {
@@ -490,6 +529,20 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  // Mark notifications as read (used after presenting match celebrations / summaries).
+  // Optimistically drops them from the local unread list so the UI settles immediately.
+  const markNotificationsRead = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    setNotifications(prev => prev.filter(n => !ids.includes(n.id)));
+    const { error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .in('id', ids);
+    if (error) {
+      console.error('Error marking notifications read:', error);
+    }
+  };
+
   // Remove a name from the local liked/passed lists (used by undo, so the card reappears in the
   // deck). Works regardless of partnership context — the DB row deletion is done by the caller.
   const removeSwipeLocal = (name: string) => {
@@ -564,6 +617,8 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     passedNames,
     matches,
     partnerLikes,
+    partnerOriginGroups,
+    partnerName,
     preferences,
     isOnboardingComplete,
     partnership,
@@ -573,6 +628,7 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     addPassedName,
     addMatch,
     removeSwipeLocal,
+    markNotificationsRead,
     resetAll,
     completeOnboarding,
     refreshPartnership,

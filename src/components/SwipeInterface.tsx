@@ -17,6 +17,7 @@ import undoIcon from "@/assets/undo.svg";
 
 import { BabyName } from "@/contexts/SwipeContext";
 import { MatchCelebration } from "./MatchCelebration";
+import { NewMatchesSummary } from "./NewMatchesSummary";
 import { StorkLoader } from "./StorkLoader";
 import { fetchAllActiveNames } from "@/lib/nameQueries";
 
@@ -67,7 +68,7 @@ const interleavePartnerLikes = <T extends { name: string }>(ordered: T[], partne
 };
 
 const SwipeInterface = () => {
-  const { likedNames, passedNames, matches, partnerLikes, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership } = useSwipe();
+  const { likedNames, passedNames, matches, partnerLikes, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership, notifications, markNotificationsRead } = useSwipe();
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -83,6 +84,11 @@ const SwipeInterface = () => {
   const [lastUndo, setLastUndo] = useState<{ name: BabyName; direction: 'left' | 'right' } | null>(null);
   const [undoAnimation, setUndoAnimation] = useState<{ active: boolean; direction: 'left' | 'right' } | null>(null);
   const [undoCardName, setUndoCardName] = useState<string | null>(null);
+  // Receiver-side match flow: matches the PARTNER created (delivered as unread
+  // 'match_found' notifications) — one match gets the full celebration, several
+  // get a summary. Presented only when the deck is idle.
+  const [receiverMatch, setReceiverMatch] = useState<BabyName | null>(null);
+  const [summaryNames, setSummaryNames] = useState<BabyName[] | null>(null);
   
   const { 
     recommendations, 
@@ -478,15 +484,85 @@ const SwipeInterface = () => {
     }
   }, [cardAnimation, currentName, handleSwipe]);
 
+  // Unread partner-created match notifications for the current partnership.
+  const newMatchNotifs = useMemo(
+    () =>
+      (notifications || []).filter(
+        (n: any) =>
+          n.type === 'match_found' &&
+          n.data?.name &&
+          partnership?.id &&
+          n.data?.partnership_id === partnership.id
+      ),
+    [notifications, partnership?.id]
+  );
+
+  const enrichName = useCallback(
+    (name: string): NameWithOccurrences =>
+      allNames.find((n) => n.name === name) || { name },
+    [allNames]
+  );
+
+  // Present partner-created matches once the deck is idle: never mid-drag, mid-animation,
+  // or on top of the user's own celebration. 1 new match → full celebration; 2+ → summary.
+  useEffect(() => {
+    if (newMatchNotifs.length === 0) return;
+    if (namesLoading || !partnershipLoaded) return;
+    // The overlays render only on the main deck screen — don't consume notifications
+    // while the "finished all names" screen is up (they stay for the matches page).
+    if (!currentName) return;
+    if (showMatchCelebration || receiverMatch || summaryNames) return;
+    if (cardAnimation || undoAnimation?.active || dragDirection || dragOffset !== 0) return;
+
+    if (newMatchNotifs.length === 1) {
+      setReceiverMatch(enrichName(newMatchNotifs[0].data.name));
+    } else {
+      setSummaryNames(newMatchNotifs.map((n: any) => enrichName(n.data.name)));
+    }
+  }, [
+    newMatchNotifs, namesLoading, partnershipLoaded, currentName, showMatchCelebration,
+    receiverMatch, summaryNames, cardAnimation, undoAnimation?.active,
+    dragDirection, dragOffset, enrichName,
+  ]);
+
+  const markMatchNotifsRead = useCallback((names?: string[]) => {
+    const ids = newMatchNotifs
+      .filter((n: any) => !names || names.includes(n.data?.name))
+      .map((n: any) => n.id);
+    if (ids.length) markNotificationsRead(ids);
+  }, [newMatchNotifs, markNotificationsRead]);
+
+  const handleReceiverMatchContinue = useCallback(() => {
+    if (receiverMatch) {
+      addMatch(receiverMatch);
+      markMatchNotifsRead([receiverMatch.name]);
+      setReceiverMatch(null);
+    }
+  }, [receiverMatch, addMatch, markMatchNotifsRead]);
+
+  const handleSummaryClose = useCallback(() => {
+    markMatchNotifsRead();
+    setSummaryNames(null);
+  }, [markMatchNotifsRead]);
+
+  const handleSummaryViewMatches = useCallback(() => {
+    markMatchNotifsRead();
+    setSummaryNames(null);
+    navigate('/matches');
+  }, [markMatchNotifsRead, navigate]);
+
   const handleMatchContinue = useCallback(() => {
     if (matchedName) {
       addLikedName(matchedName);
       addMatch(matchedName);
+      // Both-swiped-at-once race: the partner's like may have ALSO created a notification
+      // for us about this exact name — consume it so we don't celebrate the same match twice.
+      markMatchNotifsRead([matchedName.name]);
       setShowMatchCelebration(false);
       setMatchedName(null);
       // No need to set index - filtering handles next card
     }
-  }, [matchedName, addLikedName, addMatch]);
+  }, [matchedName, addLikedName, addMatch, markMatchNotifsRead]);
 
   const handleUndoSwipe = useCallback(async () => {
     if (!lastUndo || !user) {
@@ -784,9 +860,26 @@ const SwipeInterface = () => {
       
       {/* Show match celebration when there's a match */}
       {showMatchCelebration && matchedName && (
-        <MatchCelebration 
+        <MatchCelebration
           matchedName={matchedName}
           onContinue={handleMatchContinue}
+        />
+      )}
+
+      {/* Partner-created match (single) — same celebration, receiver side */}
+      {receiverMatch && !showMatchCelebration && (
+        <MatchCelebration
+          matchedName={receiverMatch}
+          onContinue={handleReceiverMatchContinue}
+        />
+      )}
+
+      {/* Partner-created matches (2+) since the last visit — summary */}
+      {summaryNames && !showMatchCelebration && !receiverMatch && (
+        <NewMatchesSummary
+          names={summaryNames}
+          onViewMatches={handleSummaryViewMatches}
+          onClose={handleSummaryClose}
         />
       )}
     </div>

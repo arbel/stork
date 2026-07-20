@@ -23,11 +23,19 @@ const ALL_ORIGIN_GROUPS = originGroupOptions.map((o) => o.value);
 const Preferences = () => {
   const navigate = useNavigate();
   const { profile, updateProfile, user } = useAuth();
-  const { partnership } = useSwipe();
+  const { partnership, partnerOriginGroups, partnerName } = useSwipe();
   const [loading, setLoading] = useState(false);
 
-  // Check if user is admin of the partnership
+  // Check if user is admin of the partnership. Gender (which determines the whole deck) stays
+  // admin-managed; origin categories are personal — each partner curates their own.
   const isAdmin = partnership?.user1_id === user?.id;
+
+  // For the "your partner also picked this" badge on category chips.
+  const partnerInitial = (partnerName || profile?.partner_name || "").trim().charAt(0) || "♥";
+  const hasPartner = partnerOriginGroups != null;
+  const partnerHasGroup = (value: string) =>
+    partnerOriginGroups != null &&
+    (partnerOriginGroups.length === 0 || partnerOriginGroups.includes(value));
 
   const [gender, setGender] = useState<'male' | 'female' | 'unknown'>(profile?.preferences?.gender || "unknown");
   const [originGroups, setOriginGroups] = useState<string[]>(
@@ -43,7 +51,6 @@ const Preferences = () => {
   }, [profile]);
 
   const toggleOriginGroup = (value: string) => {
-    if (!isAdmin) return;
     setOriginGroups((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
@@ -99,14 +106,14 @@ const Preferences = () => {
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-4 pb-6">
         <div className="max-w-md mx-auto space-y-6">
-          {/* Read-only message for partners */}
+          {/* Partners can pick their own categories; only gender is admin-managed. */}
           {!isAdmin && (
             <Card className="p-4 border-blue-200 bg-blue-50">
               <div className="flex items-center gap-3">
                 <User className="w-5 h-5 text-blue-600 shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-blue-900">גישת בן/בת זוג</p>
-                  <p className="text-xs text-blue-700">ההעדפות מנוהלות על ידי מנהל השותפות</p>
+                  <p className="text-xs text-blue-700">מין התינוק מנוהל על ידי מנהל השותפות — אבל אתם בוחרים את הקטגוריות שלכם</p>
                 </div>
               </div>
             </Card>
@@ -155,24 +162,45 @@ const Preferences = () => {
               <div className="text-[12px] font-bold text-[#E8508A] tracking-wide">מקור השמות</div>
               <h3 className="text-[22px] font-extrabold text-foreground mt-1">אילו שמות להציג?</h3>
               <p className="text-sm text-muted-foreground mt-1">בחרו את הקטגוריות שמעניינות אתכם</p>
+              {hasPartner && (
+                <div className="mt-2.5 flex items-center gap-2 text-[12px] text-muted-foreground">
+                  <span
+                    className="flex items-center justify-center rounded-full bg-[#E8508A] text-white font-bold shrink-0"
+                    style={{ width: 18, height: 18, fontSize: 10 }}
+                    aria-hidden
+                  >
+                    {partnerInitial}
+                  </span>
+                  <span>קטגוריה שנבחרה גם על ידי {partnerName || "בן/בת הזוג"}</span>
+                </div>
+              )}
             </div>
 
-            <div className={`grid grid-cols-2 gap-2.5 ${isAdmin ? '' : 'opacity-60'}`}>
+            <div className="grid grid-cols-2 gap-2.5">
               {originGroupOptions.map((opt) => {
                 const selected = originGroups.includes(opt.value);
+                const partnerSelected = partnerHasGroup(opt.value);
                 return (
                   <button
                     key={opt.value}
                     type="button"
                     onClick={() => toggleOriginGroup(opt.value)}
-                    disabled={!isAdmin}
                     aria-pressed={selected}
-                    className={`flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-full border-[1.5px] px-3 py-2.5 text-[14px] font-bold transition-colors ${
+                    className={`relative flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-full border-[1.5px] px-3 py-2.5 text-[14px] font-bold transition-colors ${
                       selected
                         ? 'border-[#24C065] bg-[#EAF9F0] text-[#1E9E52]'
                         : 'border-[#ECECEC] bg-[#F7F7F5] text-[#8C8478]'
-                    } ${isAdmin ? '' : 'cursor-not-allowed'}`}
+                    }`}
                   >
+                    {partnerSelected && (
+                      <span
+                        className="absolute z-10 flex items-center justify-center rounded-full bg-[#E8508A] text-white font-bold"
+                        style={{ top: -8, insetInlineStart: -6, width: 20, height: 20, fontSize: 11, boxShadow: '0 0 0 2px #fff' }}
+                        aria-label={`נבחר גם על ידי ${partnerName || "בן/בת הזוג"}`}
+                      >
+                        {partnerInitial}
+                      </span>
+                    )}
                     <Check
                       aria-hidden
                       strokeWidth={3}
@@ -187,33 +215,32 @@ const Preferences = () => {
         </div>
       </div>
 
-      {/* Pinned Save Button - Only for admins */}
-      {isAdmin && (
-        <div
-          className="shrink-0 px-4 pt-3 bg-white/10 backdrop-blur-sm"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)' }}
-        >
-          <div className="max-w-md mx-auto">
-            <Button
-              onClick={handleSave}
-              disabled={loading || !gender}
-              className="w-full h-12 rounded-[14px] bg-[#E8508A] hover:bg-[#D6447D] text-white font-extrabold shadow-[0_12px_26px_-12px_rgba(232,80,138,.6)] transition-colors"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2" />
-                  שומר...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4 ml-2" />
-                  שמירת ההעדפות
-                </>
-              )}
-            </Button>
-          </div>
+      {/* Pinned Save Button - both partners can save (admin also saves gender; partners save
+          their own category selection). */}
+      <div
+        className="shrink-0 px-4 pt-3 bg-white/10 backdrop-blur-sm"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 0.75rem)' }}
+      >
+        <div className="max-w-md mx-auto">
+          <Button
+            onClick={handleSave}
+            disabled={loading || !gender}
+            className="w-full h-12 rounded-[14px] bg-[#E8508A] hover:bg-[#D6447D] text-white font-extrabold shadow-[0_12px_26px_-12px_rgba(232,80,138,.6)] transition-colors"
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2" />
+                שומר...
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 ml-2" />
+                שמירת ההעדפות
+              </>
+            )}
+          </Button>
         </div>
-      )}
+      </div>
     </div>
   );
 };

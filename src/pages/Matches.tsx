@@ -10,10 +10,19 @@ const FIRST_MATCH_TARGET = 40; // "most couples match after ~40 names"
 
 const Matches = () => {
   const navigate = useNavigate();
-  const { matches, partnership, likedNames, passedNames } = useSwipe();
+  const { matches, partnership, likedNames, passedNames, notifications, markNotificationsRead } = useSwipe();
   const { user, profile } = useAuth();
   const [dbMatches, setDbMatches] = useState<BabyName[] | null>(null);
   const [partnerName, setPartnerName] = useState<string>("");
+
+  // Seeing the matches list counts as seeing the new matches — clear their unread
+  // notifications so the badge settles and the swipe screen won't re-celebrate them.
+  useEffect(() => {
+    const ids = (notifications || [])
+      .filter((n: any) => n.type === 'match_found')
+      .map((n: any) => n.id);
+    if (ids.length) markNotificationsRead(ids);
+  }, [notifications, markNotificationsRead]);
 
   useEffect(() => {
     const loadPartner = async () => {
