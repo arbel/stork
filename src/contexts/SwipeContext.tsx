@@ -52,6 +52,15 @@ export const useSwipe = () => {
   return context;
 };
 
+// Pick which partnership to treat as "yours". An ACTIVE partnership always wins over a stray
+// pending/orphan row — e.g. a duplicate a user created during the invite bug, where they're
+// user1 of an empty pending row AND user2 of the real active one. `rows` is newest-first, so a
+// plain [0] would wrongly surface the orphan; prefer active, then fall back to most recent.
+const pickPrimaryPartnership = (rows: any[] | null | undefined): any => {
+  if (!rows || rows.length === 0) return null;
+  return rows.find((p) => p.status === 'active') ?? rows[0];
+};
+
 export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   const { user, profile } = useAuth();
   const [likedNames, setLikedNames] = useState<BabyName[]>([]);
@@ -109,27 +118,22 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     const loadPartnership = async () => {
       console.log('Loading partnership for user:', user.id);
       
-      // Look for any partnership where user is involved (active or pending)
+      // Look for any partnership where user is involved (active or pending), newest first.
       const { data, error } = await supabase
         .from('partnerships')
         .select('*')
         .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      
+        .order('created_at', { ascending: false });
+
       console.log('Partnership query result:', { data, error });
-      
+
       if (error) {
         console.error('Error loading partnership:', error);
         setPartnership(null);
-      } else if (data) {
-        console.log('Partnership found:', data);
-        setPartnership(data);
       } else {
-        console.log('No partnership found for user:', user.id);
-        console.log('User should join a partnership or create one');
-        setPartnership(null);
+        const primary = pickPrimaryPartnership(data);
+        console.log('Partnership selected:', primary);
+        setPartnership(primary);
       }
     };
 
@@ -510,17 +514,13 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
       .from('partnerships')
       .select('*')
       .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    
+      .order('created_at', { ascending: false });
+
     if (error) {
       console.error('Error refreshing partnership:', error);
       setPartnership(null);
-    } else if (data) {
-      setPartnership(data);
     } else {
-      setPartnership(null);
+      setPartnership(pickPrimaryPartnership(data));
     }
   };
 
