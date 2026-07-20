@@ -1,0 +1,19 @@
+src/pages/Landing.tsx
+  s_5df5a2920f9641::t_060ac8b4f57cbb 432
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "5e49ba72813a82ba08b89986ee0d020ac92d54c6",
+  "prompts": {},
+  "sessions": {
+    "s_5df5a2920f9641": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be473fb6-13dd-4c36-9ccf-8a39c7acfa31",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
