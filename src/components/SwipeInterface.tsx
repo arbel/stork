@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect, useCallback, memo } from "react";
 import { SwipeCard } from "./SwipeCard";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Heart, X, RotateCcw, List, Sparkles } from "lucide-react";
 import { BoyIcon } from "./icons/BoyIcon";
 import { GirlIcon } from "./icons/GirlIcon";
@@ -697,91 +696,47 @@ const SwipeInterface = () => {
       
       {/* Content wrapper with responsive spacing - above backgrounds */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 pt-4 pb-4 min-h-0 relative z-20">
-        {/* Stacked Cards Effect - one-point perspective with 3 visible cards */}
+        {/* Stacked cards — one name-keyed list so advancing the deck transitions each card from its
+            old depth to the new one (no unmount/remount jump when the next card becomes the front).
+            All cards stay position:absolute so nothing switches layout mode mid-transition. */}
         <div className="relative flex-1 flex items-center justify-center min-h-0">
-          {/* Fourth card - subtle edge */}
-          {mainIndex >= 0 && availableNames[mainIndex + 3] && (
-            <div 
-              className="absolute pointer-events-none"
-              style={{
-                transform: 'translateY(30px) scale(0.95)',
-                zIndex: 7,
-                opacity: 0.4,
-                transition: 'transform 0.45s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.45s ease-out',
-              }}
-            >
-              <Card 
-                className="w-[calc(100vw-48px)] max-w-[340px] aspect-[4/5] border-0 bg-white rounded-3xl"
-                style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)' }}
-              />
-            </div>
-          )}
-          
-          {/* Third card - visible placeholder */}
-          {mainIndex >= 0 && availableNames[mainIndex + 2] && (
-            <div 
-              className="absolute pointer-events-none"
-              style={{
-                transform: 'translateY(20px) scale(0.97)',
-                zIndex: 8,
-                opacity: 0.7,
-                transition: 'transform 0.45s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.45s ease-out',
-              }}
-            >
-              <Card 
-                className="w-[calc(100vw-48px)] max-w-[340px] aspect-[4/5] border-0 bg-white rounded-3xl"
-                style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)' }}
-              />
-            </div>
-          )}
-          
-          {/* Second card - fully rendered with content */}
-          {mainIndex >= 0 && availableNames[mainIndex + 1] && (
-            <div 
-              className="absolute pointer-events-none"
-              style={{
-                transform: 'translateY(10px) scale(0.99)',
-                zIndex: 9,
-                opacity: 0.96,
-                transition: 'transform 0.45s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.45s ease-out',
-              }}
-            >
-              <SwipeCard
-                key={`next-${availableNames[mainIndex + 1].name}`}
-                name={availableNames[mainIndex + 1]}
-                onSwipe={() => {}}
-                maleOccurrences={availableNames[mainIndex + 1].maleOccurrences}
-                femaleOccurrences={availableNames[mainIndex + 1].femaleOccurrences}
-              />
-            </div>
-          )}
-          
-          {/* Main active card */}
-          <div 
-            style={{ 
-              zIndex: 20,
-              position: 'relative',
-              transform: 'translateY(0) scale(1)',
-              opacity: 1,
-              transition: 'transform 0.45s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.45s ease-out',
-              animation: undoAnimation?.active 
-                ? `slideInFrom${undoAnimation.direction === 'right' ? 'Right' : 'Left'} 0.45s cubic-bezier(0.33, 1, 0.68, 1) forwards`
-                : 'none',
-            }}
-          >
-            {currentName && (
-              <SwipeCard
-                key={`main-${currentName.name}`}
-                name={currentName}
-                onSwipe={handleSwipe}
-                triggerAnimation={cardAnimation}
-                onDragChange={handleDragChange}
-                maleOccurrences={currentName.maleOccurrences}
-                femaleOccurrences={currentName.femaleOccurrences}
-                popularity={getPopularity(currentName)}
-              />
-            )}
-          </div>
+          {mainIndex >= 0 &&
+            availableNames.slice(mainIndex, mainIndex + 4).map((name, depth) => {
+              const isFront = depth === 0;
+              const d = [
+                { y: 0, s: 1, o: 1, z: 20 },
+                { y: 10, s: 0.99, o: 0.96, z: 9 },
+                { y: 20, s: 0.97, o: 0.7, z: 8 },
+                { y: 30, s: 0.95, o: 0.4, z: 7 },
+              ][depth];
+              return (
+                <div
+                  key={name.name}
+                  className="absolute"
+                  style={{
+                    transform: `translateY(${d.y}px) scale(${d.s})`,
+                    opacity: d.o,
+                    zIndex: d.z,
+                    pointerEvents: isFront ? 'auto' : 'none',
+                    transition: 'transform 0.45s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.45s ease-out',
+                    animation:
+                      isFront && undoAnimation?.active
+                        ? `slideInFrom${undoAnimation.direction === 'right' ? 'Right' : 'Left'} 0.45s cubic-bezier(0.33, 1, 0.68, 1) forwards`
+                        : 'none',
+                  }}
+                >
+                  <SwipeCard
+                    name={name}
+                    onSwipe={isFront ? handleSwipe : () => {}}
+                    triggerAnimation={isFront ? cardAnimation : null}
+                    onDragChange={isFront ? handleDragChange : undefined}
+                    maleOccurrences={name.maleOccurrences}
+                    femaleOccurrences={name.femaleOccurrences}
+                    popularity={isFront ? getPopularity(name) : undefined}
+                  />
+                </div>
+              );
+            })}
         </div>
 
         {/* Action Buttons - Pill shaped container, same width as cards */}
