@@ -732,7 +732,9 @@ const SwipeInterface = () => {
                     onDragChange={isFront ? handleDragChange : undefined}
                     maleOccurrences={name.maleOccurrences}
                     femaleOccurrences={name.femaleOccurrences}
-                    popularity={isFront ? getPopularity(name) : undefined}
+                    // Render on every card (not just the front) so the popularity row doesn't pop
+                    // in and shift the layout when a back card becomes the front.
+                    popularity={getPopularity(name)}
                   />
                 </div>
               );
