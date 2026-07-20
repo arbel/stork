@@ -1,5 +1,5 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { requireAdmin } from '../_shared/auth.ts'
 
 interface NameGroup {
   name: string;
@@ -16,10 +16,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    // Only authenticated admins may run this destructive catalog cleanup.
+    const gate = await requireAdmin(req);
+    if ('errorResponse' in gate) return gate.errorResponse;
+    const supabaseAdmin = gate.admin;
 
     const { dryRun = true } = await req.json();
 

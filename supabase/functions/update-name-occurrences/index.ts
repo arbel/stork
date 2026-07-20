@@ -1,5 +1,5 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { requireAdmin } from '../_shared/auth.ts'
 
 interface NameOccurrence {
   name: string;
@@ -13,10 +13,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    // Only authenticated admins may rewrite catalog occurrence data.
+    const gate = await requireAdmin(req);
+    if ('errorResponse' in gate) return gate.errorResponse;
+    const supabaseAdmin = gate.admin;
 
     const { names } = await req.json() as { names: NameOccurrence[] };
 

@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { requireUser } from '../_shared/auth.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,14 +30,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    // Authenticate the caller and NEVER trust a client-supplied userId (was an IDOR: any user
+    // could wipe/poison another user's recommendations and read their similar-user UUIDs).
+    const gate = await requireUser(req)
+    if ('errorResponse' in gate) return gate.errorResponse
+    const supabaseClient = gate.admin
+    const userId = gate.user.id
 
-    const { userId, userPreferences, excludeNames = [], limit = 20 }: RecommendationRequest = await req.json()
-
-    console.log('Generating recommendations for user:', userId)
+    const { userPreferences, excludeNames = [], limit = 20 }: Omit<RecommendationRequest, 'userId'> = await req.json()
 
     // Get user's liked names
     const { data: userLikes } = await supabaseClient
@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
 
     const likedNames = userLikes?.map(like => like.name) || []
     const allExcludedNames = [...likedNames, ...excludeNames]
+    const excludedSet = new Set(allExcludedNames)
 
     console.log('User has liked:', likedNames.length, 'names')
 
@@ -78,10 +79,10 @@ Deno.serve(async (req) => {
             .select('name')
             .eq('user_id', otherUserId)
             .eq('action', 'like')
-            .not('name', 'in', `(${allExcludedNames.map(name => `"${name}"`).join(',')})`)
 
           if (otherUserLikes) {
             for (const like of otherUserLikes) {
+              if (excludedSet.has(like.name)) continue
               const existingRec = recommendations.find(r => r.name === like.name)
               const scoreBoost = similarity.similarity_score * 0.8 // Weight by similarity
 
@@ -146,12 +147,12 @@ Deno.serve(async (req) => {
       .from('user_swipes')
       .select('name')
       .eq('action', 'like')
-      .not('name', 'in', `(${allExcludedNames.map(name => `"${name}"`).join(',')})`)
 
     if (popularNames) {
-      // Count occurrences of each name
+      // Count occurrences of each name (excluding already-seen names)
       const nameCounts: { [key: string]: number } = {}
       popularNames.forEach(item => {
+        if (excludedSet.has(item.name)) return
         nameCounts[item.name] = (nameCounts[item.name] || 0) + 1
       })
 

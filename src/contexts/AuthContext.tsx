@@ -61,11 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔐 Auth state change:', event, session?.user?.email);
-      console.log('🔐 Previous user:', user?.email);
-      console.log('🔐 New session user:', session?.user?.email);
-      console.log('🔐 Admin authenticated:', localStorage.getItem("admin_authenticated"));
-      
+      // Don't log user emails / auth state (PII in the browser console).
       setSession(session)
       setUser(session?.user ?? null)
       

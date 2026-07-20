@@ -67,7 +67,7 @@ const interleavePartnerLikes = <T extends { name: string }>(ordered: T[], partne
 };
 
 const SwipeInterface = () => {
-  const { likedNames, passedNames, matches, partnerLikes, addLikedName, addPassedName, addMatch, resetAll, preferences, partnership, refreshPartnership } = useSwipe();
+  const { likedNames, passedNames, matches, partnerLikes, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership } = useSwipe();
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -162,18 +162,19 @@ const SwipeInterface = () => {
       }
     });
 
-    // Shuffle each tier internally with weighted preference for higher occurrences
+    // Shuffle each tier internally with weighted preference for higher occurrences.
     const shuffleTierWithWeights = (tier: typeof namesWithTotal) => {
       if (tier.length === 0) return [];
-      
-      // Sort by occurrence first, then add randomness
-      return tier.sort((a, b) => {
-        const occDiff = b.totalOccurrences - a.totalOccurrences;
-        // Add some randomness - higher occurrence names are more likely to be first
-        // but not guaranteed
-        const randomFactor = (seededRandom() - 0.5) * Math.max(a.totalOccurrences, b.totalOccurrences) * 0.5;
-        return occDiff + randomFactor;
-      });
+      // Assign each name ONE weighted sort key (occurrence + bounded jitter) up front, then sort by
+      // it. Redrawing randomness inside the comparator (as before) is non-transitive and yields an
+      // undefined order; this is stable and doesn't mutate the input array.
+      return tier
+        .map((name) => ({
+          name,
+          key: name.totalOccurrences + (seededRandom() - 0.5) * Math.max(name.totalOccurrences, 1) * 0.5,
+        }))
+        .sort((a, b) => b.key - a.key)
+        .map((entry) => entry.name);
     };
 
     // Shuffle each tier
@@ -436,11 +437,11 @@ const SwipeInterface = () => {
     if (!cardAnimation && currentName) {
       // Check for match BEFORE animating for button clicks
       if (partnerLikes.includes(currentName.name)) {
-        // It's a match! Don't update state yet, just show match celebration
-        // State will be updated when match celebration is closed
+        // It's a match! Committed when the celebration closes (handleMatchContinue). Record the
+        // undo target so a button-match can be undone too (parity with swipe-gesture matches).
+        setLastUndo({ name: currentName, direction: 'right' });
         setMatchedName(currentName);
         setShowMatchCelebration(true);
-        console.log('🎉 BUTTON MATCH FOUND! 🎉', currentName.name);
         return;
       }
       
@@ -521,9 +522,11 @@ const SwipeInterface = () => {
       // Clear the last undo
       setLastUndo(null);
 
-      // Refresh partnership to reload swipes FIRST
-      await refreshPartnership();
-      
+      // Remove from local liked/passed so the card reappears in the deck. (Relying on
+      // refreshPartnership doesn't work in the solo/no-partnership case: setPartnership(null) is a
+      // no-op that never re-triggers the swipe reload.)
+      removeSwipeLocal(animName);
+
       // THEN start the animation after data is updated
       // Use a small delay to ensure React has re-rendered with new data
       setTimeout(() => {
@@ -547,7 +550,7 @@ const SwipeInterface = () => {
         variant: "destructive",
       });
     }
-  }, [lastUndo, user, partnership, refreshPartnership]);
+  }, [lastUndo, user, partnership, removeSwipeLocal]);
 
   const resetSwipes = async () => {
     try {
@@ -602,8 +605,9 @@ const SwipeInterface = () => {
     return { opacity };
   };
 
-  // Show loading spinner while names are being fetched
-  if (namesLoading) {
+  // Wait for BOTH the names and the partnership to load — swiping before the partnership resolves
+  // would persist swipes with a null partnership_id and orphan them.
+  if (namesLoading || !partnershipLoaded) {
     return (
       <div 
         className="flex items-center justify-center fixed inset-0"

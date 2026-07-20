@@ -109,11 +109,17 @@ export const Onboarding = () => {
     if (!user || inviteCode || inviteLoading) return;
     setInviteLoading(true);
     try {
-      const { data: existing } = await supabase
+      // Take the most recent existing partnership. Using .maybeSingle() here would ERROR when the
+      // user already has >1 row, and (unchecked) fall through to INSERT a duplicate — the source of
+      // the orphan partnerships. Order + limit(1) avoids that.
+      const { data: existing, error: existingError } = await supabase
         .from('partnerships')
         .select('invite_code')
         .eq('user1_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
+      if (existingError) throw existingError;
 
       if (existing?.invite_code) {
         setInviteCode(existing.invite_code);

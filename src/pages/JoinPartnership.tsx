@@ -118,9 +118,6 @@ export const JoinPartnership = () => {
   }, [inviteCode]);
 
   useEffect(() => {
-    console.log('JoinPartnership component loaded with inviteCode:', inviteCode);
-    console.log('Current user:', user?.email);
-
     if (!inviteCode) {
       setError('קישור הזמנה לא תקין');
       return;

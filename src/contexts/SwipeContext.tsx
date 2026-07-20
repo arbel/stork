@@ -32,10 +32,12 @@ interface SwipeContextType {
   preferences: UserPreferences | null;
   isOnboardingComplete: boolean;
   partnership: any | null;
+  partnershipLoaded: boolean;
   notifications: any[] | null;
   addLikedName: (name: BabyName) => void;
   addPassedName: (name: BabyName) => void;
   addMatch: (name: BabyName) => void;
+  removeSwipeLocal: (name: string) => void;
   resetAll: () => void;
   completeOnboarding: (preferences: UserPreferences) => void;
   refreshPartnership: () => Promise<void>;
@@ -67,6 +69,11 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   const [passedNames, setPassedNames] = useState<BabyName[]>([]);
   const [matches, setMatches] = useState<BabyName[]>([]);
   const [partnership, setPartnership] = useState<any>(null);
+  // Whether the initial partnership load has resolved — used to avoid swiping (and writing swipes
+  // with a null partnership_id) before we know whether the user is in a partnership.
+  const [partnershipLoaded, setPartnershipLoaded] = useState(false);
+  // Bumped by a realtime user_swipes subscription so partner-likes / matches refresh live.
+  const [swipesVersion, setSwipesVersion] = useState(0);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [partnerLikes, setPartnerLikes] = useState<string[]>([]);
   const [allNames, setAllNames] = useState<BabyName[]>([]);
@@ -135,6 +142,7 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
         console.log('Partnership selected:', primary);
         setPartnership(primary);
       }
+      setPartnershipLoaded(true);
     };
 
     loadPartnership();
@@ -166,6 +174,26 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
       supabase.removeChannel(channel);
     };
   }, [user]);
+
+  // Realtime: when either partner's swipes change in the current partnership, refresh partner-likes
+  // and matches so a partner-initiated match surfaces live (no reload needed).
+  useEffect(() => {
+    if (!partnership?.id) return;
+    const channel = supabase
+      .channel(`user_swipes-${partnership.id}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_swipes',
+        filter: `partnership_id=eq.${partnership.id}`,
+      }, () => {
+        setSwipesVersion((v) => v + 1);
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [partnership?.id]);
 
   // Load notifications
   useEffect(() => {
@@ -337,7 +365,7 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
 
     // Load immediately and forcefully
     loadPartnerLikes();
-  }, [partnership?.id, user?.id]);
+  }, [partnership?.id, user?.id, swipesVersion]);
 
   // Calculate matches directly from database for accuracy
   useEffect(() => {
@@ -400,7 +428,7 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     };
 
     loadMatchesFromDb();
-  }, [user, partnership, allNames]);
+  }, [user, partnership, allNames, swipesVersion]);
 
   const addLikedName = async (name: BabyName) => {
     console.log('addLikedName called:', { 
@@ -460,6 +488,13 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
       console.log('Adding new match:', name.name);
       return [...prev, name];
     });
+  };
+
+  // Remove a name from the local liked/passed lists (used by undo, so the card reappears in the
+  // deck). Works regardless of partnership context — the DB row deletion is done by the caller.
+  const removeSwipeLocal = (name: string) => {
+    setLikedNames(prev => prev.filter(n => n.name !== name));
+    setPassedNames(prev => prev.filter(n => n.name !== name));
   };
 
   const addPassedName = async (name: BabyName) => {
@@ -532,10 +567,12 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     preferences,
     isOnboardingComplete,
     partnership,
+    partnershipLoaded,
     notifications,
     addLikedName,
     addPassedName,
     addMatch,
+    removeSwipeLocal,
     resetAll,
     completeOnboarding,
     refreshPartnership,

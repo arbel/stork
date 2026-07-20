@@ -7,6 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 const DEV_BYPASS_PASSWORD = "stork-dev-bypass-123!";
 
 export const devSkipOtp = async (email: string): Promise<boolean> => {
+  // Self-guard: never run outside a dev build, regardless of caller. import.meta.env.DEV is a
+  // compile-time constant (false in prod), so this branch is dead-code-eliminated in production.
+  if (!import.meta.env.DEV) return false;
+
   const signIn = await supabase.auth.signInWithPassword({ email, password: DEV_BYPASS_PASSWORD });
   if (!signIn.error) return true;
 

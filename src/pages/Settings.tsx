@@ -219,50 +219,33 @@ const Settings = () => {
     try {
       if (partnership) {
         const isAdmin = partnership.user1_id === user.id;
-        
+
         if (isAdmin && partnership.user2_id) {
-          // Admin is deleting their account while having a partner - transfer ownership
-          await supabase
-            .from('partnerships')
-            .update({
-              user1_id: partnership.user2_id,
-              user2_id: null,
-              status: 'pending' // Reset to pending so new admin can invite someone else
-            })
-            .eq('id', partnership.id);
-            
-          // Create notification for the new admin
-          await supabase
-            .from('notifications')
-            .insert({
-              user_id: partnership.user2_id,
-              type: 'partnership_transferred',
-              title: 'השותפות הועברה',
-              message: 'אתם כעת מנהלי השותפות. בן/בת הזוג הקודמים מחקו את החשבון שלהם.'
-            });
+          // Admin leaving with a partner: hand ownership to the partner (keeps the partnership and
+          // the partner's swipes) via a SECURITY DEFINER RPC — a direct update can't remove self.
+          const { error } = await supabase.rpc('transfer_partnership_ownership' as never);
+          if (error) throw error;
+          await supabase.from('notifications').insert({
+            user_id: partnership.user2_id,
+            type: 'partnership_transferred',
+            title: 'השותפות הועברה',
+            message: 'אתם כעת מנהלי השותפות. בן/בת הזוג הקודמים מחקו את החשבון שלהם.',
+          });
         } else if (isAdmin && !partnership.user2_id) {
-          // Admin with no partner - just delete the partnership
-          await supabase
-            .from('partnerships')
-            .delete()
-            .eq('id', partnership.id);
-        } else if (!isAdmin) {
-          // Partner (user2) is deleting their account - delete the partnership entirely
-          // so the admin starts fresh and needs to create a new partnership
-          await supabase
-            .from('partnerships')
-            .delete()
-            .eq('id', partnership.id);
-            
-          // Notify the admin that their partner left and partnership was dissolved
-          await supabase
-            .from('notifications')
-            .insert({
-              user_id: partnership.user1_id,
-              type: 'partner_left',
-              title: 'בן/בת הזוג עזבו',
-              message: 'בן/בת הזוג מחקו את החשבון שלהם והשותפות הסתיימה. אפשר ליצור שותפות חדשה בכל עת.'
-            });
+          // Admin with no partner: safe to delete the empty partnership.
+          const { error } = await supabase.from('partnerships').delete().eq('id', partnership.id);
+          if (error) throw error;
+        } else {
+          // Partner leaving: detach via leave_partnership (preserves the admin's partnership + swipes;
+          // a direct delete would silently fail under RLS and leave a dangling partner reference).
+          const { error } = await supabase.rpc('leave_partnership');
+          if (error) throw error;
+          await supabase.from('notifications').insert({
+            user_id: partnership.user1_id,
+            type: 'partner_left',
+            title: 'בן/בת הזוג עזבו',
+            message: 'בן/בת הזוג מחקו את החשבון שלהם. אפשר להזמין בן/בת זוג חדשים בכל עת.',
+          });
         }
       }
 

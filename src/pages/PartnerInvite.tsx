@@ -23,12 +23,19 @@ export const PartnerInvite = () => {
     if (!user) return;
     
     const loadOrCreatePartnership = async () => {
-      // Check if user already has a partnership
-      const { data: existing } = await supabase
+      // Most recent existing partnership. .maybeSingle() alone errors when >1 row exists and would
+      // fall through to creating a duplicate; order + limit(1) prevents that.
+      const { data: existing, error: existingError } = await supabase
         .from('partnerships')
         .select('*')
         .eq('user1_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
+      if (existingError) {
+        toast({ title: "שגיאה בטעינת ההזמנה", description: existingError.message, variant: "destructive" });
+        return;
+      }
 
       if (existing) {
         setInviteCode(existing.invite_code);
