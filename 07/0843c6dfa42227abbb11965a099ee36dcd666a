@@ -1,0 +1,23 @@
+public/site.webmanifest
+  s_84ef6b476a1667::t_112fc0692927d7 1-14
+public/favicon.svg
+  s_84ef6b476a1667::t_7d9ff2d19fbd35 1-4
+index.html
+  s_84ef6b476a1667::t_52e28d5642abcd 6-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "070843c6dfa42227abbb11965a099ee36dcd666a",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
