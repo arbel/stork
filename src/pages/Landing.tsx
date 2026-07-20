@@ -429,7 +429,7 @@ const Landing = ({ onStart }: LandingProps) => {
               {ctaButton()}
             </div>
 
-            <div className="relative min-h-[470px] flex items-end justify-center">
+            <div className="relative flex items-end justify-center md:min-h-[470px]">
               <DemoDeck onFrontChange={setFront} onTint={handleTint} onUserMatch={handleUserMatch} />
               <button
                 onClick={onStart}
