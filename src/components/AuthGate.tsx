@@ -71,8 +71,13 @@ export const AuthGate = ({ children }: AuthGateProps) => {
   // Show authentication form
   return (
     <div
-      className="bg-gradient-to-br from-teal-400 via-teal-500 to-teal-600 text-white flex flex-col overflow-hidden"
-      style={{ height: '100dvh' }}
+      className="text-white flex flex-col overflow-hidden"
+      style={{
+        height: '100dvh',
+        backgroundImage: 'url(/bg-base.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
       {step === 'email' ? (
         <div
