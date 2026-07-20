@@ -1,0 +1,38 @@
+src/contexts/SwipeContext.tsx
+  s_5df5a2920f9641::t_d21f0ad9db2f03 353-358,362,366,369,372,380,382,387,393-395,401
+  s_5df5a2920f9641::t_6871eeff5a02af 83-85
+  s_5df5a2920f9641::t_7a54d7c33f9100 209-224,247-255
+  s_5df5a2920f9641::t_a3c426b1bc326f 647
+  s_5df5a2920f9641::t_ca97bcd94aaa7b 32
+  s_5df5a2920f9641::t_d4f3c1caa16fb7 1
+  s_5df5a2920f9641::t_ae6d5eb5769942 562
+src/components/SwipeInterface.tsx
+  s_5df5a2920f9641::t_0858ca6a0fabd1 317-322
+  s_5df5a2920f9641::t_fa2e5ad05aab4f 908
+  s_5df5a2920f9641::t_e0fb0e3458153c 1
+  s_5df5a2920f9641::t_7af30f152b896a 71
+  s_5df5a2920f9641::t_4b678a5754c2fd 451-454
+  s_5df5a2920f9641::t_c55832f6d2d910 594-597
+  s_5df5a2920f9641::t_36c256b4e8d51c 89,92-99
+  s_5df5a2920f9641::t_864856d27316ca 522-527,547-549
+  s_5df5a2920f9641::t_c26bcebbf0df2f 718-721
+  s_5df5a2920f9641::t_fc40b42952d395 566-571
+  s_5df5a2920f9641::t_a14bcd31df2989 550
+  s_5df5a2920f9641::t_c9464537c1d629 572
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "e3a39ee0f81f356419f5545131336ba22974b86f",
+  "prompts": {},
+  "sessions": {
+    "s_5df5a2920f9641": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "be473fb6-13dd-4c36-9ccf-8a39c7acfa31",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
