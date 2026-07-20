@@ -1,0 +1,28 @@
+src/components/Onboarding.tsx
+  s_84ef6b476a1667::t_f3dd28bfc359d9 433
+src/components/NameListLayout.tsx
+  s_84ef6b476a1667::t_d9fcd504af4fbf 1
+  s_84ef6b476a1667::t_c29ee81282aa14 105-106
+  s_84ef6b476a1667::t_85a67504ca765d 23-24,35
+src/pages/Preferences.tsx
+  s_84ef6b476a1667::t_6d05f5254defaf 200
+  s_84ef6b476a1667::t_ccea4dc36364ba 170
+src/pages/Matches.tsx
+  s_84ef6b476a1667::t_d766ecfcd5ac38 2-3,9-10,12-14,16-31,121-172,182
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "e7bed6f3ab1fe4516ad86df5a68b90907c5c794d",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
