@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 import { fetchAllActiveNames } from '@/lib/nameQueries';
@@ -29,6 +29,7 @@ interface SwipeContextType {
   passedNames: BabyName[];
   matches: BabyName[];
   partnerLikes: string[];
+  partnerLikesLoaded: boolean;
   // The partner's own origin-category selection + display name, for showing "your partner also
   // picked this" badges. null = no partner (or not loaded yet).
   partnerOriginGroups: string[] | null;
@@ -79,6 +80,9 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   const [partnershipLoaded, setPartnershipLoaded] = useState(false);
   // Bumped by a realtime user_swipes subscription so partner-likes / matches refresh live.
   const [swipesVersion, setSwipesVersion] = useState(0);
+  // True once the initial partner-likes fetch has settled (or there's no partner to fetch for).
+  // Lets the deck take ONE stable snapshot instead of re-interleaving on live updates.
+  const [partnerLikesLoaded, setPartnerLikesLoaded] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [partnerLikes, setPartnerLikes] = useState<string[]>([]);
   const [partnerOriginGroups, setPartnerOriginGroups] = useState<string[] | null>(null);
@@ -202,20 +206,25 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [partnership?.id]);
 
+  // IDs the user already consumed locally (celebration dismissed etc.). A refetch that races
+  // the read-update in the DB must not resurrect them into the unread list.
+  const readNotificationIdsRef = useRef<Set<string>>(new Set());
+
+  const loadNotifications = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('read', false)
+      .order('created_at', { ascending: false });
+
+    setNotifications((data || []).filter(n => !readNotificationIdsRef.current.has(n.id)));
+  }, [user?.id]);
+
   // Load notifications
   useEffect(() => {
     if (!user) return;
-
-    const loadNotifications = async () => {
-      const { data } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('read', false)
-        .order('created_at', { ascending: false });
-      
-      setNotifications(data || []);
-    };
 
     loadNotifications();
 
@@ -235,7 +244,15 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, loadNotifications]);
+
+  // The notifications realtime channel has proven flaky, while the user_swipes channel (which
+  // bumps swipesVersion) is reliable — and match notifications are created by the very same
+  // swipe transactions. Piggyback: any partner swipe activity also refreshes notifications,
+  // so a partner-created match reaches this client without a page reload.
+  useEffect(() => {
+    if (swipesVersion > 0) loadNotifications();
+  }, [swipesVersion, loadNotifications]);
 
   // Load user's existing swipes
   useEffect(() => {
@@ -333,20 +350,26 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
 
   // Load partner's likes to check for matches
   useEffect(() => {
-    if (!partnership || !user) return;
+    if (!user) return;
+    if (!partnership) {
+      // No partnership at all (solo user) — there are no partner likes to wait for.
+      if (partnershipLoaded) setPartnerLikesLoaded(true);
+      return;
+    }
 
     // Only load partner likes if there's a partner in the partnership
     const partnerId = partnership.user1_id === user.id ? partnership.user2_id : partnership.user1_id;
-    
+
     if (!partnerId) {
       console.log('No partner in partnership yet');
       setPartnerLikes([]);
+      setPartnerLikesLoaded(true);
       return;
     }
-    
+
     const loadPartnerLikes = async () => {
       console.log('Loading partner likes for partner:', partnerId, 'in partnership:', partnership.id);
-      
+
       try {
         const { data, error } = await supabase
           .from('user_swipes')
@@ -354,25 +377,28 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
           .eq('user_id', partnerId)
           .eq('partnership_id', partnership.id)
           .eq('action', 'like');
-        
+
         console.log('Partner likes query result:', { data, error, count: data?.length });
-        
+
         if (error) {
           console.error('Error loading partner likes:', error);
           return;
         }
-        
+
         const partnerLikedNames = data?.map(s => s.name) || [];
         console.log('Partner has liked', partnerLikedNames.length, 'names:', partnerLikedNames.slice(0, 5));
         setPartnerLikes(partnerLikedNames);
       } catch (err) {
         console.error('Exception loading partner likes:', err);
+      } finally {
+        // Even on error: unblocks consumers waiting for the initial load (deck freeze).
+        setPartnerLikesLoaded(true);
       }
     };
 
     // Load immediately and forcefully
     loadPartnerLikes();
-  }, [partnership?.id, user?.id, swipesVersion]);
+  }, [partnership?.id, user?.id, swipesVersion, partnershipLoaded]);
 
   // Load the partner's own origin-category selection (+ their name) so Preferences can show a badge
   // on categories the partner has enabled. The partner's profile row is readable under the
@@ -533,6 +559,7 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   // Optimistically drops them from the local unread list so the UI settles immediately.
   const markNotificationsRead = async (ids: string[]) => {
     if (ids.length === 0) return;
+    ids.forEach(id => readNotificationIdsRef.current.add(id));
     setNotifications(prev => prev.filter(n => !ids.includes(n.id)));
     const { error } = await supabase
       .from('notifications')
@@ -617,6 +644,7 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     passedNames,
     matches,
     partnerLikes,
+    partnerLikesLoaded,
     partnerOriginGroups,
     partnerName,
     preferences,

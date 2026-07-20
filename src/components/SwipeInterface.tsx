@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback, memo } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, memo } from "react";
 import { SwipeCard } from "./SwipeCard";
 import { Button } from "@/components/ui/button";
 import { Heart, X, RotateCcw, List, Sparkles } from "lucide-react";
@@ -68,7 +68,7 @@ const interleavePartnerLikes = <T extends { name: string }>(ordered: T[], partne
 };
 
 const SwipeInterface = () => {
-  const { likedNames, passedNames, matches, partnerLikes, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership, notifications, markNotificationsRead } = useSwipe();
+  const { likedNames, passedNames, matches, partnerLikes, partnerLikesLoaded, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership, notifications, markNotificationsRead } = useSwipe();
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -86,9 +86,17 @@ const SwipeInterface = () => {
   const [undoCardName, setUndoCardName] = useState<string | null>(null);
   // Receiver-side match flow: matches the PARTNER created (delivered as unread
   // 'match_found' notifications) — one match gets the full celebration, several
-  // get a summary. Presented only when the deck is idle.
+  // get a summary. Presented only right after the user completes a swipe.
   const [receiverMatch, setReceiverMatch] = useState<BabyName | null>(null);
   const [summaryNames, setSummaryNames] = useState<BabyName[] | null>(null);
+  // One-time snapshot of the partner's likes used for deck ordering. The live partnerLikes
+  // list refreshes on every partner swipe (realtime) and would re-interleave the deck under
+  // the user's fingers; the deck must stay stable for the whole session.
+  const [frozenPartnerLikes, setFrozenPartnerLikes] = useState<string[] | null>(null);
+  if (frozenPartnerLikes === null && partnershipLoaded && partnerLikesLoaded) {
+    // Guarded render-time set: runs exactly once, before the deck is first painted.
+    setFrozenPartnerLikes(partnerLikes);
+  }
   
   const { 
     recommendations, 
@@ -306,8 +314,12 @@ const SwipeInterface = () => {
 
     // Idea #2: boost the partner's liked (still-unmatched) names by interleaving them into the
     // deck at a steady cadence — more match opportunities without front-loading them all.
-    return interleavePartnerLikes(ordered, new Set(partnerLikes));
-  }, [preferences, recommendations, useRecommendations, weightedPopularityShuffle, allNames, randomSeed, partnerLikes]);
+    // Uses the SESSION-FROZEN snapshot, not the live list: the realtime refresh that fires on
+    // every partner swipe would otherwise re-interleave the deck and change the cards under
+    // the user's fingers. New partner likes get boosted from the next session onward (live
+    // partnerLikes still powers match detection the moment a card is swiped).
+    return interleavePartnerLikes(ordered, new Set(frozenPartnerLikes || []));
+  }, [preferences, recommendations, useRecommendations, weightedPopularityShuffle, allNames, randomSeed, frozenPartnerLikes]);
 
   // Filter out swiped names WITHOUT reshuffling - maintains stable order
   const availableNames = useMemo(() => {
@@ -436,6 +448,10 @@ const SwipeInterface = () => {
 
     // No need to update index - filtering handles showing next card
     console.log('=== SWIPE COMPLETED ===');
+
+    // A swipe just completed — once the card transition settles, surface any
+    // partner-created matches that arrived while the user was away or mid-deck.
+    setTimeout(() => presentPendingMatchesRef.current(), 450);
   };
 
   const handleLikeButton = useCallback(() => {
@@ -503,9 +519,12 @@ const SwipeInterface = () => {
     [allNames]
   );
 
-  // Present partner-created matches once the deck is idle: never mid-drag, mid-animation,
-  // or on top of the user's own celebration. 1 new match → full celebration; 2+ → summary.
-  useEffect(() => {
+  // Present partner-created matches only at a natural pause point — right AFTER the user
+  // completes a swipe (never while they're idling on / considering a card, and never
+  // mid-drag, mid-animation, or on top of the user's own celebration).
+  // 1 new match → full celebration; 2+ → summary. If the user never swipes again this
+  // session, the notifications simply stay unread for the bell / matches page.
+  const presentPendingMatches = useCallback(() => {
     if (newMatchNotifs.length === 0) return;
     if (namesLoading || !partnershipLoaded) return;
     // The overlays render only on the main deck screen — don't consume notifications
@@ -525,6 +544,10 @@ const SwipeInterface = () => {
     dragDirection, dragOffset, enrichName,
   ]);
 
+  // Ref so post-swipe timeouts always call the latest version (not a stale closure).
+  const presentPendingMatchesRef = useRef(presentPendingMatches);
+  presentPendingMatchesRef.current = presentPendingMatches;
+
   const markMatchNotifsRead = useCallback((names?: string[]) => {
     const ids = newMatchNotifs
       .filter((n: any) => !names || names.includes(n.data?.name))
@@ -539,6 +562,13 @@ const SwipeInterface = () => {
       setReceiverMatch(null);
     }
   }, [receiverMatch, addMatch, markMatchNotifsRead]);
+
+  // MatchCelebration restarts its countdown whenever onContinue changes identity, and this
+  // handler's identity churns (its deps update when notifications refresh mid-celebration),
+  // which caused duplicate auto-close fires. Hand the celebration a stable wrapper instead.
+  const receiverContinueRef = useRef(handleReceiverMatchContinue);
+  receiverContinueRef.current = handleReceiverMatchContinue;
+  const stableReceiverContinue = useCallback(() => receiverContinueRef.current(), []);
 
   const handleSummaryClose = useCallback(() => {
     markMatchNotifsRead();
@@ -561,6 +591,10 @@ const SwipeInterface = () => {
       setShowMatchCelebration(false);
       setMatchedName(null);
       // No need to set index - filtering handles next card
+
+      // The match-swipe also counts as a completed swipe — after the celebration
+      // closes, surface any partner-created matches that queued up behind it.
+      setTimeout(() => presentPendingMatchesRef.current(), 350);
     }
   }, [matchedName, addLikedName, addMatch, markMatchNotifsRead]);
 
@@ -681,9 +715,10 @@ const SwipeInterface = () => {
     return { opacity };
   };
 
-  // Wait for BOTH the names and the partnership to load — swiping before the partnership resolves
-  // would persist swipes with a null partnership_id and orphan them.
-  if (namesLoading || !partnershipLoaded) {
+  // Wait for the names, the partnership AND the initial partner-likes load — swiping before the
+  // partnership resolves would orphan swipes, and dealing the deck before partner likes arrive
+  // would freeze an empty interleave snapshot.
+  if (namesLoading || !partnershipLoaded || !partnerLikesLoaded) {
     return (
       <div 
         className="flex items-center justify-center fixed inset-0"
@@ -870,7 +905,7 @@ const SwipeInterface = () => {
       {receiverMatch && !showMatchCelebration && (
         <MatchCelebration
           matchedName={receiverMatch}
-          onContinue={handleReceiverMatchContinue}
+          onContinue={stableReceiverContinue}
         />
       )}
 
