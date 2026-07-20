@@ -1,0 +1,19 @@
+supabase/migrations/20260720150000_user_swipes_update_policy_and_leave_unlink.sql
+  s_84ef6b476a1667::t_84b444119c0336 1-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "b522b2705883d7444ea9a6964ef49f7fc67d38cd",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
