@@ -1,0 +1,25 @@
+src/pages/PartnerInvite.tsx
+  s_84ef6b476a1667::t_3feb42fb982673 61
+  s_84ef6b476a1667::t_d0723d45b4e011 7
+src/components/Onboarding.tsx
+  s_84ef6b476a1667::t_2d1611809ec8e1 105
+  s_84ef6b476a1667::t_f046c46dee16f5 7
+src/lib/appUrl.ts
+  s_84ef6b476a1667::t_6dd21ab5601d4c 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "68065cc17de6c5b2ff7d3af8d30d59a849c65bb3",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
