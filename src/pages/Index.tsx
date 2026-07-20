@@ -12,9 +12,11 @@ const Index = () => {
   const { user, profile, loading, profileLoading } = useAuth();
   const { isOnboardingComplete } = useSwipe();
 
-  // Wait for auth and profile loading states
-  // Also wait if we have a user but profile hasn't loaded yet (prevents flash)
-  if (loading || profileLoading || (user && !profile)) {
+  // Wait for auth and profile loading states. profileLoading is set synchronously whenever a
+  // profile fetch is pending, so this wait is bounded — unlike the old `user && !profile`
+  // condition, which spun forever when a session's user had no profile row (deleted account).
+  // If the fetch settles with no profile, the user flows to Onboarding, which creates one.
+  if (loading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <StorkLoader message="רגע אחד…" tone="dark" />

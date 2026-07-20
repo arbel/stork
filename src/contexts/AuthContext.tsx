@@ -45,15 +45,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profileLoading, setProfileLoading] = useState(false)
 
   useEffect(() => {
+    // Failsafe: if auth init hangs (e.g. a stuck getSession() auth lock), never strand the
+    // user on the boot loader — fall through to the landing/login screen instead.
+    const failsafe = setTimeout(() => setLoading(false), 5000)
+
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session)
       setUser(session?.user ?? null)
       if (session?.user) {
-        setProfileLoading(true)
         await loadProfile(session.user.id)
-        setProfileLoading(false)
       }
+      setLoading(false)
+    }).catch((error) => {
+      console.error('Error getting initial session:', error)
       setLoading(false)
     })
 
@@ -64,9 +69,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Don't log user emails / auth state (PII in the browser console).
       setSession(session)
       setUser(session?.user ?? null)
-      
+
       if (session?.user) {
-        // Defer profile loading to prevent deadlocks
+        // Mark the profile as loading synchronously so the UI waits for it instead of
+        // flashing onboarding, then defer the actual fetch to prevent deadlocks.
+        setProfileLoading(true)
         setTimeout(() => {
           loadProfile(session.user.id)
         }, 0)
@@ -76,10 +83,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      clearTimeout(failsafe)
+      subscription.unsubscribe()
+    }
   }, [])
 
   const loadProfile = async (userId: string) => {
+    setProfileLoading(true)
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -94,8 +105,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const profileRow = Array.isArray(data) ? data[0] : data;
       setProfile(profileRow || null);
+
+      if (!profileRow && !error) {
+        // Every signed-in user should have a profile row (created by the signup trigger).
+        // Zero rows without an error usually means this device holds a session for a user
+        // that no longer exists (e.g. a deleted account): the cached JWT still passes RLS
+        // but every query comes back empty, which used to strand the app on the loader.
+        // Verify against the auth server and drop the dead session locally.
+        const { error: userError } = await supabase.auth.getUser();
+        if (userError) {
+          console.warn('Session user no longer exists — clearing local session');
+          await supabase.auth.signOut({ scope: 'local' });
+        }
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
+    } finally {
+      setProfileLoading(false)
     }
   }
 
