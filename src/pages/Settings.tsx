@@ -186,13 +186,11 @@ const Settings = () => {
           message: 'בן/בת הזוג עזבו את השותפות. אפשר להזמין בן/בת זוג חדשים בכל עת.'
         });
 
-      // Reset user's profile preferences so they go through onboarding again when joining new partnership
+      // Keep the user's name AND preferences from the partnership so they don't have to re-onboard.
+      // Only clear the "inherited partner" marker, since they now own these preferences themselves.
       await supabase
         .from('profiles')
-        .update({ 
-          partner_name: null,
-          preferences: null 
-        })
+        .update({ partner_name: null })
         .eq('user_id', user.id);
 
       toast({
