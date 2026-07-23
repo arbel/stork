@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity } from "lucide-react";
+import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { 
   LineChart, 
   Line, 
@@ -40,6 +41,46 @@ interface DailyActiveUsers {
   activeUsers: number;
 }
 
+interface SwipeRow {
+  user_id: string;
+  name: string;
+  action: string;
+  partnership_id: string | null;
+  created_at: string;
+}
+
+// Supabase caps each select at 1000 rows, so a plain select() silently truncates once the
+// table grows past that — page through with range() to get every row.
+const PAGE_SIZE = 1000;
+async function fetchAllRows<T>(
+  buildQuery: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>
+): Promise<T[]> {
+  const all: T[] = [];
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await buildQuery(from, from + PAGE_SIZE - 1);
+    if (error) throw error;
+    all.push(...(data || []));
+    if (!data || data.length < PAGE_SIZE) break;
+  }
+  return all;
+}
+
+type SortKey = 'user' | 'region' | 'language' | 'liked_count' | 'passed_count' | 'matched_count' | 'total_reviewed' | 'created_at';
+
+// Text columns read best A→Z on first click; counts and dates read best biggest/newest first.
+const TEXT_COLUMNS: SortKey[] = ['user', 'region', 'language'];
+
+const USERS_PER_PAGE = 25;
+
+const fetchAllSwipes = () =>
+  fetchAllRows<SwipeRow>((from, to) =>
+    supabase
+      .from('user_swipes')
+      .select('user_id, name, action, partnership_id, created_at')
+      .order('created_at', { ascending: true })
+      .range(from, to)
+  );
+
 export const AdminUsageStats = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [userStats, setUserStats] = useState<UserStats[]>([]);
@@ -47,6 +88,9 @@ export const AdminUsageStats = () => {
   const [dailyActiveUsers, setDailyActiveUsers] = useState<DailyActiveUsers[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>('created_at');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     loadUsageStats();
@@ -63,20 +107,23 @@ export const AdminUsageStats = () => {
       if (usersError) throw usersError;
       setTotalUsers(usersCount || 0);
 
-      // Get all user profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, email, first_name, preferences, created_at')
-        .order('created_at', { ascending: false });
+      // Get all user profiles (paginated past the 1000-row cap)
+      const profiles = await fetchAllRows<{
+        user_id: string;
+        email: string;
+        first_name: string | null;
+        preferences: unknown;
+        created_at: string;
+      }>((from, to) =>
+        supabase
+          .from('profiles')
+          .select('user_id, email, first_name, preferences, created_at')
+          .order('created_at', { ascending: false })
+          .range(from, to)
+      );
 
-      if (profilesError) throw profilesError;
-
-      // Get all swipes
-      const { data: swipes, error: swipesError } = await supabase
-        .from('user_swipes')
-        .select('user_id, action, created_at');
-
-      if (swipesError) throw swipesError;
+      // Get all swipes (paginated past the 1000-row cap)
+      const swipes = await fetchAllSwipes();
 
       // Get all partnerships to calculate matches
       const { data: partnerships, error: partnershipsError } = await supabase
@@ -119,66 +166,41 @@ export const AdminUsageStats = () => {
       });
 
       // Calculate matches per user (names liked by both partners)
-      partnerships?.forEach(partnership => {
-        if (!partnership.user1_id || !partnership.user2_id) return;
-        
-        const user1Likes = new Set(
-          swipes?.filter(s => s.user_id === partnership.user1_id && s.action === 'like')
-            .map(s => (s as any).name) || []
-        );
-        
-        const user2Likes = new Set(
-          swipes?.filter(s => s.user_id === partnership.user2_id && s.action === 'like')
-            .map(s => (s as any).name) || []
-        );
+      const partnershipSwipes = new Map<string, { user1Likes: Set<string>; user2Likes: Set<string>; user1Id: string; user2Id: string }>();
 
-        // This is a simplified approach - we'd need actual name data for accurate counts
-        // For now, we'll estimate based on swipe data
+      partnerships?.forEach(p => {
+        if (p.user1_id && p.user2_id) {
+          partnershipSwipes.set(p.id, {
+            user1Likes: new Set(),
+            user2Likes: new Set(),
+            user1Id: p.user1_id,
+            user2Id: p.user2_id
+          });
+        }
       });
 
-      // Load swipes with names for match calculation
-      const { data: swipesWithNames, error: swipesNamesError } = await supabase
-        .from('user_swipes')
-        .select('user_id, name, action, partnership_id');
-
-      if (!swipesNamesError && swipesWithNames) {
-        // Group swipes by partnership
-        const partnershipSwipes = new Map<string, { user1Likes: Set<string>; user2Likes: Set<string>; user1Id: string; user2Id: string }>();
-        
-        partnerships?.forEach(p => {
-          if (p.user1_id && p.user2_id) {
-            partnershipSwipes.set(p.id, {
-              user1Likes: new Set(),
-              user2Likes: new Set(),
-              user1Id: p.user1_id,
-              user2Id: p.user2_id
-            });
+      swipes.forEach(swipe => {
+        if (!swipe.partnership_id || swipe.action !== 'like') return;
+        const pData = partnershipSwipes.get(swipe.partnership_id);
+        if (pData) {
+          if (swipe.user_id === pData.user1Id) {
+            pData.user1Likes.add(swipe.name);
+          } else if (swipe.user_id === pData.user2Id) {
+            pData.user2Likes.add(swipe.name);
           }
-        });
+        }
+      });
 
-        swipesWithNames.forEach(swipe => {
-          if (!swipe.partnership_id || swipe.action !== 'like') return;
-          const pData = partnershipSwipes.get(swipe.partnership_id);
-          if (pData) {
-            if (swipe.user_id === pData.user1Id) {
-              pData.user1Likes.add(swipe.name);
-            } else if (swipe.user_id === pData.user2Id) {
-              pData.user2Likes.add(swipe.name);
-            }
-          }
-        });
+      // Count matches per user
+      partnershipSwipes.forEach(pData => {
+        const matchCount = [...pData.user1Likes].filter(n => pData.user2Likes.has(n)).length;
 
-        // Count matches per user
-        partnershipSwipes.forEach(pData => {
-          const matchCount = [...pData.user1Likes].filter(n => pData.user2Likes.has(n)).length;
-          
-          const user1Stat = userStatsMap.get(pData.user1Id);
-          const user2Stat = userStatsMap.get(pData.user2Id);
-          
-          if (user1Stat) user1Stat.matched_count = matchCount;
-          if (user2Stat) user2Stat.matched_count = matchCount;
-        });
-      }
+        const user1Stat = userStatsMap.get(pData.user1Id);
+        const user2Stat = userStatsMap.get(pData.user2Id);
+
+        if (user1Stat) user1Stat.matched_count = matchCount;
+        if (user2Stat) user2Stat.matched_count = matchCount;
+      });
 
       setUserStats(Array.from(userStatsMap.values()));
 
@@ -250,9 +272,60 @@ export const AdminUsageStats = () => {
     }
   };
 
-  const filteredUsers = userStats.filter(user => 
+  const handleSort = (key: SortKey) => {
+    if (key === sortKey) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir(TEXT_COLUMNS.includes(key) ? 'asc' : 'desc');
+    }
+  };
+
+  // Back to page 1 whenever the visible set changes shape
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, sortKey, sortDir]);
+
+  const filteredUsers = userStats.filter(user =>
     user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (user.first_name && user.first_name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const sortValue = (user: UserStats): string | number => {
+    switch (sortKey) {
+      case 'user': return (user.first_name || user.email).toLowerCase();
+      case 'region': return user.region.toLowerCase();
+      case 'language': return user.language.toLowerCase();
+      case 'created_at': return new Date(user.created_at).getTime();
+      default: return user[sortKey];
+    }
+  };
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const va = sortValue(a);
+    const vb = sortValue(b);
+    const cmp = typeof va === 'string' && typeof vb === 'string'
+      ? va.localeCompare(vb)
+      : (va as number) - (vb as number);
+    return sortDir === 'asc' ? cmp : -cmp;
+  });
+
+  const totalPages = Math.max(1, Math.ceil(sortedUsers.length / USERS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedUsers = sortedUsers.slice((currentPage - 1) * USERS_PER_PAGE, currentPage * USERS_PER_PAGE);
+
+  const SortableHeader = ({ column, label, align = 'left' }: { column: SortKey; label: string; align?: 'left' | 'center' }) => (
+    <th className={`${align === 'center' ? 'text-center' : 'text-left'} p-3 font-medium`}>
+      <button
+        onClick={() => handleSort(column)}
+        className={`inline-flex items-center gap-1 hover:text-foreground ${sortKey === column ? 'text-foreground' : ''}`}
+      >
+        {label}
+        {sortKey === column
+          ? (sortDir === 'asc' ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />)
+          : <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />}
+      </button>
+    </th>
   );
 
   const totalLikes = userStats.reduce((sum, u) => sum + u.liked_count, 0);
@@ -416,18 +489,18 @@ export const AdminUsageStats = () => {
           <table className="w-full">
             <thead className="bg-muted/50">
               <tr>
-                <th className="text-left p-3 font-medium">User</th>
-                <th className="text-left p-3 font-medium">Region</th>
-                <th className="text-left p-3 font-medium">Language</th>
-                <th className="text-center p-3 font-medium">Liked</th>
-                <th className="text-center p-3 font-medium">Passed</th>
-                <th className="text-center p-3 font-medium">Matches</th>
-                <th className="text-center p-3 font-medium">Total</th>
-                <th className="text-left p-3 font-medium">Joined</th>
+                <SortableHeader column="user" label="User" />
+                <SortableHeader column="region" label="Region" />
+                <SortableHeader column="language" label="Language" />
+                <SortableHeader column="liked_count" label="Liked" align="center" />
+                <SortableHeader column="passed_count" label="Passed" align="center" />
+                <SortableHeader column="matched_count" label="Matches" align="center" />
+                <SortableHeader column="total_reviewed" label="Total" align="center" />
+                <SortableHeader column="created_at" label="Joined" />
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {pagedUsers.map((user) => (
                 <tr key={user.user_id} className="border-t hover:bg-muted/25">
                   <td className="p-3">
                     <div>
@@ -468,6 +541,35 @@ export const AdminUsageStats = () => {
             </tbody>
           </table>
         </div>
+
+        {sortedUsers.length > USERS_PER_PAGE && (
+          <div className="border-t mt-4 pt-4 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {(currentPage - 1) * USERS_PER_PAGE + 1}–{Math.min(currentPage * USERS_PER_PAGE, sortedUsers.length)} of {sortedUsers.length} users
+            </p>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
