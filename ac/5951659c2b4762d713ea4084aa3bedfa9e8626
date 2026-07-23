@@ -1,0 +1,28 @@
+src/pages/Liked.tsx
+  s_7f0b094fdf66de::t_a09a59bb076092 3,6,14,18-25
+src/pages/Passed.tsx
+  s_7f0b094fdf66de::t_c672f251e20d56 3,6,14,18-32
+src/components/NameListLayout.tsx
+  s_7f0b094fdf66de::t_c1a7be2619c787 108-113
+  s_7f0b094fdf66de::t_42ad6e08a600e6 86-91
+  s_7f0b094fdf66de::t_bf71e89dfdb63e 40-41
+  s_7f0b094fdf66de::t_506906e7a671b7 25-28
+src/components/NameListCard.tsx
+  s_7f0b094fdf66de::t_33012f64fb119a 1,34-47,57-112,114-147,149-154,157-160,162-176,178-198,202
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "ac5951659c2b4762d713ea4084aa3bedfa9e8626",
+  "prompts": {},
+  "sessions": {
+    "s_7f0b094fdf66de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "639f5c3b-8289-4f6b-8f2f-6343f96cd556",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
