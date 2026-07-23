@@ -1,0 +1,32 @@
+src/components/AdminUsageStats.tsx
+  s_7f0b094fdf66de::t_d23b7688456d46 325-326
+  s_7f0b094fdf66de::t_a4e1de302c7194 409,411-416,418-420,424-426,432-435,443-460
+  s_7f0b094fdf66de::t_f9e84f9d6b3139 42
+  s_7f0b094fdf66de::t_9ad859b4682334 95
+  s_7f0b094fdf66de::t_dddb5af75cf5dd 265-271,276-278
+  s_c86c83d0c98a65::t_e88c557fe5e97e 279
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "3f1556fb9fe878e9f15bbca511bf14cbb988813c",
+  "prompts": {},
+  "sessions": {
+    "s_7f0b094fdf66de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "639f5c3b-8289-4f6b-8f2f-6343f96cd556",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    },
+    "s_c86c83d0c98a65": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "cee2549b-be11-40ab-bbf1-5029480b60d9",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
