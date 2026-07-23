@@ -39,6 +39,7 @@ interface DailyActivity {
 interface DailyActiveUsers {
   date: string;
   activeUsers: number;
+  users: { name: string | null; email: string }[];
 }
 
 interface SwipeRow {
@@ -91,6 +92,7 @@ export const AdminUsageStats = () => {
   const [sortKey, setSortKey] = useState<SortKey>('created_at');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsageStats();
@@ -260,10 +262,20 @@ export const AdminUsageStats = () => {
 
       const dailyActiveData: DailyActiveUsers[] = Array.from(dailyUsersMap.entries()).map(([date, users]) => ({
         date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        activeUsers: users.size
+        activeUsers: users.size,
+        users: [...users]
+          .map(userId => {
+            const stat = userStatsMap.get(userId);
+            return stat ? { name: stat.first_name, email: stat.email } : { name: null, email: userId };
+          })
+          .sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email))
       }));
 
       setDailyActiveUsers(dailyActiveData);
+
+      // Preselect the most recent day that had any activity
+      const lastActive = [...dailyActiveData].reverse().find(d => d.activeUsers > 0);
+      setSelectedDay(lastActive?.date ?? null);
 
     } catch (error) {
       console.error('Error loading usage stats:', error);
@@ -309,6 +321,8 @@ export const AdminUsageStats = () => {
       : (va as number) - (vb as number);
     return sortDir === 'asc' ? cmp : -cmp;
   });
+
+  const selectedDayData = dailyActiveUsers.find(d => d.date === selectedDay);
 
   const totalPages = Math.max(1, Math.ceil(sortedUsers.length / USERS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
@@ -392,28 +406,33 @@ export const AdminUsageStats = () => {
             <Activity className="w-5 h-5 text-blue-500" />
             <h3 className="text-lg font-semibold">Daily Active Users (Last 30 Days)</h3>
           </div>
-          <div className="h-[250px]">
+          <div className="h-[250px] cursor-pointer">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={dailyActiveUsers}>
+              <LineChart
+                data={dailyActiveUsers}
+                onClick={(e) => {
+                  if (e?.activeLabel) setSelectedDay(String(e.activeLabel));
+                }}
+              >
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fontSize: 10 }} 
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10 }}
                   interval="preserveStartEnd"
                 />
                 <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px'
                   }}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="activeUsers" 
-                  stroke="#3B82F6" 
+                <Line
+                  type="monotone"
+                  dataKey="activeUsers"
+                  stroke="#3B82F6"
                   strokeWidth={2}
                   name="Active Users"
                   dot={false}
@@ -421,6 +440,24 @@ export const AdminUsageStats = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
+
+          {selectedDayData && (
+            <div className="mt-4 border-t pt-4">
+              <p className="text-sm font-medium mb-2">
+                {selectedDayData.activeUsers > 0
+                  ? `Active users on ${selectedDayData.date} (${selectedDayData.activeUsers})`
+                  : `No active users on ${selectedDayData.date}`}
+                <span className="text-muted-foreground font-normal"> · click a day on the chart to change</span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {selectedDayData.users.map(u => (
+                  <Badge key={u.email} variant="secondary" title={u.email}>
+                    {u.name || u.email}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Daily Activity Chart */}
