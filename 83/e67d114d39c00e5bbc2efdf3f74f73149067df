@@ -1,0 +1,24 @@
+src/lib/nameQueries.ts
+  s_84ef6b476a1667::t_efffd8ae55884c 29
+  s_84ef6b476a1667::t_83974412de2c47 24
+src/pages/FindName.tsx
+  s_84ef6b476a1667::t_0e7ed1e37afb62 40,42
+  s_84ef6b476a1667::t_6129b4b5e47e8d 117-118
+  s_84ef6b476a1667::t_6dcc39910a22cf 107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "83e67d114d39c00e5bbc2efdf3f74f73149067df",
+  "prompts": {},
+  "sessions": {
+    "s_84ef6b476a1667": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2b0105d3-22b0-4866-a039-8dedcac83ac0",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
