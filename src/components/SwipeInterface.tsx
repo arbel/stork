@@ -81,7 +81,10 @@ const SwipeInterface = () => {
   const [matchedName, setMatchedName] = useState<BabyName | null>(null);
   const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
-  const [lastUndo, setLastUndo] = useState<{ name: BabyName; direction: 'left' | 'right' } | null>(null);
+  // Every swipe this session, oldest first — undo pops from the end, so the user can
+  // rewind as far back as they've swiped since opening the deck.
+  const [undoStack, setUndoStack] = useState<{ name: BabyName; direction: 'left' | 'right' }[]>([]);
+  const undoInFlight = useRef(false);
   const [undoAnimation, setUndoAnimation] = useState<{ active: boolean; direction: 'left' | 'right' } | null>(null);
   const [undoCardName, setUndoCardName] = useState<string | null>(null);
   // Receiver-side match flow: matches the PARTNER created (delivered as unread
@@ -430,7 +433,7 @@ const SwipeInterface = () => {
 
     if (direction === 'right') {
       addLikedName(nameToSwipe);
-      setLastUndo({ name: nameToSwipe, direction: 'right' });
+      setUndoStack(prev => [...prev, { name: nameToSwipe, direction: 'right' }]);
       
       // Check for match
       console.log('Checking for match:', { name: nameToSwipe.name, partnerLikes: partnerLikes.length, includes: partnerLikes.includes(nameToSwipe.name) });
@@ -443,7 +446,7 @@ const SwipeInterface = () => {
       }
     } else {
       addPassedName(nameToSwipe);
-      setLastUndo({ name: nameToSwipe, direction: 'left' });
+      setUndoStack(prev => [...prev, { name: nameToSwipe, direction: 'left' }]);
     }
 
     // No need to update index - filtering handles showing next card
@@ -461,7 +464,7 @@ const SwipeInterface = () => {
       if (partnerLikes.includes(currentName.name)) {
         // It's a match! Committed when the celebration closes (handleMatchContinue). Record the
         // undo target so a button-match can be undone too (parity with swipe-gesture matches).
-        setLastUndo({ name: currentName, direction: 'right' });
+        setUndoStack(prev => [...prev, { name: currentName, direction: 'right' }]);
         setMatchedName(currentName);
         setShowMatchCelebration(true);
         return;
@@ -599,7 +602,8 @@ const SwipeInterface = () => {
   }, [matchedName, addLikedName, addMatch, markMatchNotifsRead]);
 
   const handleUndoSwipe = useCallback(async () => {
-    if (!lastUndo || !user) {
+    const target = undoStack[undoStack.length - 1];
+    if (!target || !user) {
       toast({
         title: "אין מה לבטל",
         description: "אין החלקה אחרונה לביטול.",
@@ -607,9 +611,13 @@ const SwipeInterface = () => {
       return;
     }
 
-    // Store the animation direction and card name before clearing lastUndo
-    const animDirection = lastUndo.direction;
-    const animName = lastUndo.name.name;
+    // Ignore taps while a previous undo's delete is still in flight, so a double-tap
+    // can't try to undo the same swipe twice.
+    if (undoInFlight.current) return;
+    undoInFlight.current = true;
+
+    const animDirection = target.direction;
+    const animName = target.name.name;
 
     try {
       // Remove from database - handle both with and without partnership
@@ -617,8 +625,8 @@ const SwipeInterface = () => {
         .from('user_swipes')
         .delete()
         .eq('user_id', user.id)
-        .eq('name', lastUndo.name.name);
-      
+        .eq('name', target.name.name);
+
       if (partnership?.id) {
         query = query.eq('partnership_id', partnership.id);
       } else {
@@ -629,8 +637,8 @@ const SwipeInterface = () => {
 
       if (error) throw error;
 
-      // Clear the last undo
-      setLastUndo(null);
+      // Pop the undone swipe; the rest of the stack stays available for further undos
+      setUndoStack(prev => prev.slice(0, -1));
 
       // Remove from local liked/passed so the card reappears in the deck. (Relying on
       // refreshPartnership doesn't work in the solo/no-partnership case: setPartnership(null) is a
@@ -659,8 +667,10 @@ const SwipeInterface = () => {
         description: error.message || "אנא נסו שוב.",
         variant: "destructive",
       });
+    } finally {
+      undoInFlight.current = false;
     }
-  }, [lastUndo, user, partnership, removeSwipeLocal]);
+  }, [undoStack, user, partnership, removeSwipeLocal]);
 
   const resetSwipes = async () => {
     try {
@@ -678,6 +688,7 @@ const SwipeInterface = () => {
       // Clear local state - filtering will reset to start
       setDragDirection(null);
       setDragOffset(0);
+      setUndoStack([]);
       resetAll();
       
       toast({
@@ -875,7 +886,7 @@ const SwipeInterface = () => {
             {/* Undo Button - Center */}
             <button
               onClick={handleUndoSwipe}
-              disabled={!lastUndo}
+              disabled={undoStack.length === 0}
               className="w-12 h-12 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center hover:scale-110 transition-all disabled:opacity-30 disabled:hover:scale-100"
               title="ביטול ההחלקה האחרונה"
             >
