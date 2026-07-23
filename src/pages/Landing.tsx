@@ -7,7 +7,7 @@ import { GenderDistributionBar } from "@/components/GenderDistributionBar";
 const FONT = "'Assistant', system-ui, sans-serif";
 
 const BG_QUILT = {
-  backgroundImage: "url(/bg-base.png)",
+  backgroundImage: "url(/bg-base.webp)",
   backgroundSize: "cover",
   backgroundPosition: "center",
 } as const;

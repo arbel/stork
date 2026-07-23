@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { BabyName } from "@/contexts/SwipeContext";
 import { NameListCard, NameListVariant } from "./NameListCard";
+import { StorkLoader } from "./StorkLoader";
 
 const VARIANT_META: Record<NameListVariant, { accent: string; Icon: typeof Heart; filled: boolean }> = {
   match: { accent: "#5CC1B6", Icon: Sparkles, filled: false },
@@ -57,7 +58,7 @@ export const NameListLayout = ({
     <div
       className="h-screen overflow-y-auto smooth-scroll"
       style={{
-        backgroundImage: "url(/bg-base.png)",
+        backgroundImage: "url(/bg-base.webp)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
@@ -81,9 +82,8 @@ export const NameListLayout = ({
 
       {loading && names.length === 0 ? (
         /* Initial data still loading — never show the empty state as if the lists were empty */
-        <div className="flex flex-col items-center justify-center px-6 py-24">
-          <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-white/30 border-t-white" />
-          <p className="mt-4 text-white/85">טוענים את השמות…</p>
+        <div className="flex items-center justify-center px-6 py-24">
+          <StorkLoader message="טוענים את השמות…" />
         </div>
       ) : names.length > 0 ? (
         <div className="mx-auto max-w-md px-4 pb-10">

@@ -78,7 +78,7 @@ const Preferences = () => {
     <div
       className="h-[100dvh] flex flex-col"
       style={{
-        backgroundImage: 'url(/bg-base.png)',
+        backgroundImage: 'url(/bg-base.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

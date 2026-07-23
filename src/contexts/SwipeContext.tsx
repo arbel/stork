@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
-import { fetchAllActiveNames } from '@/lib/nameQueries';
+import { loadActiveNamesCached } from '@/lib/nameQueries';
 
 export interface BabyName {
   name: string;
@@ -25,6 +25,8 @@ export interface UserPreferences {
 }
 
 interface SwipeContextType {
+  // Full active-names catalog (cached-first load). Empty array until loaded.
+  allNames: BabyName[];
   likedNames: BabyName[];
   passedNames: BabyName[];
   matches: BabyName[];
@@ -92,16 +94,25 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   const [swipesLoaded, setSwipesLoaded] = useState(false);
   const [matchesLoaded, setMatchesLoaded] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
+
+  // Seed data from the one-round-trip get_boot_data RPC. The swipes effect consumes the
+  // seeded rows ONCE (then falls back to querying), and the skip flags let the partner-likes /
+  // partner-prefs effects skip exactly one run each — the one triggered by the boot itself.
+  const bootRef = useRef<{ partnershipId: string | null; swipes: { name: string; action: string }[] } | null>(null);
+  const skipNextPartnerLikesLoad = useRef(false);
+  const skipNextPartnerPrefsLoad = useRef(false);
   const [partnerLikes, setPartnerLikes] = useState<string[]>([]);
   const [partnerOriginGroups, setPartnerOriginGroups] = useState<string[] | null>(null);
   const [partnerName, setPartnerName] = useState<string | null>(null);
   const [allNames, setAllNames] = useState<BabyName[]>([]);
   
-  // Fetch names from database (paginated so the full catalog loads, not just the first 1000)
+  // Fetch names: instant from the device cache when present (revalidated in the background —
+  // setAllNames fires again only if the catalog actually changed), parallel-paginated network
+  // load otherwise.
   useEffect(() => {
     const fetchNames = async () => {
       try {
-        const formattedNames = await fetchAllActiveNames();
+        const formattedNames = await loadActiveNamesCached(setAllNames);
         setAllNames(formattedNames);
       } catch (error) {
         console.error('Error fetching names:', error);
@@ -143,8 +154,39 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
 
     const loadPartnership = async () => {
       console.log('Loading partnership for user:', user.id);
-      
-      // Look for any partnership where user is involved (active or pending), newest first.
+
+      // One round trip for partnership + own swipes + partner likes + partner profile
+      // (SECURITY INVOKER RPC — same RLS visibility as the individual queries it replaces).
+      const { data: boot, error: bootError } = await supabase.rpc('get_boot_data');
+
+      if (!bootError && boot) {
+        const primary = boot.partnership ?? null;
+        console.log('Boot data loaded:', {
+          partnership: primary?.id, swipes: boot.my_swipes?.length, partnerLikes: boot.partner_likes?.length,
+        });
+
+        bootRef.current = { partnershipId: primary?.id ?? null, swipes: boot.my_swipes ?? [] };
+
+        if (primary?.user1_id && primary?.user2_id) {
+          skipNextPartnerLikesLoad.current = true;
+          setPartnerLikes(boot.partner_likes ?? []);
+        }
+        if (boot.partner_profile) {
+          skipNextPartnerPrefsLoad.current = true;
+          const og = (boot.partner_profile.preferences as { originGroups?: string[] } | null)?.originGroups;
+          setPartnerOriginGroups(Array.isArray(og) ? og : []);
+          setPartnerName(boot.partner_profile.first_name ?? null);
+        }
+
+        setPartnership(primary);
+        setPartnerLikesLoaded(true);
+        setPartnershipLoaded(true);
+        return;
+      }
+
+      // Fallback (e.g. RPC not deployed yet): the original partnership query; the other
+      // effects then do their own loads as before.
+      console.warn('get_boot_data unavailable, falling back to direct query:', bootError);
       const { data, error } = await supabase
         .from('partnerships')
         .select('*')
@@ -278,20 +320,29 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const loadUserSwipes = async () => {
-      let query = supabase
-        .from('user_swipes')
-        .select('name, action')
-        .eq('user_id', user.id);
-      
-      // Strict isolation: only this partnership's swipes, or the solo (NULL) context.
-      if (partnership?.id) {
-        query = query.eq('partnership_id', partnership.id);
+      // Use the boot-RPC rows if they match this partnership context — consumed ONCE, so any
+      // later re-run (partnership refresh etc.) re-queries and can't clobber newer swipes
+      // with the stale boot snapshot.
+      let data: { name: string; action: string }[] | null = null;
+      if (bootRef.current && bootRef.current.partnershipId === (partnership?.id ?? null)) {
+        data = bootRef.current.swipes;
+        bootRef.current = null;
       } else {
-        query = query.is('partnership_id', null);
+        let query = supabase
+          .from('user_swipes')
+          .select('name, action')
+          .eq('user_id', user.id);
+
+        // Strict isolation: only this partnership's swipes, or the solo (NULL) context.
+        if (partnership?.id) {
+          query = query.eq('partnership_id', partnership.id);
+        } else {
+          query = query.is('partnership_id', null);
+        }
+
+        ({ data } = await query);
       }
 
-      const { data } = await query;
-      
       if (data) {
         // Only include names that still exist in the database (allNames)
         const activeNameSet = new Set(allNames.map(n => n.name));
@@ -409,6 +460,12 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
+    // Seeded by get_boot_data — skip the one run its setPartnership triggered.
+    if (skipNextPartnerLikesLoad.current) {
+      skipNextPartnerLikesLoad.current = false;
+      return;
+    }
+
     // Load immediately and forcefully
     loadPartnerLikes();
   }, [partnership?.id, user?.id, swipesVersion, partnershipLoaded]);
@@ -421,6 +478,12 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
 
     const partnerId = partnership.user1_id === user.id ? partnership.user2_id : partnership.user1_id;
     if (!partnerId) { setPartnerOriginGroups(null); setPartnerName(null); return; }
+
+    // Seeded by get_boot_data — skip the one run its setPartnership triggered.
+    if (skipNextPartnerPrefsLoad.current) {
+      skipNextPartnerPrefsLoad.current = false;
+      return;
+    }
 
     let cancelled = false;
     const loadPartnerPrefs = async () => {
@@ -656,6 +719,7 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const contextValue = {
+    allNames,
     likedNames,
     passedNames,
     matches,

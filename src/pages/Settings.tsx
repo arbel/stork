@@ -353,7 +353,7 @@ const Settings = () => {
     <div 
       className="min-h-screen overflow-y-auto"
       style={{
-        backgroundImage: 'url(/bg-base.png)',
+        backgroundImage: 'url(/bg-base.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'

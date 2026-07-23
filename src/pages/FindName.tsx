@@ -86,7 +86,7 @@ const FindName = () => {
   return (
     <div
       className="h-[100dvh] flex flex-col"
-      style={{ backgroundImage: 'url(/bg-base.png)', backgroundSize: 'cover', backgroundPosition: 'center', fontFamily: FONT }}
+      style={{ backgroundImage: 'url(/bg-base.webp)', backgroundSize: 'cover', backgroundPosition: 'center', fontFamily: FONT }}
     >
       {/* Header */}
       <div className="shrink-0 p-4 flex items-center justify-between">

@@ -155,7 +155,7 @@ const Notifications = () => {
     <div 
       className="min-h-screen"
       style={{
-        backgroundImage: 'url(/bg-base.png)',
+        backgroundImage: 'url(/bg-base.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'

@@ -18,9 +18,19 @@ import { PartnerInvite } from "./pages/PartnerInvite";
 import { JoinPartnership } from "./pages/JoinPartnership";
 import NotFound from "./pages/NotFound";
 import Feedback from "./pages/Feedback";
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
 import { AdminGuard } from "./components/AdminGuard";
+import { lazy, Suspense } from "react";
+
+// Admin pages are lazy so the admin panel (incl. recharts) stays out of the
+// bundle regular users download.
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+
+const AdminFallback = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -34,8 +44,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               {/* Admin Routes - Separate from main app */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+              <Route path="/admin/login" element={<Suspense fallback={<AdminFallback />}><AdminLogin /></Suspense>} />
+              <Route path="/admin" element={<Suspense fallback={<AdminFallback />}><AdminGuard><AdminDashboard /></AdminGuard></Suspense>} />
               
               {/* Main App Routes */}
               <Route path="/join/:inviteCode" element={<JoinPartnership />} />

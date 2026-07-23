@@ -74,7 +74,7 @@ export const AuthGate = ({ children }: AuthGateProps) => {
       className="text-white flex flex-col overflow-hidden"
       style={{
         height: '100dvh',
-        backgroundImage: 'url(/bg-base.png)',
+        backgroundImage: 'url(/bg-base.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}

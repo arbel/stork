@@ -19,7 +19,6 @@ import { BabyName } from "@/contexts/SwipeContext";
 import { MatchCelebration } from "./MatchCelebration";
 import { NewMatchesSummary } from "./NewMatchesSummary";
 import { StorkLoader } from "./StorkLoader";
-import { fetchAllActiveNames } from "@/lib/nameQueries";
 
 interface NameWithOccurrences extends BabyName {
   maleOccurrences?: number;
@@ -68,13 +67,14 @@ const interleavePartnerLikes = <T extends { name: string }>(ordered: T[], partne
 };
 
 const SwipeInterface = () => {
-  const { likedNames, passedNames, matches, partnerLikes, partnerLikesLoaded, swipesLoaded, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership, notifications, markNotificationsRead } = useSwipe();
+  const { allNames, likedNames, passedNames, matches, partnerLikes, partnerLikesLoaded, swipesLoaded, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership, notifications, markNotificationsRead } = useSwipe();
   const { user } = useAuth();
   const navigate = useNavigate();
   
   // State management
-  const [allNames, setAllNames] = useState<NameWithOccurrences[]>([]);
-  const [namesLoading, setNamesLoading] = useState(true);
+  // Catalog comes from SwipeContext (cached-first, single fetch app-wide) — the deck used to
+  // download its own duplicate copy here.
+  const namesLoading = allNames.length === 0;
   const [cardAnimation, setCardAnimation] = useState<'left' | 'right' | null>(null);
   const [useRecommendations, setUseRecommendations] = useState(true);
   const [showMatchCelebration, setShowMatchCelebration] = useState(false);
@@ -237,24 +237,6 @@ const SwipeInterface = () => {
 
     return result;
   }, [randomSeed, createSeededRandom]);
-
-  // Fetch names from database
-  useEffect(() => {
-    const fetchNames = async () => {
-      setNamesLoading(true);
-      try {
-        // Paginated: loads the whole catalog, not just the first 1000 rows.
-        const formattedNames = await fetchAllActiveNames();
-        setAllNames(formattedNames);
-      } catch (error) {
-        console.error('Error fetching names:', error);
-      } finally {
-        setNamesLoading(false);
-      }
-    };
-
-    fetchNames();
-  }, []);
 
   // Create stable shuffled deck - only reshuffles when preferences change, NOT when swiping
   const shuffledDeck = useMemo(() => {
@@ -735,7 +717,7 @@ const SwipeInterface = () => {
       <div 
         className="flex items-center justify-center fixed inset-0"
         style={{
-          backgroundImage: 'url(/bg-base.png)',
+          backgroundImage: 'url(/bg-base.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
@@ -750,7 +732,7 @@ const SwipeInterface = () => {
       <div 
         className="flex flex-col items-center justify-center space-y-6 p-4 transition-all duration-500 fixed inset-0 overflow-hidden"
         style={{
-          backgroundImage: 'url(/bg-base.png)',
+          backgroundImage: 'url(/bg-base.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
@@ -792,7 +774,7 @@ const SwipeInterface = () => {
       <div 
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: 'url(/bg-base.png)',
+          backgroundImage: 'url(/bg-base.webp)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
@@ -802,7 +784,7 @@ const SwipeInterface = () => {
         <div 
           className="absolute inset-0 pointer-events-none transition-opacity duration-100 z-0"
           style={{
-            backgroundImage: 'url(/bg-like.png)',
+            backgroundImage: 'url(/bg-like.webp)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             ...getOverlayStyle()
@@ -813,7 +795,7 @@ const SwipeInterface = () => {
         <div 
           className="absolute inset-0 pointer-events-none transition-opacity duration-100 z-0"
           style={{
-            backgroundImage: 'url(/bg-dislike.png)',
+            backgroundImage: 'url(/bg-dislike.webp)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             ...getOverlayStyle()

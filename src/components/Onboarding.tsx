@@ -29,7 +29,7 @@ const originGroupOptions = [
 const ALL_ORIGIN_GROUPS = originGroupOptions.map((o) => o.value);
 
 const bgStyle = {
-  backgroundImage: "url(/bg-base.png)",
+  backgroundImage: "url(/bg-base.webp)",
   backgroundSize: "cover",
   backgroundPosition: "center",
 } as const;

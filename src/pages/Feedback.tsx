@@ -94,7 +94,7 @@ const Feedback = () => {
     <div 
       className="h-screen overflow-y-auto smooth-scroll pb-8"
       style={{
-        backgroundImage: 'url(/bg-base.png)',
+        backgroundImage: 'url(/bg-base.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'
