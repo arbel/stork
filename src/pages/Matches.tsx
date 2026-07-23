@@ -10,7 +10,7 @@ const FIRST_MATCH_TARGET = 40; // "most couples match after ~40 names"
 
 const Matches = () => {
   const navigate = useNavigate();
-  const { matches, partnership, likedNames, passedNames, notifications, markNotificationsRead } = useSwipe();
+  const { matches, partnership, likedNames, passedNames, notifications, markNotificationsRead, matchesLoaded } = useSwipe();
   const { user, profile } = useAuth();
   const [dbMatches, setDbMatches] = useState<BabyName[] | null>(null);
   const [partnerName, setPartnerName] = useState<string>("");
@@ -184,6 +184,7 @@ const Matches = () => {
       title="התאמות"
       variant="match"
       names={displayMatches}
+      loading={!matchesLoaded}
       bannerText="שניכם אוהבים את אלה!"
       emptyTitle="עדיין אין התאמות!"
       emptyText="המשיכו להחליק כדי למצוא שמות ששניכם אוהבים."

@@ -3,13 +3,14 @@ import { NameListLayout } from "@/components/NameListLayout";
 import { toast } from "@/hooks/use-toast";
 
 const Passed = () => {
-  const { passedNames, addLikedName, partnerLikes } = useSwipe();
+  const { passedNames, addLikedName, partnerLikes, swipesLoaded } = useSwipe();
 
   return (
     <NameListLayout
       title="דילגתי"
       variant="passed"
       names={passedNames}
+      loading={!swipesLoaded}
       bannerText="שמות שדילגתם עליהם"
       tipText="💡 שיניתם את דעתכם? החליקו כרטיס ימינה כדי לאהוב את השם"
       emptyTitle="לא דילגתם על שמות!"

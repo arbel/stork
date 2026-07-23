@@ -26,6 +26,8 @@ interface NameListLayoutProps {
   tipText?: string;
   /** When set, cards become swipeable and this fires when a swipe commits a new decision. */
   onRedecide?: (name: BabyName, action: "like" | "pass") => void;
+  /** While true, show a loader instead of the list/empty state (data still fetching). */
+  loading?: boolean;
 }
 
 export const NameListLayout = ({
@@ -39,6 +41,7 @@ export const NameListLayout = ({
   emptyState,
   tipText,
   onRedecide,
+  loading,
 }: NameListLayoutProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -76,7 +79,13 @@ export const NameListLayout = ({
         </div>
       </div>
 
-      {names.length > 0 ? (
+      {loading && names.length === 0 ? (
+        /* Initial data still loading — never show the empty state as if the lists were empty */
+        <div className="flex flex-col items-center justify-center px-6 py-24">
+          <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-white/30 border-t-white" />
+          <p className="mt-4 text-white/85">טוענים את השמות…</p>
+        </div>
+      ) : names.length > 0 ? (
         <div className="mx-auto max-w-md px-4 pb-10">
           {/* Subtitle + count */}
           <p className="mb-4 text-center text-[15px] font-bold text-white/90">

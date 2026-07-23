@@ -68,7 +68,7 @@ const interleavePartnerLikes = <T extends { name: string }>(ordered: T[], partne
 };
 
 const SwipeInterface = () => {
-  const { likedNames, passedNames, matches, partnerLikes, partnerLikesLoaded, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership, notifications, markNotificationsRead } = useSwipe();
+  const { likedNames, passedNames, matches, partnerLikes, partnerLikesLoaded, swipesLoaded, addLikedName, addPassedName, addMatch, removeSwipeLocal, resetAll, preferences, partnership, partnershipLoaded, refreshPartnership, notifications, markNotificationsRead } = useSwipe();
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -726,10 +726,11 @@ const SwipeInterface = () => {
     return { opacity };
   };
 
-  // Wait for the names, the partnership AND the initial partner-likes load — swiping before the
-  // partnership resolves would orphan swipes, and dealing the deck before partner likes arrive
-  // would freeze an empty interleave snapshot.
-  if (namesLoading || !partnershipLoaded || !partnerLikesLoaded) {
+  // Wait for the names, the partnership, the initial partner-likes load AND the user's own
+  // swipes — swiping before the partnership resolves would orphan swipes, dealing the deck
+  // before partner likes arrive would freeze an empty interleave snapshot, and dealing before
+  // the user's swipes load would briefly show already-swiped cards.
+  if (namesLoading || !partnershipLoaded || !partnerLikesLoaded || !swipesLoaded) {
     return (
       <div 
         className="flex items-center justify-center fixed inset-0"

@@ -38,6 +38,12 @@ interface SwipeContextType {
   isOnboardingComplete: boolean;
   partnership: any | null;
   partnershipLoaded: boolean;
+  // True once the user's own liked/passed lists reflect the DB for the settled partnership
+  // context — until then the lists are empty because they haven't loaded, not because the
+  // user has no swipes. Pages should show a loader, not an empty state.
+  swipesLoaded: boolean;
+  // Same, for the matches list.
+  matchesLoaded: boolean;
   notifications: any[] | null;
   addLikedName: (name: BabyName) => void;
   addPassedName: (name: BabyName) => void;
@@ -83,6 +89,8 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   // True once the initial partner-likes fetch has settled (or there's no partner to fetch for).
   // Lets the deck take ONE stable snapshot instead of re-interleaving on live updates.
   const [partnerLikesLoaded, setPartnerLikesLoaded] = useState(false);
+  const [swipesLoaded, setSwipesLoaded] = useState(false);
+  const [matchesLoaded, setMatchesLoaded] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [partnerLikes, setPartnerLikes] = useState<string[]>([]);
   const [partnerOriginGroups, setPartnerOriginGroups] = useState<string[] | null>(null);
@@ -257,7 +265,12 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   // Load user's existing swipes
   useEffect(() => {
     if (!user) return;
-    
+
+    // Wait for the partnership to settle first — otherwise this runs once with
+    // partnership=null, queries the (empty) solo context, and briefly shows partnered
+    // users an empty liked/passed list on refresh.
+    if (!partnershipLoaded) return;
+
     // Wait until allNames is loaded before filtering swipes
     if (allNames.length === 0) {
       console.log('Waiting for allNames to load before loading swipes');
@@ -307,8 +320,8 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    loadUserSwipes();
-  }, [user, partnership, allNames]);
+    loadUserSwipes().finally(() => setSwipesLoaded(true));
+  }, [user, partnership, allNames, partnershipLoaded]);
 
   // Manual partner likes loading function
   const loadPartnerLikesManually = async () => {
@@ -434,6 +447,9 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
 
   // Calculate matches directly from database for accuracy
   useEffect(() => {
+    // Don't resolve matches (or declare them loaded) off a not-yet-settled partnership.
+    if (!partnershipLoaded) return;
+
     const loadMatchesFromDb = async () => {
       if (!user || !partnership) {
         console.log('Matches: missing user or partnership');
@@ -492,8 +508,8 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    loadMatchesFromDb();
-  }, [user, partnership, allNames, swipesVersion]);
+    loadMatchesFromDb().finally(() => setMatchesLoaded(true));
+  }, [user, partnership, allNames, swipesVersion, partnershipLoaded]);
 
   const addLikedName = async (name: BabyName) => {
     console.log('addLikedName called:', { 
@@ -651,6 +667,8 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
     isOnboardingComplete,
     partnership,
     partnershipLoaded,
+    swipesLoaded,
+    matchesLoaded,
     notifications,
     addLikedName,
     addPassedName,
