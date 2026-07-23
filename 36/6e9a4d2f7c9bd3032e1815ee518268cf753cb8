@@ -1,0 +1,66 @@
+src/lib/nameQueries.ts
+  s_7f0b094fdf66de::t_32096bcfe78178 10-14,38,53-62,65-84,88-170
+src/pages/Preferences.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 81
+src/pages/Feedback.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 97
+src/App.tsx
+  s_7f0b094fdf66de::t_7df2eae8b87d6a 22-33
+  s_7f0b094fdf66de::t_c5807672e8b101 47-48
+supabase/migrations/20260723090000_rls_initplan_perf.sql
+  s_7f0b094fdf66de::t_a3af14fc1ac1fb 1-155
+index.html
+  s_7f0b094fdf66de::t_b18075751d0954 17-21
+src/pages/Landing.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 10
+src/components/SwipeInterface.tsx
+  s_7f0b094fdf66de::t_87417decd7748c 70
+  s_7f0b094fdf66de::t_20ed051d729383 75-77
+  s_7f0b094fdf66de::t_aaa168c3d69814 720,735,777,787,798
+src/components/Onboarding.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 32
+src/pages/Notifications.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 158
+src/pages/Settings.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 356
+supabase/migrations/20260723091000_get_boot_data.sql
+  s_7f0b094fdf66de::t_506beec289d24b 1-57
+src/pages/JoinPartnership.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 14
+src/pages/FindName.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 89
+src/contexts/SwipeContext.tsx
+  s_7f0b094fdf66de::t_ca726fb7f96023 157-189
+  s_7f0b094fdf66de::t_f8fe6bc14ccb53 463-468
+  s_7f0b094fdf66de::t_6a2bb4e171840d 97-103
+  s_7f0b094fdf66de::t_21e8becd2d1fd3 482-487
+  s_7f0b094fdf66de::t_060533e15b3384 4
+  s_7f0b094fdf66de::t_fd834e913ea74e 28-29
+  s_7f0b094fdf66de::t_5771740fef91a5 722
+  s_7f0b094fdf66de::t_a3c7ae1cb826f3 109-111,115
+  s_7f0b094fdf66de::t_1d0196eec6c1f9 323-329,331-343
+src/pages/PartnerInvite.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 165
+src/components/AuthGate.tsx
+  s_7f0b094fdf66de::t_aaa168c3d69814 77
+src/components/NameListLayout.tsx
+  s_7f0b094fdf66de::t_b51d346ac882f3 8
+  s_7f0b094fdf66de::t_aaa168c3d69814 61
+  s_7f0b094fdf66de::t_95602e55b073cc 85-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "366e9a4d2f7c9bd3032e1815ee518268cf753cb8",
+  "prompts": {},
+  "sessions": {
+    "s_7f0b094fdf66de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "639f5c3b-8289-4f6b-8f2f-6343f96cd556",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
