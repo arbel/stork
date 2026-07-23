@@ -39,7 +39,7 @@ interface DailyActivity {
 interface DailyActiveUsers {
   date: string;
   activeUsers: number;
-  users: { name: string | null; email: string }[];
+  userIds: string[];
 }
 
 interface SwipeRow {
@@ -263,19 +263,10 @@ export const AdminUsageStats = () => {
       const dailyActiveData: DailyActiveUsers[] = Array.from(dailyUsersMap.entries()).map(([date, users]) => ({
         date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         activeUsers: users.size,
-        users: [...users]
-          .map(userId => {
-            const stat = userStatsMap.get(userId);
-            return stat ? { name: stat.first_name, email: stat.email } : { name: null, email: userId };
-          })
-          .sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email))
+        userIds: [...users]
       }));
 
       setDailyActiveUsers(dailyActiveData);
-
-      // Preselect the most recent day that had any activity
-      const lastActive = [...dailyActiveData].reverse().find(d => d.activeUsers > 0);
-      setSelectedDay(lastActive?.date ?? null);
 
     } catch (error) {
       console.error('Error loading usage stats:', error);
@@ -296,12 +287,17 @@ export const AdminUsageStats = () => {
   // Back to page 1 whenever the visible set changes shape
   useEffect(() => {
     setPage(1);
-  }, [searchQuery, sortKey, sortDir]);
+  }, [searchQuery, sortKey, sortDir, selectedDay]);
 
-  const filteredUsers = userStats.filter(user =>
-    user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (user.first_name && user.first_name.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const dayFilter = selectedDay ? dailyActiveUsers.find(d => d.date === selectedDay) : undefined;
+
+  const filteredUsers = userStats.filter(user => {
+    const matchesSearch =
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.first_name && user.first_name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesDay = !dayFilter || dayFilter.userIds.includes(user.user_id);
+    return matchesSearch && matchesDay;
+  });
 
   const sortValue = (user: UserStats): string | number => {
     switch (sortKey) {
@@ -321,8 +317,6 @@ export const AdminUsageStats = () => {
       : (va as number) - (vb as number);
     return sortDir === 'asc' ? cmp : -cmp;
   });
-
-  const selectedDayData = dailyActiveUsers.find(d => d.date === selectedDay);
 
   const totalPages = Math.max(1, Math.ceil(sortedUsers.length / USERS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
@@ -405,13 +399,15 @@ export const AdminUsageStats = () => {
           <div className="flex items-center space-x-2 mb-4">
             <Activity className="w-5 h-5 text-blue-500" />
             <h3 className="text-lg font-semibold">Daily Active Users (Last 30 Days)</h3>
+            <span className="text-sm text-muted-foreground">· click a day to filter the user table</span>
           </div>
           <div className="h-[250px] cursor-pointer">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={dailyActiveUsers}
                 onClick={(e) => {
-                  if (e?.activeLabel) setSelectedDay(String(e.activeLabel));
+                  const day = e?.activeLabel ? String(e.activeLabel) : null;
+                  if (day) setSelectedDay(prev => (prev === day ? null : day));
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
@@ -441,23 +437,6 @@ export const AdminUsageStats = () => {
             </ResponsiveContainer>
           </div>
 
-          {selectedDayData && (
-            <div className="mt-4 border-t pt-4">
-              <p className="text-sm font-medium mb-2">
-                {selectedDayData.activeUsers > 0
-                  ? `Active users on ${selectedDayData.date} (${selectedDayData.activeUsers})`
-                  : `No active users on ${selectedDayData.date}`}
-                <span className="text-muted-foreground font-normal"> · click a day on the chart to change</span>
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {selectedDayData.users.map(u => (
-                  <Badge key={u.email} variant="secondary" title={u.email}>
-                    {u.name || u.email}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
         </Card>
 
         {/* Daily Activity Chart */}
@@ -510,7 +489,21 @@ export const AdminUsageStats = () => {
       {/* User Stats Table */}
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">User Breakdown</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-semibold">User Breakdown</h3>
+            {dayFilter && (
+              <Badge variant="secondary" className="flex items-center gap-1.5">
+                Active on {dayFilter.date}
+                <button
+                  onClick={() => setSelectedDay(null)}
+                  className="hover:text-foreground"
+                  aria-label="Clear day filter"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            )}
+          </div>
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
