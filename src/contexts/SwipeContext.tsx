@@ -512,6 +512,9 @@ export const SwipeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Don't resolve matches (or declare them loaded) off a not-yet-settled partnership.
     if (!partnershipLoaded) return;
+    // Wait for the catalog too: enriching against an empty allNames renders bare name-only
+    // cards that visibly "fill in" once the catalog arrives.
+    if (allNames.length === 0) return;
 
     const loadMatchesFromDb = async () => {
       if (!user || !partnership) {

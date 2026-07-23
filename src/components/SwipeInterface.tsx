@@ -622,24 +622,21 @@ const SwipeInterface = () => {
       // Pop the undone swipe; the rest of the stack stays available for further undos
       setUndoStack(prev => prev.slice(0, -1));
 
-      // Remove from local liked/passed so the card reappears in the deck. (Relying on
-      // refreshPartnership doesn't work in the solo/no-partnership case: setPartnership(null) is a
-      // no-op that never re-triggers the swipe reload.)
+      // Batch the deck update (removeSwipeLocal puts the card back in availableNames) WITH the
+      // animation state, so the restored card's very FIRST rendered frame already carries the
+      // slide-in animation. Any gap between the two (the old 50ms setTimeout) paints the card
+      // unanimated at center for a few frames, then teleports it off-screen to start the slide —
+      // the visible "jump".
+      setUndoCardName(animName);
+      setUndoAnimation({ active: true, direction: animDirection });
       removeSwipeLocal(animName);
 
-      // THEN start the animation after data is updated
-      // Use a small delay to ensure React has re-rendered with new data
+      // End the animation after it completes
       setTimeout(() => {
-        setUndoCardName(animName);
-        setUndoAnimation({ active: true, direction: animDirection });
-        
-        // End the animation after it completes
-        setTimeout(() => {
-          setUndoAnimation(null);
-          setUndoCardName(null);
-        }, 450);
-      }, 50);
-      
+        setUndoAnimation(null);
+        setUndoCardName(null);
+      }, 450);
+
     } catch (error: any) {
       console.error('Error undoing swipe:', error);
       setUndoAnimation(null);
