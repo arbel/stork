@@ -1,0 +1,24 @@
+src/components/SwipeInterface.tsx
+  s_7f0b094fdf66de::t_cae6085c5be128 625-631,634,636-639
+src/contexts/SwipeContext.tsx
+  s_7f0b094fdf66de::t_9ac9c3185b56bf 515-517
+src/pages/Matches.tsx
+  s_7f0b094fdf66de::t_92db406fbc2b21 41-47
+  s_7f0b094fdf66de::t_761af76027a441 1,4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "f53f57d27cabfd3283eeba09210b652a601b7385",
+  "prompts": {},
+  "sessions": {
+    "s_7f0b094fdf66de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "639f5c3b-8289-4f6b-8f2f-6343f96cd556",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
