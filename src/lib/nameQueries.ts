@@ -21,12 +21,12 @@ const formatName = (row: any): BabyName => ({
   femaleOccurrences: row.female_occurrences ?? 0,
 });
 
-// Search the catalog by (unvocalized) name substring. Requires >= 3 chars. Returns the most
+// Search the catalog by (unvocalized) name substring. Requires >= 2 chars. Returns the most
 // popular matches first. The user types plain Hebrew, so we match the `name` column (display_name
 // carries nikud). % and _ are stripped so user input can't inject ilike wildcards.
 export async function searchActiveNames(query: string): Promise<BabyName[]> {
   const q = query.trim().replace(/[%_]/g, '');
-  if (q.length < 3) return [];
+  if (q.length < 2) return [];
 
   const { data, error } = await supabase
     .from('names')

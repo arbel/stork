@@ -37,9 +37,9 @@ const FindName = () => {
 
   const trimmed = query.trim();
 
-  // Debounced search; only fires at 3+ characters.
+  // Debounced search; only fires at 2+ characters.
   useEffect(() => {
-    if (trimmed.length < 3) {
+    if (trimmed.length < 2) {
       setResults([]);
       setSearched(false);
       setLoading(false);
@@ -104,7 +104,7 @@ const FindName = () => {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="הקלידו שם (3 אותיות לפחות)"
+            placeholder="הקלידו שם (2 אותיות לפחות)"
             autoFocus
             className="w-full rounded-2xl bg-white pr-12 pl-4 py-4 text-[16px] font-medium text-[#23282B] placeholder:text-[#B4B4B4] outline-none shadow-lg"
           />
@@ -114,8 +114,8 @@ const FindName = () => {
       {/* Results */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
         <div className="max-w-md mx-auto space-y-2.5">
-          {trimmed.length > 0 && trimmed.length < 3 && (
-            <p className="text-center text-white/90 font-semibold pt-8">הקלידו לפחות 3 אותיות</p>
+          {trimmed.length > 0 && trimmed.length < 2 && (
+            <p className="text-center text-white/90 font-semibold pt-8">הקלידו לפחות 2 אותיות</p>
           )}
           {loading && <p className="text-center text-white/90 font-semibold pt-8">מחפשים…</p>}
           {!loading && searched && results.length === 0 && (
