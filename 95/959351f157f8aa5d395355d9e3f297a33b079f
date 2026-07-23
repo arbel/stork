@@ -1,0 +1,26 @@
+src/components/SwipeInterface.tsx
+  s_7f0b094fdf66de::t_99e52b441b78a8 467
+  s_7f0b094fdf66de::t_bd5a488e48744a 605-606,614-620,628-629,640-641
+  s_7f0b094fdf66de::t_58f3d87ff8a0c5 436
+  s_7f0b094fdf66de::t_274b824ae96dd5 449
+  s_7f0b094fdf66de::t_672b065a17e958 889
+  s_7f0b094fdf66de::t_fac1b6e82676f1 691
+  s_7f0b094fdf66de::t_fb27ad8189d37e 84-87
+  s_7f0b094fdf66de::t_ad2c9e6a9185ca 670-671,673
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "95959351f157f8aa5d395355d9e3f297a33b079f",
+  "prompts": {},
+  "sessions": {
+    "s_7f0b094fdf66de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "639f5c3b-8289-4f6b-8f2f-6343f96cd556",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
