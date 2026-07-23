@@ -22,6 +22,10 @@ interface NameListLayoutProps {
   ctaText: string;
   /** Custom empty state that replaces the generic one (rendered full-width below the header). */
   emptyState?: ReactNode;
+  /** Short hint rendered under the subtitle (e.g. explaining the swipe-to-redecide gesture). */
+  tipText?: string;
+  /** When set, cards become swipeable and this fires when a swipe commits a new decision. */
+  onRedecide?: (name: BabyName, action: "like" | "pass") => void;
 }
 
 export const NameListLayout = ({
@@ -33,6 +37,8 @@ export const NameListLayout = ({
   emptyText,
   ctaText,
   emptyState,
+  tipText,
+  onRedecide,
 }: NameListLayoutProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,6 +83,12 @@ export const NameListLayout = ({
             {bannerText} · {names.length}
           </p>
 
+          {tipText && (
+            <p className="-mt-2 mb-4 text-center text-[13px] leading-relaxed text-white/80">
+              {tipText}
+            </p>
+          )}
+
           {/* Search */}
           <div className="relative mb-4">
             <Search className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
@@ -93,7 +105,12 @@ export const NameListLayout = ({
           {filtered.length > 0 ? (
             <div className="space-y-4">
               {filtered.map((name, i) => (
-                <NameListCard key={`${variant}-${name.name}-${i}`} name={name} variant={variant} />
+                <NameListCard
+                  key={`${variant}-${name.name}-${i}`}
+                  name={name}
+                  variant={variant}
+                  onDecision={onRedecide ? (action) => onRedecide(name, action) : undefined}
+                />
               ))}
             </div>
           ) : (
