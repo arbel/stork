@@ -1,0 +1,44 @@
+src/components/NameListLayout.tsx
+  s_7f0b094fdf66de::t_5265c7d1c11d77 82-88
+  s_7f0b094fdf66de::t_f92fb401b421c9 29-30
+  s_7f0b094fdf66de::t_8667f831662dd7 44
+src/pages/Liked.tsx
+  s_7f0b094fdf66de::t_2479fd4910a549 6
+  s_7f0b094fdf66de::t_37dd2b9e7658f5 13
+src/pages/Passed.tsx
+  s_7f0b094fdf66de::t_55a3a48f7d9460 6
+  s_7f0b094fdf66de::t_c1034c374e185e 13
+src/pages/Matches.tsx
+  s_7f0b094fdf66de::t_0f34226fd4616c 13
+  s_7f0b094fdf66de::t_06746095dca107 187
+src/components/SwipeInterface.tsx
+  s_7f0b094fdf66de::t_4b9f398d80f943 71
+  s_7f0b094fdf66de::t_4eb0c174bbad70 729-733
+src/components/ui/toast.tsx
+  s_7f0b094fdf66de::t_e4649ac59c2749 17
+  s_7f0b094fdf66de::t_fad3cb9e3d655c 26
+src/contexts/SwipeContext.tsx
+  s_7f0b094fdf66de::t_d57e75ec9270ab 92-93
+  s_7f0b094fdf66de::t_d06d409d59e052 268-273
+  s_7f0b094fdf66de::t_ebee5512003456 450-452
+  s_7f0b094fdf66de::t_8bcd2fcd8349e4 323-324
+  s_7f0b094fdf66de::t_c7fff764888760 41-46
+  s_7f0b094fdf66de::t_fe10bc7c24e1c8 511-512
+  s_7f0b094fdf66de::t_26909190f8b0de 670-671
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "1065117bfa501b2aad704e3453767c0b66138dcf",
+  "prompts": {},
+  "sessions": {
+    "s_7f0b094fdf66de": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "639f5c3b-8289-4f6b-8f2f-6343f96cd556",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
