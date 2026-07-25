@@ -1,0 +1,28 @@
+public/llms.txt
+  s_3718cf59e06848::t_de2b8c6799600a 1-24
+public/robots.txt
+  s_3718cf59e06848::t_1239005a2b8efd 3-16
+public/sitemap.xml
+  s_3718cf59e06848::t_bb9d358079e5f3 1-9
+src/pages/NotFound.tsx
+  s_3718cf59e06848::t_b1e4ef33cc952c 12-19
+index.html
+  s_3718cf59e06848::t_ec664958f41f25 62-79
+  s_3718cf59e06848::t_b0dd5daf15ba4f 22-23,25,27-30,32-36,38-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "a77105573101c765046ae3129f7db6e05fe22e67",
+  "prompts": {},
+  "sessions": {
+    "s_3718cf59e06848": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e631501-580d-4cfd-8d12-961114a9c005",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
