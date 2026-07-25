@@ -1,0 +1,19 @@
+index.html
+  s_3718cf59e06848::t_bb8942c608ca25 7-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "880be700e2d8234801e1ce252366d3cf55eb6014",
+  "prompts": {},
+  "sessions": {
+    "s_3718cf59e06848": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2e631501-580d-4cfd-8d12-961114a9c005",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
