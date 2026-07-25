@@ -9,6 +9,14 @@ const NotFound = () => {
       "404 Error: User attempted to access non-existent route:",
       location.pathname
     );
+    // SPA rewrites return 200 for unknown paths; tell crawlers not to index them
+    const meta = document.createElement("meta");
+    meta.name = "robots";
+    meta.content = "noindex";
+    document.head.appendChild(meta);
+    return () => {
+      document.head.removeChild(meta);
+    };
   }, [location.pathname]);
 
   return (

@@ -1,0 +1,24 @@
+# Stork (סטורק) — stork-app.com
+
+> Stork is a free Hebrew web app that helps expecting couples choose a baby name together. Each partner swipes through thousands of Hebrew names (like/pass); when both partners like the same name, it's a match. Think "Tinder for baby names," in Hebrew.
+
+## What the app does
+
+- Swipe deck of 5,780+ Hebrew baby names for boys, girls, and unisex, each with a one-line meaning and origin category (biblical, modern Israeli, nature, etc.).
+- Couples mode: one partner invites the other with a link; swiping is independent and private until a mutual like creates a match.
+- Filters and preferences: by gender, style, and origin; liked/passed lists can be revisited and changed.
+- Free to use, no installation — runs in the browser, Hebrew UI (RTL).
+
+## Key facts
+
+- Name: Stork (Hebrew: סטורק)
+- URL: https://www.stork-app.com/
+- Language: Hebrew (he), right-to-left
+- Price: free
+- Platform: web (mobile-friendly)
+- Audience: expecting parents in Israel choosing a Hebrew baby name together
+
+## Pages
+
+- [Landing page](https://www.stork-app.com/): what the app is and how it works; start swiping from here.
+- Everything else (swiping, matches, settings) is behind a login and personal to each couple.
