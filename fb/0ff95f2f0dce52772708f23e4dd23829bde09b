@@ -1,0 +1,40 @@
+scripts/seo/generate-seo-pages.mjs
+  s_67cc6953813c5c::t_bcb1218199d08c 1-349,351-355
+  s_3be59147b719b9::t_ffd21be7875453 350
+public/llms.txt
+  s_67cc6953813c5c::t_efc491dd6bd8e7 24
+scripts/seo/fetch-names-snapshot.mjs
+  s_67cc6953813c5c::t_6aadb839654cdb 1-40
+package.json
+  s_67cc6953813c5c::t_251ab939e02886 8
+src/pages/Landing.tsx
+  s_67cc6953813c5c::t_2af1048f950e7e 610-614
+index.html
+  s_67cc6953813c5c::t_09544f959026d3 88-95
+scripts/seo/names-snapshot.json
+  s_67cc6953813c5c::t_33b1f1826120cc 1-52202
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "fb0ff95f2f0dce52772708f23e4dd23829bde09b",
+  "prompts": {},
+  "sessions": {
+    "s_3be59147b719b9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03382d28-45c0-44ff-95e7-9ca2ef8857ea",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    },
+    "s_67cc6953813c5c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "79987049-29e9-48d3-8d53-8f5d79b0ab63",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
