@@ -607,6 +607,11 @@ const Landing = ({ onStart }: LandingProps) => {
       <footer className="bg-[#2B2127] py-8 text-[#BFA8B4] text-sm">
         <div className="max-w-[1060px] mx-auto px-6 flex flex-wrap gap-4 items-center justify-between">
           <img src={storkWordmark} alt="Stork" className="h-8 w-auto" />
+          <nav className="flex flex-wrap gap-x-5 gap-y-2">
+            <a href="/שמות/" className="hover:text-white">כל השמות עם משמעות</a>
+            <a href="/שמות-לבנות/" className="hover:text-white">שמות לבנות</a>
+            <a href="/שמות-לבנים/" className="hover:text-white">שמות לבנים</a>
+          </nav>
           <span>נבנה באהבה בישראל 🍼</span>
         </div>
       </footer>

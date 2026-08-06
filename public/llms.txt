@@ -21,4 +21,5 @@
 ## Pages
 
 - [Landing page](https://www.stork-app.com/): what the app is and how it works; start swiping from here.
+- [Names guide (שמות)](https://www.stork-app.com/שמות/): public catalog of all 5,784 names — each name has its own page with meaning, origin, popularity rank, and similar names (e.g. https://www.stork-app.com/שם/נועה). Browse by gender, first letter, or origin (biblical, modern Hebrew, Yiddish, Arabic, Ethiopian, and more).
 - Everything else (swiping, matches, settings) is behind a login and personal to each couple.
