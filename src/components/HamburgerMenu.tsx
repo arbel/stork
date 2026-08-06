@@ -305,6 +305,12 @@ export const HamburgerMenu = () => {
             <LogOut className="h-5 w-5" />
             <span>התנתקות</span>
           </Button>
+          <button
+            className="w-full text-center text-xs text-muted-foreground/70 hover:text-muted-foreground pt-2"
+            onClick={() => handleNavigation("/privacy")}
+          >
+            מדיניות פרטיות
+          </button>
         </div>
       </SheetContent>
     </Sheet>

@@ -1,4 +1,5 @@
 import { useState, ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -131,6 +132,10 @@ export const AuthGate = ({ children }: AuthGateProps) => {
                 'שליחת קוד התחברות'
               )}
             </Button>
+            <p className="text-center text-xs text-white/70">
+              ההתחברות מהווה הסכמה ל
+              <Link to="/privacy" className="underline hover:text-white">מדיניות הפרטיות</Link>
+            </p>
           </form>
         </div>
       ) : (

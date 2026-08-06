@@ -18,6 +18,7 @@ import { PartnerInvite } from "./pages/PartnerInvite";
 import { JoinPartnership } from "./pages/JoinPartnership";
 import NotFound from "./pages/NotFound";
 import Feedback from "./pages/Feedback";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import { AdminGuard } from "./components/AdminGuard";
 import { lazy, Suspense } from "react";
 
@@ -49,6 +50,7 @@ const App = () => (
               
               {/* Main App Routes */}
               <Route path="/join/:inviteCode" element={<JoinPartnership />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/" element={<Home />} />
               <Route path="/find-name" element={<AuthGate><FindName /></AuthGate>} />
               <Route path="/matches" element={<AuthGate><Matches /></AuthGate>} />
