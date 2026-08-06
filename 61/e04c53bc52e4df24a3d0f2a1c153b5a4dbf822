@@ -1,0 +1,28 @@
+src/components/AuthGate.tsx
+  s_3be59147b719b9::t_99d68b2f25c927 2
+  s_3be59147b719b9::t_92c87d782b6bfb 135-138
+src/App.tsx
+  s_3be59147b719b9::t_ef8897b01d1f99 53
+  s_3be59147b719b9::t_8365938c21bda8 21
+src/components/HamburgerMenu.tsx
+  s_3be59147b719b9::t_4f71bb43db625e 308-313
+src/pages/PrivacyPolicy.tsx
+  s_3be59147b719b9::t_8a6ab7d92fc425 1-160,163-173
+  s_3be59147b719b9::t_68e953a55cdb39 161-162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "61e04c53bc52e4df24a3d0f2a1c153b5a4dbf822",
+  "prompts": {},
+  "sessions": {
+    "s_3be59147b719b9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03382d28-45c0-44ff-95e7-9ca2ef8857ea",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
