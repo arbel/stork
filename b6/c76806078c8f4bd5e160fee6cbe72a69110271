@@ -1,0 +1,27 @@
+src/components/AdminUsageStats.tsx
+  s_a83e24ab5a7b1a::t_c4121fb0ed39d5 7
+  s_a83e24ab5a7b1a::t_e75a04cac2e4c4 334-357,359
+  s_a83e24ab5a7b1a::t_515e7755bd8d57 96-98
+  s_a83e24ab5a7b1a::t_45bcaf1d643936 303
+  s_a83e24ab5a7b1a::t_6affd9517b7330 579-592,595-600
+  s_a83e24ab5a7b1a::t_cbb8d40ff83f07 543-560
+  s_a83e24ab5a7b1a::t_4b513482815769 626-627
+  s_a83e24ab5a7b1a::t_0e1cb010987c9c 639,642
+  s_a83e24ab5a7b1a::t_68d2a0a6389279 141-150
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "b6c76806078c8f4bd5e160fee6cbe72a69110271",
+  "prompts": {},
+  "sessions": {
+    "s_a83e24ab5a7b1a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f65496f9-a5c9-4f20-80c6-5d02eac00cd9",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Idan Arbel <idan.arbel@codefresh.io>"
+    }
+  }
+}
