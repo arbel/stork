@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity, ArrowUp, ArrowDown, ArrowUpDown, Link2 } from "lucide-react";
 import { 
   LineChart, 
   Line, 
@@ -93,6 +93,9 @@ export const AdminUsageStats = () => {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [page, setPage] = useState(1);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [partnerMap, setPartnerMap] = useState<Record<string, string>>({});
+  const [groupByPartner, setGroupByPartner] = useState(false);
+  const [hoveredUserId, setHoveredUserId] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsageStats();
@@ -134,6 +137,16 @@ export const AdminUsageStats = () => {
         .eq('status', 'active');
 
       if (partnershipsError) throw partnershipsError;
+
+      // Map each user to their partner for grouping and hover-highlighting
+      const pMap: Record<string, string> = {};
+      partnerships?.forEach(p => {
+        if (p.user1_id && p.user2_id) {
+          pMap[p.user1_id] = p.user2_id;
+          pMap[p.user2_id] = p.user1_id;
+        }
+      });
+      setPartnerMap(pMap);
 
       // Calculate per-user stats
       const userStatsMap = new Map<string, UserStats>();
@@ -287,7 +300,7 @@ export const AdminUsageStats = () => {
   // Back to page 1 whenever the visible set changes shape
   useEffect(() => {
     setPage(1);
-  }, [searchQuery, sortKey, sortDir, selectedDay]);
+  }, [searchQuery, sortKey, sortDir, selectedDay, groupByPartner]);
 
   const dayFilter = selectedDay ? dailyActiveUsers.find(d => d.date === selectedDay) : undefined;
 
@@ -318,9 +331,32 @@ export const AdminUsageStats = () => {
     return sortDir === 'asc' ? cmp : -cmp;
   });
 
-  const totalPages = Math.max(1, Math.ceil(sortedUsers.length / USERS_PER_PAGE));
+  // Group partners into pairs so they render as adjacent rows. A partner is pulled into the
+  // group even when they don't match the current search/day filter — finding one half of a
+  // couple should still show the couple. Pagination works on groups so pairs never split
+  // across pages.
+  const userGroups: UserStats[][] = (() => {
+    if (!groupByPartner) return sortedUsers.map(u => [u]);
+    const byId = new Map(userStats.map(u => [u.user_id, u]));
+    const emitted = new Set<string>();
+    const groups: UserStats[][] = [];
+    sortedUsers.forEach(user => {
+      if (emitted.has(user.user_id)) return;
+      emitted.add(user.user_id);
+      const partner = partnerMap[user.user_id] ? byId.get(partnerMap[user.user_id]) : undefined;
+      if (partner && !emitted.has(partner.user_id)) {
+        emitted.add(partner.user_id);
+        groups.push([user, partner]);
+      } else {
+        groups.push([user]);
+      }
+    });
+    return groups;
+  })();
+
+  const totalPages = Math.max(1, Math.ceil(userGroups.length / USERS_PER_PAGE));
   const currentPage = Math.min(page, totalPages);
-  const pagedUsers = sortedUsers.slice((currentPage - 1) * USERS_PER_PAGE, currentPage * USERS_PER_PAGE);
+  const pagedGroups = userGroups.slice((currentPage - 1) * USERS_PER_PAGE, currentPage * USERS_PER_PAGE);
 
   const SortableHeader = ({ column, label, align = 'left' }: { column: SortKey; label: string; align?: 'left' | 'center' }) => (
     <th className={`${align === 'center' ? 'text-center' : 'text-left'} p-3 font-medium`}>
@@ -504,14 +540,24 @@ export const AdminUsageStats = () => {
               </Badge>
             )}
           </div>
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search users..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
+          <div className="flex items-center gap-3">
+            <Button
+              variant={groupByPartner ? "default" : "outline"}
+              size="sm"
+              onClick={() => setGroupByPartner(prev => !prev)}
+            >
+              <Link2 className="w-4 h-4 mr-2" />
+              Group partners
+            </Button>
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
           </div>
         </div>
         
@@ -530,11 +576,28 @@ export const AdminUsageStats = () => {
               </tr>
             </thead>
             <tbody>
-              {pagedUsers.map((user) => (
-                <tr key={user.user_id} className="border-t hover:bg-muted/25">
+              {pagedGroups.map(group => group.map((user) => {
+                const partnerId = partnerMap[user.user_id];
+                // Light up both halves of a couple when either row is hovered
+                const coupleHovered = hoveredUserId !== null && partnerId !== undefined &&
+                  (hoveredUserId === user.user_id || hoveredUserId === partnerId);
+                return (
+                <tr
+                  key={user.user_id}
+                  onMouseEnter={() => setHoveredUserId(user.user_id)}
+                  onMouseLeave={() => setHoveredUserId(null)}
+                  className={`border-t transition-colors ${
+                    coupleHovered ? 'bg-teal-500/15' : 'hover:bg-muted/25'
+                  } ${groupByPartner && group.length === 2 ? 'border-l-2 border-l-teal-400/70' : ''}`}
+                >
                   <td className="p-3">
                     <div>
-                      <div className="font-medium">{user.first_name || 'No name'}</div>
+                      <div className="font-medium flex items-center gap-1.5">
+                        {user.first_name || 'No name'}
+                        {partnerId && (
+                          <Link2 className="w-3.5 h-3.5 text-teal-500" aria-label="Has partner" />
+                        )}
+                      </div>
                       <div className="text-sm text-muted-foreground">{user.email}</div>
                     </div>
                   </td>
@@ -560,7 +623,8 @@ export const AdminUsageStats = () => {
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
                 </tr>
-              ))}
+                );
+              }))}
               {filteredUsers.length === 0 && (
                 <tr>
                   <td colSpan={8} className="p-8 text-center text-muted-foreground">
@@ -572,10 +636,10 @@ export const AdminUsageStats = () => {
           </table>
         </div>
 
-        {sortedUsers.length > USERS_PER_PAGE && (
+        {userGroups.length > USERS_PER_PAGE && (
           <div className="border-t mt-4 pt-4 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Showing {(currentPage - 1) * USERS_PER_PAGE + 1}–{Math.min(currentPage * USERS_PER_PAGE, sortedUsers.length)} of {sortedUsers.length} users
+              Showing {(currentPage - 1) * USERS_PER_PAGE + 1}–{Math.min(currentPage * USERS_PER_PAGE, userGroups.length)} of {userGroups.length} {groupByPartner ? 'entries (partners grouped)' : 'users'}
             </p>
             <div className="flex items-center gap-3">
               <Button
