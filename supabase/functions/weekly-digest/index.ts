@@ -71,6 +71,7 @@ Deno.serve(async (req) => {
         recipient, partner,
         matchesCount: c.matches_count,
         newMatches: c.new_matches,
+        sampleMatches: c.sample_matches,
         recipientLikes, partnerLikes,
         appUrl: APP_URL,
         unsubUrl: unsubUrl(supabaseUrl, recipient.unsub_token),

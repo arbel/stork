@@ -15,6 +15,7 @@ export interface DigestCouple {
   u2: DigestPartner;
   matches_count: number;
   new_matches: { name: string; meaning: string | null }[];
+  sample_matches: { name: string; meaning: string | null }[];
   u1_likes: string[];
   u2_likes: string[];
 }
@@ -59,6 +60,7 @@ export function buildDigestEmail(opts: {
   partner: DigestPartner;
   matchesCount: number;
   newMatches: { name: string; meaning: string | null }[];
+  sampleMatches: { name: string; meaning: string | null }[];
   recipientLikes: string[];
   partnerLikes: string[];
   appUrl: string;
@@ -66,11 +68,19 @@ export function buildDigestEmail(opts: {
 }): { subject: string; html: string } {
   const r = nameOf(opts.recipient);
   const p = nameOf(opts.partner);
-  const newMatchLine = opts.newMatches.length
-    ? `יש לכם <b>${opts.newMatches.length}</b> ${opts.newMatches.length === 1 ? "התאמה חדשה" : "התאמות חדשות"} מאז המייל הקודם!`
-    : `סה״כ ${opts.matchesCount} שמות משותפים עד עכשיו`;
 
-  const subject = opts.newMatches.length
+  // Lead with new matches when there are any; otherwise fall back to a sample of the
+  // couple's existing shared names so the block is never empty.
+  const hasNew = opts.newMatches.length > 0;
+  const matchesToShow = hasNew ? opts.newMatches : opts.sampleMatches;
+  const matchLine = hasNew
+    ? `יש לכם <b>${opts.newMatches.length}</b> ${opts.newMatches.length === 1 ? "התאמה חדשה" : "התאמות חדשות"} מאז המייל הקודם!`
+    : `סה״כ ${opts.matchesCount} ${opts.matchesCount === 1 ? "שם משותף" : "שמות משותפים"} עד עכשיו`;
+  const matchSay = hasNew
+    ? `אולי אחת מהן היא <b>זו</b>?`
+    : (opts.sampleMatches.length ? `הנה כמה מהשמות שכבר שניכם אוהבים 💛` : "");
+
+  const subject = hasNew
     ? `יש לכם ${opts.newMatches.length} התאמות חדשות בסטורק! 🎉`
     : `העדכון השבועי שלכם בסטורק 💌`;
 
@@ -91,8 +101,9 @@ export function buildDigestEmail(opts: {
 
       <!-- matches -->
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f1faf8;border:1px solid #e2efec;border-radius:16px;margin-bottom:24px;"><tr><td style="padding:18px 18px 14px;">
-        <div style="text-align:center;font-size:18px;font-weight:800;color:${TEAL};margin-bottom:12px;">💞 ${newMatchLine}</div>
-        ${matchCards(opts.newMatches)}
+        <div style="text-align:center;font-size:18px;font-weight:800;color:${TEAL};margin-bottom:4px;">💞 ${matchLine}</div>
+        ${matchSay ? `<p style="text-align:center;color:#6d827e;font-size:14px;margin:0 0 12px;">${matchSay}</p>` : ""}
+        ${matchCards(matchesToShow)}
       </td></tr></table>
 
       <!-- recipient likes -->
