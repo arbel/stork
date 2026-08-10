@@ -18,6 +18,7 @@ import undoIcon from "@/assets/undo.svg";
 import { BabyName } from "@/contexts/SwipeContext";
 import { MatchCelebration } from "./MatchCelebration";
 import { NewMatchesSummary } from "./NewMatchesSummary";
+import { InvitePartnerPrompt } from "./InvitePartnerPrompt";
 import { StorkLoader } from "./StorkLoader";
 
 interface NameWithOccurrences extends BabyName {
@@ -78,6 +79,7 @@ const SwipeInterface = () => {
   const [cardAnimation, setCardAnimation] = useState<'left' | 'right' | null>(null);
   const [useRecommendations, setUseRecommendations] = useState(true);
   const [showMatchCelebration, setShowMatchCelebration] = useState(false);
+  const [showInvitePrompt, setShowInvitePrompt] = useState(false);
   const [matchedName, setMatchedName] = useState<BabyName | null>(null);
   const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
@@ -405,6 +407,22 @@ const SwipeInterface = () => {
     setDragOffset(offset);
   }, []);
 
+  // One-time nudge to invite a partner: solo account (no active partnership), at least 5 days
+  // old, shown once ever (per account, remembered in localStorage), and only after a swipe.
+  const INVITE_PROMPT_MIN_AGE_MS = 5 * 24 * 60 * 60 * 1000;
+  const maybeShowInvitePrompt = () => {
+    if (!user || showInvitePrompt) return;
+    const storageKey = `invite_prompt_shown_v1_${user.id}`;
+    if (localStorage.getItem(storageKey) === '1') return;
+    const hasPartner = partnership?.status === 'active';
+    if (hasPartner) return;
+    const createdAt = user.created_at ? new Date(user.created_at).getTime() : Date.now();
+    if (Date.now() - createdAt < INVITE_PROMPT_MIN_AGE_MS) return;
+    // Mark immediately so it can never appear twice, even before the user acts on it.
+    localStorage.setItem(storageKey, '1');
+    setShowInvitePrompt(true);
+  };
+
   const handleSwipe = (direction: 'left' | 'right') => {
     if (!currentName) return;
 
@@ -436,7 +454,11 @@ const SwipeInterface = () => {
 
     // A swipe just completed — once the card transition settles, surface any
     // partner-created matches that arrived while the user was away or mid-deck.
-    setTimeout(() => presentPendingMatchesRef.current(), 450);
+    // For solo users there are none, so the invite nudge gets a clear shot instead.
+    setTimeout(() => {
+      presentPendingMatchesRef.current();
+      maybeShowInvitePrompt();
+    }, 450);
   };
 
   const handleLikeButton = useCallback(() => {
@@ -907,6 +929,11 @@ const SwipeInterface = () => {
           onViewMatches={handleSummaryViewMatches}
           onClose={handleSummaryClose}
         />
+      )}
+
+      {/* One-time nudge for solo swipers to invite their partner */}
+      {showInvitePrompt && !showMatchCelebration && !receiverMatch && !summaryNames && (
+        <InvitePartnerPrompt onClose={() => setShowInvitePrompt(false)} />
       )}
     </div>
   );
