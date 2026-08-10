@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity, ArrowUp, ArrowDown, ArrowUpDown, Link2 } from "lucide-react";
+import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity, ArrowUp, ArrowDown, ArrowUpDown, Link2, UserCheck, UserX } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -241,6 +241,12 @@ export const AdminUsageStats = () => {
   const passPct = pct(totalPasses, totalSwipes);
   const matchPctOfLikes = pct(totalMatches, totalLikes);
 
+  // A user is "paired" if they're in an active partnership (i.e. appears in the partner map).
+  const pairedCount = userStats.filter(u => partnerMap[u.user_id]).length;
+  const soloCount = userStats.length - pairedCount;
+  const pairedPct = pct(pairedCount, userStats.length);
+  const soloPct = pct(soloCount, userStats.length);
+
   if (loading) {
     return (
       <Card className="p-6">
@@ -291,6 +297,30 @@ export const AdminUsageStats = () => {
               <p className="text-2xl font-bold">{Math.round(totalMatches).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Total Matches</p>
               <p className="text-xs text-teal-600 font-medium">{matchPctOfLikes}% of likes</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Partnership breakdown */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="p-4">
+          <div className="flex items-center space-x-3">
+            <UserCheck className="w-8 h-8 text-teal-500" />
+            <div>
+              <p className="text-2xl font-bold">{pairedCount.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Accounts With Partner</p>
+              <p className="text-xs text-teal-600 font-medium">{pairedPct}% of accounts · {(pairedCount / 2).toLocaleString()} couples</p>
+            </div>
+          </div>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center space-x-3">
+            <UserX className="w-8 h-8 text-amber-500" />
+            <div>
+              <p className="text-2xl font-bold">{soloCount.toLocaleString()}</p>
+              <p className="text-sm text-muted-foreground">Accounts Without Partner</p>
+              <p className="text-xs text-amber-600 font-medium">{soloPct}% of accounts</p>
             </div>
           </div>
         </Card>
