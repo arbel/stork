@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Trash2, UserMinus, AlertTriangle, UserX, Edit, Save, X as XIcon } from "lucide-react";
+import { ArrowRight, Trash2, UserMinus, AlertTriangle, UserX, Edit, Save, X as XIcon, Mail } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSwipe } from "@/contexts/SwipeContext";
@@ -33,6 +34,30 @@ const Settings = () => {
   const [tempName, setTempName] = useState(profile?.first_name || '');
   const [tempEmail, setTempEmail] = useState(user?.email || '');
   const [partnerProfile, setPartnerProfile] = useState<{ first_name: string | null; email: string } | null>(null);
+  // Weekly email updates: opt-out flag lives in profile.preferences.emailUpdates (default on).
+  const [emailUpdates, setEmailUpdates] = useState<boolean>(
+    (profile?.preferences as { emailUpdates?: boolean } | null)?.emailUpdates !== false
+  );
+  const [savingEmailPref, setSavingEmailPref] = useState(false);
+
+  useEffect(() => {
+    setEmailUpdates((profile?.preferences as { emailUpdates?: boolean } | null)?.emailUpdates !== false);
+  }, [profile]);
+
+  const handleToggleEmailUpdates = async (checked: boolean) => {
+    setEmailUpdates(checked); // optimistic
+    setSavingEmailPref(true);
+    try {
+      const prefs = (profile?.preferences as Record<string, unknown> | null) || {};
+      await updateProfile({ preferences: { ...prefs, emailUpdates: checked } });
+      toast({ title: checked ? "מעולה! נשלח לכם עדכונים שבועיים 💌" : "בוטל — לא נשלח יותר עדכונים שבועיים" });
+    } catch (e) {
+      setEmailUpdates(!checked); // revert on failure
+      toast({ title: "שגיאה בשמירת ההעדפה", variant: "destructive" });
+    } finally {
+      setSavingEmailPref(false);
+    }
+  };
 
   const isAdmin = partnership?.user1_id === user?.id;
 
@@ -478,6 +503,27 @@ const Settings = () => {
             ) : (
               <p className="text-sm text-muted-foreground">👤 בן/בת זוג (ההגדרות מנוהלות על ידי המנהל/ת)</p>
             )}
+          </div>
+        </Card>
+
+        {/* Email updates preference */}
+        <Card className="p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start space-x-3 space-x-reverse">
+              <Mail className="w-6 h-6 text-primary mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">עדכונים שבועיים במייל 💌</h3>
+                <p className="text-sm text-muted-foreground">
+                  סיכום שבועי חמוד עם ההתאמות החדשות שלכם והשמות שכל אחד אהב. אפשר לבטל בכל רגע.
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={emailUpdates}
+              onCheckedChange={handleToggleEmailUpdates}
+              disabled={savingEmailPref}
+              aria-label="עדכונים שבועיים במייל"
+            />
           </div>
         </Card>
 
