@@ -90,8 +90,11 @@ export function buildDigestEmail(opts: {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e7eeec;padding:24px 12px;"><tr><td align="center">
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:20px;overflow:hidden;">
     <!-- header -->
-    <tr><td style="background:linear-gradient(135deg,#37B6A6,#238d80);background-color:#37B6A6;padding:28px 24px;text-align:center;">
-      <div style="font-size:24px;font-weight:800;color:#ffffff;">🕊️ סטורק</div>
+    <tr><td style="background:linear-gradient(135deg,#37B6A6,#238d80);background-color:#37B6A6;padding:26px 24px;text-align:center;">
+      <div style="display:inline-block;background:#ffffff;border-radius:14px;padding:6px;line-height:0;">
+        <img src="https://www.stork-app.com/favicon-512.png" width="46" height="46" alt="סטורק" style="display:block;border-radius:10px;">
+      </div>
+      <div style="font-size:24px;font-weight:800;color:#ffffff;margin-top:8px;">סטורק</div>
       <div style="font-size:13px;color:#eafaf7;margin-top:4px;">העדכון השבועי שלכם 💌</div>
     </td></tr>
     <!-- body -->
@@ -121,7 +124,7 @@ export function buildDigestEmail(opts: {
     </td></tr>
     <!-- footer -->
     <tr><td style="border-top:1px solid #e2efec;background:#f1faf8;padding:20px 26px;text-align:center;">
-      <p style="color:#98a6a3;font-size:12.5px;line-height:1.6;margin:0;">קיבלתם את המייל הזה כי אתם זוג פעיל בסטורק 🕊️</p>
+      <p style="color:#98a6a3;font-size:12.5px;line-height:1.6;margin:0;">קיבלתם את המייל הזה כי אתם זוג פעיל בסטורק</p>
       <p style="color:#98a6a3;font-size:12.5px;line-height:1.6;margin:8px 0 0;">
         מעדיפים בלי העדכונים? <a href="${esc(opts.unsubUrl)}" style="color:${TEAL};font-weight:600;">לחצו כאן לביטול</a>
         · או שנו זאת ב<a href="${esc(opts.appUrl)}/settings" style="color:${TEAL};font-weight:600;">הגדרות</a>.
