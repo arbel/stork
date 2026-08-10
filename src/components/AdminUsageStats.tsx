@@ -239,13 +239,17 @@ export const AdminUsageStats = () => {
   const pct = (num: number, den: number) => (den > 0 ? Math.round((num / den) * 100) : 0);
   const likePct = pct(totalLikes, totalSwipes);
   const passPct = pct(totalPasses, totalSwipes);
-  const matchPctOfLikes = pct(totalMatches, totalLikes);
 
   // A user is "paired" if they're in an active partnership (i.e. appears in the partner map).
-  const pairedCount = userStats.filter(u => partnerMap[u.user_id]).length;
+  const pairedUsers = userStats.filter(u => partnerMap[u.user_id]);
+  const pairedCount = pairedUsers.length;
   const soloCount = userStats.length - pairedCount;
   const pairedPct = pct(pairedCount, userStats.length);
   const soloPct = pct(soloCount, userStats.length);
+  // Match rate is only meaningful against likes that *could* match — i.e. likes from users
+  // who have a partner. Solo users' likes have no partner to match against, so excluding them.
+  const pairedLikes = pairedUsers.reduce((sum, u) => sum + u.liked_count, 0);
+  const matchPctOfLikes = pct(totalMatches, pairedLikes);
 
   if (loading) {
     return (
@@ -316,7 +320,7 @@ export const AdminUsageStats = () => {
             <div>
               <p className="text-2xl font-bold">{Math.round(totalMatches).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Total Matches</p>
-              <p className="text-xs text-teal-600 font-medium">{matchPctOfLikes}% of likes</p>
+              <p className="text-xs text-teal-600 font-medium">{matchPctOfLikes}% of paired likes</p>
             </div>
           </div>
         </Card>
