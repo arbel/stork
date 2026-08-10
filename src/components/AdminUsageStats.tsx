@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity, ArrowUp, ArrowDown, ArrowUpDown, Link2, UserCheck, UserX } from "lucide-react";
+import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity, ArrowUp, ArrowDown, ArrowUpDown, Link2, UserCheck, UserX, Repeat } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -45,6 +45,13 @@ interface DailyActiveUsers {
   userIds: string[];
 }
 
+interface RetentionPoint {
+  day: string;      // "Day 0 (signup)" … "Day 7"
+  pct: number;      // % of eligible users active on that day
+  retained: number;
+  eligible: number;
+}
+
 // Shape returned by the get_admin_usage_stats() RPC (all aggregation done in Postgres).
 interface UsageStatsPayload {
   total_users: number;
@@ -52,6 +59,7 @@ interface UsageStatsPayload {
   partners: [string, string][];
   daily: { d: string; likes: number; passes: number }[];
   dau: { d: string; user_ids: string[] }[];
+  retention: { day_offset: number; eligible: number; retained: number }[];
   totals: { likes: number; passes: number; matches: number };
 }
 
@@ -83,6 +91,7 @@ export const AdminUsageStats = () => {
   const [totals, setTotals] = useState({ likes: 0, passes: 0, matches: 0 });
   const [dailyActivity, setDailyActivity] = useState<DailyActivity[]>([]);
   const [dailyActiveUsers, setDailyActiveUsers] = useState<DailyActiveUsers[]>([]);
+  const [retention, setRetention] = useState<RetentionPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>('created_at');
@@ -139,6 +148,13 @@ export const AdminUsageStats = () => {
       }
       setDailyActivity(dailyData);
       setDailyActiveUsers(dauData);
+
+      setRetention((payload.retention ?? []).map(r => ({
+        day: r.day_offset === 0 ? 'Day 0 (signup)' : `Day ${r.day_offset}`,
+        pct: r.eligible > 0 ? Math.round((r.retained / r.eligible) * 100) : 0,
+        retained: r.retained,
+        eligible: r.eligible,
+      })));
     } catch (error) {
       console.error('Error loading usage stats:', error);
     } finally {
@@ -418,6 +434,52 @@ export const AdminUsageStats = () => {
           </div>
         </Card>
       </div>
+
+      {/* Retention Curve */}
+      <Card className="p-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <Repeat className="w-5 h-5 text-violet-500" />
+          <h3 className="text-lg font-semibold">Retention — Days Since Signup</h3>
+          <span className="text-sm text-muted-foreground">· % of users active each day after joining</span>
+        </div>
+        <div className="h-[260px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={retention} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+              <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+              <YAxis
+                tick={{ fontSize: 12 }}
+                domain={[0, 100]}
+                tickFormatter={(v) => `${v}%`}
+                allowDecimals={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px'
+                }}
+                formatter={(value: number, _name, props: { payload?: RetentionPoint }) => [
+                  `${value}% · ${props.payload?.retained ?? 0} of ${props.payload?.eligible ?? 0} users`,
+                  'Retained'
+                ]}
+              />
+              <Line
+                type="monotone"
+                dataKey="pct"
+                stroke="#8B5CF6"
+                strokeWidth={2}
+                name="Retention"
+                dot={{ r: 3 }}
+                activeDot={{ r: 5 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          Each point counts only users whose account is old enough to have reached that day. Day 0 is the signup day.
+        </p>
+      </Card>
 
 
       {/* User Stats Table */}
