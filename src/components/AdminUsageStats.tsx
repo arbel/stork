@@ -5,15 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Heart, X, Sparkles, TrendingUp, Search, Activity, ArrowUp, ArrowDown, ArrowUpDown, Link2 } from "lucide-react";
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from "recharts";
 
 interface UserStats {
@@ -27,6 +27,8 @@ interface UserStats {
   matched_count: number;
   total_reviewed: number;
   created_at: string;
+  last_activity: string | null;
+  last_sign_in: string | null;
 }
 
 interface DailyActivity {
@@ -37,54 +39,48 @@ interface DailyActivity {
 }
 
 interface DailyActiveUsers {
-  date: string;
+  date: string;      // dd/mm label used on the axis + as the filter key
+  fullDate: string;  // dd/mm/yyyy for display
   activeUsers: number;
   userIds: string[];
 }
 
-interface SwipeRow {
-  user_id: string;
-  name: string;
-  action: string;
-  partnership_id: string | null;
-  created_at: string;
+// Shape returned by the get_admin_usage_stats() RPC (all aggregation done in Postgres).
+interface UsageStatsPayload {
+  total_users: number;
+  users: UserStats[];
+  partners: [string, string][];
+  daily: { d: string; likes: number; passes: number }[];
+  dau: { d: string; user_ids: string[] }[];
+  totals: { likes: number; passes: number; matches: number };
 }
 
-// Supabase caps each select at 1000 rows, so a plain select() silently truncates once the
-// table grows past that — page through with range() to get every row.
-const PAGE_SIZE = 1000;
-async function fetchAllRows<T>(
-  buildQuery: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>
-): Promise<T[]> {
-  const all: T[] = [];
-  for (let from = 0; ; from += PAGE_SIZE) {
-    const { data, error } = await buildQuery(from, from + PAGE_SIZE - 1);
-    if (error) throw error;
-    all.push(...(data || []));
-    if (!data || data.length < PAGE_SIZE) break;
-  }
-  return all;
-}
-
-type SortKey = 'user' | 'region' | 'language' | 'liked_count' | 'passed_count' | 'matched_count' | 'total_reviewed' | 'created_at';
+type SortKey = 'user' | 'region' | 'language' | 'liked_count' | 'passed_count' | 'matched_count' | 'total_reviewed' | 'created_at' | 'last_activity';
 
 // Text columns read best A→Z on first click; counts and dates read best biggest/newest first.
 const TEXT_COLUMNS: SortKey[] = ['user', 'region', 'language'];
 
 const USERS_PER_PAGE = 25;
 
-const fetchAllSwipes = () =>
-  fetchAllRows<SwipeRow>((from, to) =>
-    supabase
-      .from('user_swipes')
-      .select('user_id, name, action, partnership_id, created_at')
-      .order('created_at', { ascending: true })
-      .range(from, to)
-  );
+// dd/mm/yyyy and dd/mm/yyyy HH:mm — the formats the admin panel standardizes on.
+const pad = (n: number) => String(n).padStart(2, '0');
+const fmtDate = (s?: string | null): string => {
+  if (!s) return '—';
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return '—';
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+};
+const fmtDateTime = (s?: string | null): string => {
+  if (!s) return '—';
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return '—';
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 export const AdminUsageStats = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [userStats, setUserStats] = useState<UserStats[]>([]);
+  const [totals, setTotals] = useState({ likes: 0, passes: 0, matches: 0 });
   const [dailyActivity, setDailyActivity] = useState<DailyActivity[]>([]);
   const [dailyActiveUsers, setDailyActiveUsers] = useState<DailyActiveUsers[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,183 +100,45 @@ export const AdminUsageStats = () => {
   const loadUsageStats = async () => {
     setLoading(true);
     try {
-      // Get total users count
-      const { count: usersCount, error: usersError } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+      // All aggregation happens server-side — one RPC returns ~one row per user plus the
+      // chart series, instead of shipping every user_swipes row (tens of thousands) to the
+      // browser to be counted in JS.
+      const { data, error } = await supabase.rpc('get_admin_usage_stats');
+      if (error) throw error;
+      const payload = data as unknown as UsageStatsPayload;
 
-      if (usersError) throw usersError;
-      setTotalUsers(usersCount || 0);
-
-      // Get all user profiles (paginated past the 1000-row cap)
-      const profiles = await fetchAllRows<{
-        user_id: string;
-        email: string;
-        first_name: string | null;
-        preferences: unknown;
-        created_at: string;
-      }>((from, to) =>
-        supabase
-          .from('profiles')
-          .select('user_id, email, first_name, preferences, created_at')
-          .order('created_at', { ascending: false })
-          .range(from, to)
-      );
-
-      // Get all swipes (paginated past the 1000-row cap)
-      const swipes = await fetchAllSwipes();
-
-      // Get all partnerships to calculate matches
-      const { data: partnerships, error: partnershipsError } = await supabase
-        .from('partnerships')
-        .select('id, user1_id, user2_id, status')
-        .eq('status', 'active');
-
-      if (partnershipsError) throw partnershipsError;
+      setTotalUsers(payload.total_users ?? 0);
+      setUserStats(payload.users ?? []);
+      setTotals(payload.totals ?? { likes: 0, passes: 0, matches: 0 });
 
       // Map each user to their partner for grouping and hover-highlighting
       const pMap: Record<string, string> = {};
-      partnerships?.forEach(p => {
-        if (p.user1_id && p.user2_id) {
-          pMap[p.user1_id] = p.user2_id;
-          pMap[p.user2_id] = p.user1_id;
-        }
+      (payload.partners ?? []).forEach(([a, b]) => {
+        if (a && b) { pMap[a] = b; pMap[b] = a; }
       });
       setPartnerMap(pMap);
 
-      // Calculate per-user stats
-      const userStatsMap = new Map<string, UserStats>();
-
-      profiles?.forEach(profile => {
-        const prefs = profile.preferences as { country?: string; language?: string } | null;
-        userStatsMap.set(profile.user_id, {
-          user_id: profile.user_id,
-          email: profile.email,
-          first_name: profile.first_name,
-          region: prefs?.country || 'N/A',
-          language: prefs?.language || 'N/A',
-          liked_count: 0,
-          passed_count: 0,
-          matched_count: 0,
-          total_reviewed: 0,
-          created_at: profile.created_at
-        });
-      });
-
-      // Count likes and passes per user
-      swipes?.forEach(swipe => {
-        const userStat = userStatsMap.get(swipe.user_id);
-        if (userStat) {
-          if (swipe.action === 'like') {
-            userStat.liked_count++;
-          } else if (swipe.action === 'pass') {
-            userStat.passed_count++;
-          }
-          userStat.total_reviewed++;
-        }
-      });
-
-      // Calculate matches per user (names liked by both partners)
-      const partnershipSwipes = new Map<string, { user1Likes: Set<string>; user2Likes: Set<string>; user1Id: string; user2Id: string }>();
-
-      partnerships?.forEach(p => {
-        if (p.user1_id && p.user2_id) {
-          partnershipSwipes.set(p.id, {
-            user1Likes: new Set(),
-            user2Likes: new Set(),
-            user1Id: p.user1_id,
-            user2Id: p.user2_id
-          });
-        }
-      });
-
-      swipes.forEach(swipe => {
-        if (!swipe.partnership_id || swipe.action !== 'like') return;
-        const pData = partnershipSwipes.get(swipe.partnership_id);
-        if (pData) {
-          if (swipe.user_id === pData.user1Id) {
-            pData.user1Likes.add(swipe.name);
-          } else if (swipe.user_id === pData.user2Id) {
-            pData.user2Likes.add(swipe.name);
-          }
-        }
-      });
-
-      // Count matches per user
-      partnershipSwipes.forEach(pData => {
-        const matchCount = [...pData.user1Likes].filter(n => pData.user2Likes.has(n)).length;
-
-        const user1Stat = userStatsMap.get(pData.user1Id);
-        const user2Stat = userStatsMap.get(pData.user2Id);
-
-        if (user1Stat) user1Stat.matched_count = matchCount;
-        if (user2Stat) user2Stat.matched_count = matchCount;
-      });
-
-      setUserStats(Array.from(userStatsMap.values()));
-
-      // Calculate daily activity for the last 30 days
-      const dailyMap = new Map<string, { likes: number; passes: number }>();
+      // Build the last-30-days scaffold and fill it from the RPC's per-day aggregates.
+      const dailyByDate = new Map((payload.daily ?? []).map(x => [x.d, x]));
+      const dauByDate = new Map((payload.dau ?? []).map(x => [x.d, x.user_ids]));
       const today = new Date();
-      
-      // Initialize last 30 days
+      const dailyData: DailyActivity[] = [];
+      const dauData: DailyActiveUsers[] = [];
       for (let i = 29; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        dailyMap.set(dateStr, { likes: 0, passes: 0 });
+        const dt = new Date(today);
+        dt.setDate(dt.getDate() - i);
+        const iso = dt.toISOString().slice(0, 10);
+        const label = `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}`;
+        const full = `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}/${dt.getFullYear()}`;
+        const dd = dailyByDate.get(iso);
+        const likes = dd?.likes ?? 0;
+        const passes = dd?.passes ?? 0;
+        dailyData.push({ date: label, likes, passes, total: likes + passes });
+        const ids = dauByDate.get(iso) ?? [];
+        dauData.push({ date: label, fullDate: full, activeUsers: ids.length, userIds: ids });
       }
-
-      // Count swipes per day
-      swipes?.forEach(swipe => {
-        const dateStr = new Date(swipe.created_at).toISOString().split('T')[0];
-        const dayData = dailyMap.get(dateStr);
-        if (dayData) {
-          if (swipe.action === 'like') {
-            dayData.likes++;
-          } else if (swipe.action === 'pass') {
-            dayData.passes++;
-          }
-        }
-      });
-
-      const dailyData: DailyActivity[] = Array.from(dailyMap.entries()).map(([date, data]) => ({
-        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        likes: data.likes,
-        passes: data.passes,
-        total: data.likes + data.passes
-      }));
-
       setDailyActivity(dailyData);
-
-      // Calculate daily active users
-      const dailyUsersMap = new Map<string, Set<string>>();
-      
-      // Initialize last 30 days
-      for (let i = 29; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        dailyUsersMap.set(dateStr, new Set());
-      }
-
-      // Track unique users per day
-      swipes?.forEach(swipe => {
-        const dateStr = new Date(swipe.created_at).toISOString().split('T')[0];
-        const dayUsers = dailyUsersMap.get(dateStr);
-        if (dayUsers) {
-          dayUsers.add(swipe.user_id);
-        }
-      });
-
-      const dailyActiveData: DailyActiveUsers[] = Array.from(dailyUsersMap.entries()).map(([date, users]) => ({
-        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        activeUsers: users.size,
-        userIds: [...users]
-      }));
-
-      setDailyActiveUsers(dailyActiveData);
-
+      setDailyActiveUsers(dauData);
     } catch (error) {
       console.error('Error loading usage stats:', error);
     } finally {
@@ -318,10 +176,12 @@ export const AdminUsageStats = () => {
       case 'region': return user.region.toLowerCase();
       case 'language': return user.language.toLowerCase();
       case 'created_at': return new Date(user.created_at).getTime();
+      case 'last_activity': return user.last_activity ? new Date(user.last_activity).getTime() : 0;
       default: return user[sortKey];
     }
   };
 
+  // Sorts the full in-memory set before pagination, so the order is global across all pages.
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     const va = sortValue(a);
     const vb = sortValue(b);
@@ -372,9 +232,14 @@ export const AdminUsageStats = () => {
     </th>
   );
 
-  const totalLikes = userStats.reduce((sum, u) => sum + u.liked_count, 0);
-  const totalPasses = userStats.reduce((sum, u) => sum + u.passed_count, 0);
-  const totalMatches = userStats.reduce((sum, u) => sum + u.matched_count, 0) / 2; // Divide by 2 since matches are counted for both partners
+  const totalLikes = totals.likes;
+  const totalPasses = totals.passes;
+  const totalMatches = totals.matches;
+  const totalSwipes = totalLikes + totalPasses;
+  const pct = (num: number, den: number) => (den > 0 ? Math.round((num / den) * 100) : 0);
+  const likePct = pct(totalLikes, totalSwipes);
+  const passPct = pct(totalPasses, totalSwipes);
+  const matchPctOfLikes = pct(totalMatches, totalLikes);
 
   if (loading) {
     return (
@@ -405,6 +270,7 @@ export const AdminUsageStats = () => {
             <div>
               <p className="text-2xl font-bold">{totalLikes.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Total Likes</p>
+              <p className="text-xs text-green-600 font-medium">{likePct}% of swipes</p>
             </div>
           </div>
         </Card>
@@ -414,6 +280,7 @@ export const AdminUsageStats = () => {
             <div>
               <p className="text-2xl font-bold">{totalPasses.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Total Passes</p>
+              <p className="text-xs text-pink-600 font-medium">{passPct}% of swipes</p>
             </div>
           </div>
         </Card>
@@ -423,6 +290,7 @@ export const AdminUsageStats = () => {
             <div>
               <p className="text-2xl font-bold">{Math.round(totalMatches).toLocaleString()}</p>
               <p className="text-sm text-muted-foreground">Total Matches</p>
+              <p className="text-xs text-teal-600 font-medium">{matchPctOfLikes}% of likes</p>
             </div>
           </div>
         </Card>
@@ -485,32 +353,32 @@ export const AdminUsageStats = () => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={dailyActivity}>
                 <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fontSize: 10 }} 
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10 }}
                   interval="preserveStartEnd"
                 />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px'
                   }}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="likes" 
-                  stroke="#22C55E" 
+                <Line
+                  type="monotone"
+                  dataKey="likes"
+                  stroke="#22C55E"
                   strokeWidth={2}
                   name="Likes"
                   dot={false}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="passes" 
-                  stroke="#EF5185" 
+                <Line
+                  type="monotone"
+                  dataKey="passes"
+                  stroke="#EF5185"
                   strokeWidth={2}
                   name="Passes"
                   dot={false}
@@ -529,7 +397,7 @@ export const AdminUsageStats = () => {
             <h3 className="text-lg font-semibold">User Breakdown</h3>
             {dayFilter && (
               <Badge variant="secondary" className="flex items-center gap-1.5">
-                Active on {dayFilter.date}
+                Active on {dayFilter.fullDate}
                 <button
                   onClick={() => setSelectedDay(null)}
                   className="hover:text-foreground"
@@ -560,7 +428,7 @@ export const AdminUsageStats = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/50">
@@ -573,6 +441,7 @@ export const AdminUsageStats = () => {
                 <SortableHeader column="matched_count" label="Matches" align="center" />
                 <SortableHeader column="total_reviewed" label="Total" align="center" />
                 <SortableHeader column="created_at" label="Joined" />
+                <SortableHeader column="last_activity" label="Last activity" />
               </tr>
             </thead>
             <tbody>
@@ -619,15 +488,18 @@ export const AdminUsageStats = () => {
                   <td className="p-3 text-center">
                     <span className="font-bold">{user.total_reviewed}</span>
                   </td>
-                  <td className="p-3 text-sm text-muted-foreground">
-                    {new Date(user.created_at).toLocaleDateString()}
+                  <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">
+                    {fmtDateTime(user.created_at)}
+                  </td>
+                  <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">
+                    {fmtDateTime(user.last_activity)}
                   </td>
                 </tr>
                 );
               }))}
               {filteredUsers.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={9} className="p-8 text-center text-muted-foreground">
                     No users found
                   </td>
                 </tr>
